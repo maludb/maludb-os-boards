@@ -4,7 +4,18 @@ A Miro-style infinite whiteboard as an application of the MaluDB Business OS: pe
 
 ## Status
 
-Research complete; tech-stack decision accepted 2026-10-10. On the dev server the same day: the server surveyed, the siblings' schemas surveyed, and the Phase 0 design written — [docs/boards-design.md](docs/boards-design.md), awaiting the owner's decisions D1–D16. Next: the owner's answers, then the realtime spike. No application code yet.
+Research complete; tech-stack decision accepted 2026-10-10. On the dev server the same day:
+
+- the server and the siblings' schemas surveyed;
+- the design written ([docs/boards-design.md](docs/boards-design.md)) and every decision taken by the owner;
+- the realtime spike measured and passed (2 ms from commit to the other tab);
+- **Phase 0 complete**: the kit and the schema (db/001–012, proven by 152 + 86 checks), `maludb-os.json`, the two agents,
+  eight skills, and `deploy/` (the installer's plan clean). K40 is in the kernel's catalog.
+
+Next: the owner's go, then Phase 1. No screens yet.
+
+Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
+schema).
 
 ## Documents
 

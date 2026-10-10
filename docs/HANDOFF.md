@@ -14,7 +14,9 @@ documents, before doing anything else.
   existing families (`board_permissions`, `board_versions`, templates as `boards.is_template`).
 - Step 4 (the plan): **done** as [boards-design.md](boards-design.md) — the estate's `<key>-design.md` shape rather than
   `01-phase0-plan.md` (open question (a) there). Awaiting the owner's answers to D1–D16.
-- Step 5 (the realtime spike): **next**, once the owner provides a scratch database and role (design §10.1).
+- Step 5 (the realtime spike): **done** — decision record §6.1. Every check passed; the code was deleted.
+- After the handoff: the owner took every recommendation (design §15); K40 was applied (kernel db/180); **Phase 0 is
+  complete** (design §16). Next: the owner's go → Phase 1.
 
 ## Where things stand
 

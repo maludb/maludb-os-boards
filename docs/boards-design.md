@@ -832,4 +832,31 @@ The open questions:
   - **The realtime spike passed** (§10.1, record §6.1). Its five rules are in §8. One finding is estate-wide: a fresh
     PostgreSQL connection costs 35–48 ms on this VM.
 
-  **NEXT:** K40 (db/180) → Phase 0's schema, kit, manifest, agents, skills and deploy → the owner's go → Phase 1.
+  - **K40 built and applied:** kernel db/180, `boards` in the catalog under Operations.
+  - **PHASE 0 COMPLETE:**
+    - **The kit:** db/001–005, `app/`, `bin/`, `html/`, `mcp/`, `tests/`, ported from the Data Lake's by a fork; 86 checks,
+      `tests/phase0/run.sh`. A grant with no roles reads `read` as Viewer, so a read grant never draws.
+    - **The schema:** db/006–012 (§6), proven by **152 checks** over twelve actors (`tests/phase0/schema.sh`).
+      - The wall in two forms that agree.
+      - `bd_commit_ops()`, the one write path. It takes the board's row lock first, so within a board seq order is commit
+        order and a catch-up `ops?after=` is exact; per-property last-writer-wins; idempotent batches; undo; cascades;
+        restore.
+      - An absolute `bbox` kept by trigger and GiST-indexed.
+      - NOTIFY through `bd_ops_payload()`.
+      - Versions and a non-destructive restore in one batch; duplicate and templates.
+      - Comments whose agent mentions dispatch, and never grant.
+      - The worker's housekeeping; the `mcp_*` views.
+    - **Defects the proof found and fixed:** a restored board with no start view wrote JSON null into an object column; a
+      comment's selection lost its order (`EXISTS` became a semi-join).
+    - **Registration and deploy:**
+      - `maludb-os.json`: 3 roles, 12 approvals, the two shares, the Expert with 54 tools and the Facilitator with 18 — each
+        grant list identical to its job description;
+      - `os/expert.md`, `os/facilitator.md`; eight skills, five of them runbooks, written by a fork;
+      - `deploy/`: the vhost with `ProxyPass /live http://127.0.0.1:{{BOARDS_LIVE_PORT}}/ upgrade=websocket`, six units and
+        three timers, `boards-live.service` hardened to loopback, the kernel registry's resolvers, and `ROOT_STEPS.sh`
+        (pins the four ports and mints `BOARDS_LIVE_KEY`).
+      - The installer's `plan` reads clean (33 steps); with the ports pinned as step 0 pins them, no placeholder is left
+        unfilled.
+
+  **NEXT:** the owner's go → Phase 1 (the tool surface, the action manifest and its registry, the build specs `canvas-core`,
+  `live-relay` and `walls-and-sharing`, and ten slice specs).

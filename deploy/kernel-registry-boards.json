@@ -1,0 +1,43 @@
+{
+  "schema": "maludb-os.registry/1",
+  "app_key": "boards",
+  "name": "Boards",
+  "note": "The installer (bin/app_install.php, step 'registry') writes mcp/registries/boards.json in the kernel from this file's `resolve` block plus mcp/action_registry.json. Each resolve tool answers a plain LIST of rows carrying id_field and label_field when given `q` alone (docs/boards-mcp-tool-surface.md, 'The resolvers', Phase 1). A board resolves by its title (a template too); an item, a comment, a version and a dispatch are ids only, never resolved by name — an agent finds an item with board_search inside a board it names.",
+  "resolve": {
+    "board": {
+      "tool": "find_boards",
+      "query_param": "q",
+      "id_field": "board_id",
+      "label_field": "title",
+      "params": ["board", "source_board"]
+    },
+    "template": {
+      "tool": "find_templates",
+      "query_param": "q",
+      "id_field": "board_id",
+      "label_field": "title",
+      "params": ["template"]
+    },
+    "folder": {
+      "tool": "find_folders",
+      "query_param": "q",
+      "id_field": "folder_id",
+      "label_field": "name",
+      "params": ["folder"]
+    },
+    "member": {
+      "tool": "find_members",
+      "query_param": "q",
+      "id_field": "member_id",
+      "label_field": "display_name",
+      "params": ["member", "new_owner", "person", "agent"]
+    },
+    "department": {
+      "tool": "find_departments",
+      "query_param": "q",
+      "id_field": "department_id",
+      "label_field": "name",
+      "params": ["department"]
+    }
+  }
+}

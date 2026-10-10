@@ -1,0 +1,371 @@
+{
+  "schema": "maludb-os.application/1",
+  "catalog_key": "boards",
+  "name": "Boards",
+  "description": "The business's infinite whiteboard: sticky notes, shapes, text, connectors that stay attached, frames, freehand pen, images and files, and comments pinned to the canvas — with everyone's cursor and every change live on every screen. Boards shared with people, departments and agents at view, comment, edit or full; folders, favourites, templates, history with named versions and restore, PNG and SVG export, and a text outline of every board. The Boards Expert answers and acts from the command bar; the Facilitator clusters, summarises and lays out a workshop when mentioned in a comment; their edits appear live.",
+  "business_area": "Operations",
+  "category": "communication",
+  "icon": "feather-pen-tool",
+  "version": "0.1.0",
+  "criticality": "medium",
+  "vhost": {
+    "label": "boards",
+    "document_root": "html",
+    "internal_port_env": "APP_INTERNAL_PORT"
+  },
+  "database": {
+    "suffix": "boards",
+    "migrations": "db",
+    "roles": {
+      "rw": "boards_rw",
+      "records_ro": "boards_records_ro",
+      "activity_ro": "boards_activity_ro"
+    }
+  },
+  "env": {
+    "required": [
+      "APP_NAME",
+      "APP_URL",
+      "DB_HOST",
+      "DB_PORT",
+      "DB_NAME",
+      "DB_USER",
+      "DB_PASSWORD",
+      "MCP_RECORDS_DB_USER",
+      "MCP_RECORDS_DB_PASSWORD",
+      "MCP_ACTIVITY_DB_USER",
+      "MCP_ACTIVITY_DB_PASSWORD",
+      "APP_INTERNAL_PORT",
+      "MCP_RECORDS_PORT",
+      "MCP_ACTIVITY_PORT",
+      "BOARDS_LIVE_PORT",
+      "BOARDS_LIVE_KEY",
+      "ACTION_TOKEN_KEY",
+      "ACTIONS_RELAY_KEY",
+      "OS_APPLICATION_TOKEN",
+      "OS_INTERNAL_URL",
+      "OS_LAUNCHER_URL",
+      "APP_KEY",
+      "MALUDB_API_URL",
+      "MALUDB_API_TOKEN"
+    ],
+    "optional": [
+      "MALUMAIL_API_KEY",
+      "MAIL_FROM",
+      "MAIL_FROM_NAME",
+      "BD_STORAGE_DIR"
+    ]
+  },
+  "services": [
+    "deploy/boards-records-mcp.service",
+    "deploy/boards-activity-mcp.service",
+    "deploy/boards-live.service",
+    "deploy/boards-activity-ingest.service",
+    "deploy/boards-activity-ingest.timer",
+    "deploy/boards-directory-sync.service",
+    "deploy/boards-directory-sync.timer",
+    "deploy/boards-worker.service",
+    "deploy/boards-worker.timer"
+  ],
+  "endpoints": [
+    {
+      "name": "Web UI",
+      "kind": "ui",
+      "path": "/",
+      "auth_kind": "none",
+      "agent_reachable": false
+    },
+    {
+      "name": "Health",
+      "kind": "http_api",
+      "path": "/api/v1/health",
+      "auth_kind": "none",
+      "agent_reachable": false
+    },
+    {
+      "name": "Records MCP",
+      "kind": "mcp",
+      "path": "/mcp/records",
+      "port_env": "MCP_RECORDS_PORT",
+      "auth_kind": "bearer",
+      "agent_reachable": true,
+      "mcp_surface_version": 1
+    },
+    {
+      "name": "Activity MCP",
+      "kind": "mcp",
+      "path": "/mcp/activity",
+      "port_env": "MCP_ACTIVITY_PORT",
+      "auth_kind": "bearer",
+      "agent_reachable": true,
+      "mcp_surface_version": 1
+    }
+  ],
+  "actions": {
+    "manifest": "docs/boards-action-manifest.md",
+    "registry": "mcp/action_registry.json",
+    "base_url_env": "APP_INTERNAL_PORT"
+  },
+  "skills": [
+    "skills/boards-basics",
+    "skills/laying-out-a-board",
+    "skills/facilitating-a-workshop",
+    "skills/cluster-stickies-by-theme",
+    "skills/summarise-a-frame",
+    "skills/turn-a-list-into-stickies",
+    "skills/diagram-from-a-description",
+    "skills/board-from-a-template"
+  ],
+  "sso": {
+    "path": "/sso",
+    "logout_path": "/sso/logout"
+  },
+  "directory": {
+    "reads": true,
+    "writes": false
+  },
+  "assistant": {
+    "command_bar": true,
+    "agent": "expert"
+  },
+  "roles": [
+    {
+      "key": "viewer",
+      "name": "Viewer",
+      "description": "Opens the boards shared with them and comments where a board allows it; never draws, never creates. Their level on any board is capped at `comment` — for an external adviser, a client contact with an OS account, a reviewer.",
+      "capability": "read",
+      "is_admin": false,
+      "rights": [
+        "boards.comment",
+        "boards.export",
+        "boards.view",
+        "tokens.own"
+      ]
+    },
+    {
+      "key": "user",
+      "name": "Member",
+      "description": "Creates boards, folders and personal templates, and works on every board shared with them at the level given — view, comment, edit or full.",
+      "capability": "write",
+      "is_admin": false,
+      "rights": [
+        "boards.comment",
+        "boards.create",
+        "boards.edit",
+        "boards.export",
+        "boards.view",
+        "tokens.own"
+      ]
+    },
+    {
+      "key": "admin",
+      "name": "Boards admin",
+      "description": "Every right: `full` on every board, business templates, the trash, usage against the budget, the settings, the agents' dispatches. A super-admin holds this role.",
+      "capability": "admin",
+      "is_admin": true,
+      "rights": [
+        "agents.manage",
+        "boards.admin",
+        "boards.comment",
+        "boards.create",
+        "boards.edit",
+        "boards.export",
+        "boards.view",
+        "settings.manage",
+        "templates.publish",
+        "tokens.own",
+        "trash.purge"
+      ]
+    }
+  ],
+  "shares": [
+    {
+      "tool": "boards_index",
+      "description": "The boards the asking application's agent may see: id, title, owner, folder, updated, item count, URL (os.boards-index/1)",
+      "scoped": false
+    },
+    {
+      "tool": "board_outline",
+      "description": "One board as text: frames in order with their items as lines (type, text, colour, links), connectors as A → B, the open comments; capped at 256 kB (os.boards-outline/1)",
+      "scoped": false
+    }
+  ],
+  "reads": [],
+  "agents": [
+    {
+      "key": "expert",
+      "name": "Boards Expert",
+      "job_description": "os/expert.md",
+      "access_capability": "write",
+      "hired_on_install": true,
+      "roles": [
+        "user"
+      ],
+      "tool_grants": {
+        "Records MCP": [
+          "find_boards",
+          "board_get",
+          "board_overview",
+          "board_search",
+          "board_read_region",
+          "frame_read",
+          "board_outline",
+          "item_connections",
+          "board_changes",
+          "find_comments",
+          "comment_thread",
+          "board_access",
+          "board_versions",
+          "find_templates",
+          "find_folders",
+          "find_attachments",
+          "my_notifications",
+          "find_members",
+          "find_departments",
+          "records_search"
+        ],
+        "Activity MCP": [
+          "board_trail",
+          "member_activity",
+          "record_history",
+          "most_active_boards",
+          "agent_activity",
+          "activity_search",
+          "recent_activity"
+        ],
+        "Actions MCP": [
+          "board_create",
+          "board_update",
+          "board_duplicate",
+          "board_lock",
+          "template_use",
+          "item_create_batch",
+          "item_update_batch",
+          "items_arrange",
+          "connector_create",
+          "frame_create",
+          "ops_undo",
+          "comment_create",
+          "comment_reply",
+          "comment_resolve",
+          "version_save",
+          "board_favorite",
+          "export_svg",
+          "item_delete_batch",
+          "board_delete",
+          "comment_delete",
+          "board_share",
+          "board_unshare",
+          "board_access_set",
+          "board_transfer",
+          "version_restore",
+          "template_publish",
+          "settings_save"
+        ]
+      },
+      "skills": [
+        "skills/boards-basics",
+        "skills/laying-out-a-board",
+        "skills/board-from-a-template",
+        "skills/summarise-a-frame",
+        "skills/turn-a-list-into-stickies",
+        "skills/diagram-from-a-description"
+      ]
+    },
+    {
+      "key": "facilitator",
+      "name": "Facilitator",
+      "job_description": "os/facilitator.md",
+      "access_capability": "write",
+      "hired_on_install": true,
+      "roles": [
+        "user"
+      ],
+      "tool_grants": {
+        "Records MCP": [
+          "board_get",
+          "board_overview",
+          "board_search",
+          "board_read_region",
+          "frame_read",
+          "board_outline",
+          "comment_thread",
+          "find_templates",
+          "find_members"
+        ],
+        "Activity MCP": [
+          "board_trail"
+        ],
+        "Actions MCP": [
+          "item_create_batch",
+          "item_update_batch",
+          "items_arrange",
+          "connector_create",
+          "frame_create",
+          "comment_reply",
+          "ops_undo",
+          "item_delete_batch"
+        ]
+      },
+      "skills": [
+        "skills/boards-basics",
+        "skills/laying-out-a-board",
+        "skills/facilitating-a-workshop",
+        "skills/cluster-stickies-by-theme",
+        "skills/summarise-a-frame",
+        "skills/turn-a-list-into-stickies",
+        "skills/diagram-from-a-description"
+      ]
+    }
+  ],
+  "approvals": [
+    {
+      "action": "board_access_set",
+      "category": "other"
+    },
+    {
+      "action": "board_delete",
+      "category": "deletion"
+    },
+    {
+      "action": "board_share",
+      "category": "other"
+    },
+    {
+      "action": "board_transfer",
+      "category": "other"
+    },
+    {
+      "action": "board_unshare",
+      "category": "other"
+    },
+    {
+      "action": "comment_delete",
+      "category": "deletion"
+    },
+    {
+      "action": "folder_delete",
+      "category": "deletion"
+    },
+    {
+      "action": "item_delete_batch",
+      "category": "deletion"
+    },
+    {
+      "action": "settings_save",
+      "category": "other"
+    },
+    {
+      "action": "template_publish",
+      "category": "other"
+    },
+    {
+      "action": "trash_purge",
+      "category": "deletion"
+    },
+    {
+      "action": "version_restore",
+      "category": "other"
+    }
+  ]
+}

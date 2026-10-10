@@ -1,0 +1,24 @@
+[Unit]
+Description=Boards live relay — WebSocket rooms on loopback :{{BOARDS_LIVE_PORT}}: cursors, selections, drag previews and presence relayed (never stored); committed ops fanned out from PostgreSQL's LISTEN boards_ops; tickets checked, sessions and levels re-checked every minute. It never writes board data (decision record §3.4).
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory={{APP_DIR}}
+ExecStart={{APP_DIR}}/mcp/venv/bin/python -I {{APP_DIR}}/live/relay.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths={{APP_DIR}}
+MemoryMax=256M
+# Loopback only: Apache in front, PostgreSQL behind (IPAddressDeny=any alone would refuse PostgreSQL on 127.0.0.1 — the Data Lake's lesson).
+IPAddressDeny=any
+IPAddressAllow=localhost
+
+[Install]
+WantedBy=multi-user.target
