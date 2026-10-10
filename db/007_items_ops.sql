@@ -30,7 +30,7 @@ CREATE TABLE board_items (
     width          double precision NOT NULL DEFAULT 0 CHECK (width >= 0 AND width <= 100000),
     height         double precision NOT NULL DEFAULT 0 CHECK (height >= 0 AND height <= 100000),
     rotation       double precision NOT NULL DEFAULT 0 CHECK (rotation > -360 AND rotation < 360),
-    z              text NOT NULL DEFAULT 'a0' CHECK (z ~ '^[0-9A-Za-z]{1,64}$'),     -- a fractional-index key (Spaces' position)
+    z              text COLLATE "C" NOT NULL DEFAULT 'a0' CHECK (z ~ '^[0-9A-Za-z]{1,64}$'),   -- a fractional-index key: byte order, never the locale's
     style          jsonb NOT NULL DEFAULT '{}' CHECK (jsonb_typeof(style) = 'object'),
     data           jsonb NOT NULL DEFAULT '{}' CHECK (jsonb_typeof(data) = 'object'),
     start_item_id  uuid REFERENCES board_items(id) ON DELETE SET NULL,                -- a connector's ends

@@ -510,6 +510,55 @@ SELECT pg_temp.check(NOT EXISTS (SELECT 1 FROM pg_views v WHERE v.viewname LIKE 
                                   AND NOT EXISTS (SELECT 1 FROM pg_class c WHERE c.relname = v.viewname AND 'security_barrier=true' = ANY (c.reloptions))),
                      'every mcp_* view with a row rule is a security barrier');
 
+-- ================================================================ 11. the Phase 1 reads (db/013; docs/boards-mcp-tool-surface.md)
+SET ROLE boards_rw;
+SELECT pg_temp.as_member(26);
+SELECT pg_temp.keep('X', '00000000-0000-4000-8000-0000000000e9');
+SELECT pg_temp.ops('p1', pg_temp.u('b1'), 26, jsonb_build_array(
+    jsonb_build_object('op', 'create', 'item', jsonb_build_object('id', pg_temp.u('X'), 'type', 'text', 'x', 3000, 'y', 3000, 'width', 100, 'height', 40,
+                       'z', 'B0', 'data', jsonb_build_object('content', bd_rich_text('<b>Tom & "Jerry"</b>'))))));
+RESET ROLE;
+SET ROLE boards_records_ro;
+SELECT pg_temp.as_member(42);
+CREATE TEMP TABLE ov AS SELECT bd_board_overview(pg_temp.u('b1')) AS j;
+SELECT pg_temp.check((SELECT j->'frames'->0->>'title' = 'Went well' AND (j->'frames'->0->'counts_by_type'->>'sticky_note')::int = 1
+                             AND j->'frames'->0->'sample'->>0 = 'Shipped late' FROM ov), 'the overview: frames with their titles, counts and a sample');
+SELECT pg_temp.check((SELECT jsonb_array_length(j->'clusters') = 2 AND (j->'totals_by_type'->>'connector')::int = 1 AND j->>'my_level' = 'edit'
+                             AND j->'last_change'->>'member_name' = 'SMOKE Priya' FROM ov),
+                     '…the unframed items in cells (the shape, and the far text in its own), totals, the caller''s level, the last change');
+SELECT pg_temp.as_member(28);
+SELECT pg_temp.check(bd_board_overview(pg_temp.u('b1')) IS NULL AND bd_region_svg(pg_temp.u('b1'), 0, 0, 5000, 5000) IS NULL
+                     AND bd_board_outline(pg_temp.u('b1')) IS NULL, 'nothing for a board the caller may not see — the same nothing as no board');
+SELECT pg_temp.as_member(42);
+CREATE TEMP TABLE rg AS SELECT bd_region_svg(pg_temp.u('b1'), 0, 0, 1500, 1500) AS j;
+SELECT pg_temp.check((SELECT j->>'svg' LIKE '<svg xmlns="http://www.w3.org/2000/svg" data-board="' || pg_temp.u('b1') || '"%' AND (j->>'items')::int = 4
+                             AND NOT (j->>'truncated')::boolean FROM rg), 'a region in the SVG dialect: the frame, its sticky, the shape, the connector');
+SELECT pg_temp.check((SELECT j->>'svg' ~ ('<g data-id="' || pg_temp.u('F') || '" data-type="frame" data-title="Went well".*<foreignObject data-id="' || pg_temp.u('S')
+                             || '" data-type="sticky_note" data-z="a1" data-cx="500" data-cy="450" data-color="light_green" x="0" y="0" width="200" height="200">Shipped late</foreignObject></g>') FROM rg),
+                     '…a frame is a group; its child''s x/y are frame-relative, its data-cx/cy absolute');
+SELECT pg_temp.check((SELECT j->>'svg' LIKE '%data-type="connector" data-start="' || pg_temp.u('S') || '" data-end="' || pg_temp.u('R') || '"%' FROM rg),
+                     '…a connector names its two ends');
+SELECT pg_temp.check((SELECT (j->>'truncated')::boolean AND (j->>'items')::int = 1 AND (j->>'total')::int = 4 FROM (SELECT bd_region_svg(pg_temp.u('b1'), 0, 0, 1500, 1500, 1) AS j) x),
+                     'a region past its limit says it is truncated');
+SELECT pg_temp.check((SELECT j->>'svg' LIKE '%&lt;b&gt;Tom &amp; &quot;Jerry&quot;&lt;/b&gt;%' FROM (SELECT bd_region_svg(pg_temp.u('b1'), 2900, 2900, 3100, 3100) AS j) x),
+                     'text is XML-escaped');
+SELECT pg_temp.check((SELECT j->>'svg' LIKE '%data-frame="' || pg_temp.u('F') || '"%' AND j->>'svg' LIKE '%x="0" y="0" width="200"%' AND (j->>'items')::int = 1
+                        FROM (SELECT bd_region_svg(pg_temp.u('b1'), NULL, NULL, NULL, NULL, 400, pg_temp.u('F')) AS j) x), 'a frame read: its children, frame-relative');
+CREATE TEMP TABLE ol AS SELECT bd_board_outline(pg_temp.u('b1')) AS t;
+SELECT pg_temp.check((SELECT t LIKE '# Q4 launch retro%' AND t LIKE E'%## Went well\n- [sticky, light_green] Shipped late%'
+                             AND t LIKE '%## On the canvas%[shape: rectangle]%' AND t LIKE '%## Connections%Shipped late → shape%' FROM ol),
+                     'the outline: frames as headings, items as lines, the canvas, the connections');
+SELECT pg_temp.check(bd_version_outline(pg_temp.u('b1'), 1) LIKE '# Q4 launch retro%Shipped late%', 'a version as its outline');
+SELECT pg_temp.check(NOT EXISTS (SELECT 1 FROM mcp_boards_usage), 'usage is the admin''s alone');
+SELECT pg_temp.as_member(27);
+SELECT pg_temp.check((SELECT count(*) FROM mcp_boards_usage) >= 3 AND NOT EXISTS (SELECT 1 FROM mcp_boards_usage WHERE title = 'Brainstorm'),
+                     '…who sees every working board, not the shipped templates');
+RESET ROLE;
+SELECT pg_temp.check((SELECT c.collname FROM pg_attribute a JOIN pg_collation c ON c.oid = a.attcollation
+                       WHERE a.attrelid = 'board_items'::regclass AND a.attname = 'z') = 'C', 'z sorts byte-wise (a fractional index), never by the locale');
+SELECT pg_temp.check((SELECT array_agg(z ORDER BY z) FROM board_items WHERE id IN (pg_temp.u('X'), pg_temp.u('F'))) = ARRAY['B0', 'a0'],
+                     '…so B0 sorts before a0');
+
 \o
 SELECT CASE WHEN ok THEN 'ok   ' ELSE 'FAIL ' END || label FROM proof ORDER BY n;
 SELECT ' ' || count(*) FILTER (WHERE ok) || ' ok, ' || count(*) FILTER (WHERE NOT ok) || ' failed' FROM proof;

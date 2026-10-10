@@ -1,0 +1,1802 @@
+{
+    "generated_from": "docs/boards-action-manifest.md",
+    "generated_at": "2026-10-10T21:25:38+00:00",
+    "screens": {
+        "activity": {
+            "screen": "activity",
+            "url": "/activity",
+            "section": "The shell (Phase 2 — sso-shell)",
+            "when": "my own trail here: what I did on which boards",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "settings-tokens": {
+            "screen": "settings-tokens",
+            "url": "/settings/tokens/",
+            "section": "The shell (Phase 2 — sso-shell)",
+            "when": "my MCP tokens for my own AI tools: mint (shown once), revoke",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "boards-list": {
+            "screen": "boards-list",
+            "url": "/boards",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "every board I can open, as cards with thumbnails: mine, shared with me, favourites, by folder",
+            "params": [
+                "q",
+                "folder",
+                "owner",
+                "shared",
+                "favorites",
+                "updated"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "board-add": {
+            "screen": "board-add",
+            "url": "/boards/new",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "to make a new board: its title, a description, a folder",
+            "params": [
+                "folder",
+                "title"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "board-settings": {
+            "screen": "board-settings",
+            "url": "/boards/{board}/settings",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "a board's settings: title, description, folder, background, the start view, the lock, duplicate, delete",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "board-share": {
+            "screen": "board-share",
+            "url": "/boards/{board}/share",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "who can open a board and at what level: everyone in the business, people, agents, departments, the owner, transfer",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "folders": {
+            "screen": "folders",
+            "url": "/folders",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "my folders and the team folders",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "folder-view": {
+            "screen": "folder-view",
+            "url": "/folders/{id}",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "one folder's boards, as cards",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "folder-add": {
+            "screen": "folder-add",
+            "url": "/folders/new",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "to make a folder, mine or a team folder",
+            "params": [
+                "name"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "folder-edit": {
+            "screen": "folder-edit",
+            "url": "/folders/{id}/edit",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "to rename a folder or make it a team folder",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "trash": {
+            "screen": "trash",
+            "url": "/trash",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "when": "my deleted boards (an admin: everyone's), with when each is purged, to bring one back",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "board-view": {
+            "screen": "board-view",
+            "url": "/boards/{board}",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "when": "to open a board: the canvas, who is here, the toolbars, the right rail",
+            "params": [
+                "x",
+                "y",
+                "zoom",
+                "item",
+                "comment"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "board-outline": {
+            "screen": "board-outline",
+            "url": "/boards/{board}/outline",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "when": "a board as a list: frames in order, their items, the connectors, the open comments — the 375 px reader and the screen reader's view",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "board-comments": {
+            "screen": "board-comments",
+            "url": "/boards/{board}/comments",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "when": "a board's threads, open first, each with where it is pinned",
+            "params": [
+                "open",
+                "mine"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "notifications": {
+            "screen": "notifications",
+            "url": "/notifications",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "when": "my notices, unread first",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "settings": {
+            "screen": "settings",
+            "url": "/settings/",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "when": "my preferences: which notices by email and by text, the morning digest",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "board-history": {
+            "screen": "board-history",
+            "url": "/boards/{board}/history",
+            "section": "History, versions and restore (slice 7)",
+            "when": "what changed on a board — who, what, where, click to fly there — and its versions; a version's preview",
+            "params": [
+                "version",
+                "member",
+                "source",
+                "since"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "templates": {
+            "screen": "templates",
+            "url": "/templates",
+            "section": "Templates, duplicate and export (slice 8)",
+            "when": "the templates gallery: shipped, the business's and mine, by category",
+            "params": [
+                "category",
+                "scope"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "template-view": {
+            "screen": "template-view",
+            "url": "/templates/{board}",
+            "section": "Templates, duplicate and export (slice 8)",
+            "when": "a template's preview, and Use",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "search": {
+            "screen": "search",
+            "url": "/search",
+            "section": "Agents, search and the siblings (slice 9)",
+            "when": "one search across the boards, items and comments I can see; an item opens its board there",
+            "params": [
+                "q",
+                "kind",
+                "board"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "admin-agents": {
+            "screen": "admin-agents",
+            "url": "/admin/agents",
+            "section": "Agents, search and the siblings (slice 9)",
+            "when": "the agents on Boards: who they are, which boards they can see, what they did this week",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "admin-dispatches": {
+            "screen": "admin-dispatches",
+            "url": "/admin/dispatches",
+            "section": "Agents, search and the siblings (slice 9)",
+            "when": "every mention of an agent and what became of it, a failed one to retry",
+            "params": [
+                "status",
+                "agent"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "home": {
+            "screen": "home",
+            "url": "/",
+            "section": "Home, admin and settings (slice 10)",
+            "when": "the start: recent boards, favourites, shared with me, team folders, New board and New from template",
+            "params": [],
+            "built": true,
+            "stub": false
+        },
+        "admin": {
+            "screen": "admin",
+            "url": "/admin",
+            "section": "Home, admin and settings (slice 10)",
+            "when": "the admin's page: usage against the budget, the trash, the agents, the settings",
+            "params": [],
+            "built": false,
+            "stub": false
+        },
+        "admin-usage": {
+            "screen": "admin-usage",
+            "url": "/admin/usage",
+            "section": "Home, admin and settings (slice 10)",
+            "when": "every board by size against the budget, idle ones, ones whose owner has left",
+            "params": [
+                "sort",
+                "idle_days"
+            ],
+            "built": false,
+            "stub": false
+        },
+        "admin-settings": {
+            "screen": "admin-settings",
+            "url": "/admin/settings",
+            "section": "Home, admin and settings (slice 10)",
+            "when": "the defaults: a new board's everyone level, the limits, retention, the trash's days, live updates on or off",
+            "params": [],
+            "built": false,
+            "stub": false
+        }
+    },
+    "actions": {
+        "token_mint": {
+            "action": "token_mint",
+            "section": "The shell (Phase 2 — sso-shell)",
+            "endpoint": "/settings/tokens/mint.php",
+            "params": [
+                {
+                    "name": "label",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "up to 80 characters"
+                },
+                {
+                    "name": "expires_in_days",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "blank for never"
+                }
+            ],
+            "undo": "token_revoke",
+            "confirm": false,
+            "approval": null,
+            "log_event": "token.mint",
+            "who": "own and tokens.own",
+            "agent": false,
+            "record_id": "the token",
+            "built": false
+        },
+        "token_revoke": {
+            "action": "token_revoke",
+            "section": "The shell (Phase 2 — sso-shell)",
+            "endpoint": "/settings/tokens/revoke.php",
+            "params": [
+                {
+                    "name": "token",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": null,
+            "confirm": true,
+            "approval": null,
+            "log_event": "token.revoke",
+            "who": "own",
+            "agent": false,
+            "record_id": "the token",
+            "built": false
+        },
+        "board_create": {
+            "action": "board_create",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/save.php",
+            "params": [
+                {
+                    "name": "title",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "up to 200 characters"
+                },
+                {
+                    "name": "description",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "folder",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.create",
+            "who": "boards.create",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_update": {
+            "action": "board_update",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/save.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "description",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "background",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "dots or grid or none"
+                },
+                {
+                    "name": "start_view",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "x y zoom — or none"
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.update",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_lock": {
+            "action": "board_lock",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/lock.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "locked",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "yes or no"
+                }
+            ],
+            "undo": "board_lock",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.lock",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_delete": {
+            "action": "board_delete",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/delete.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "to the trash for 30 days"
+                }
+            ],
+            "undo": "board_restore",
+            "confirm": true,
+            "approval": "deletion",
+            "log_event": "board.delete",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_restore": {
+            "action": "board_restore",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/restore.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "from the trash"
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.restore",
+            "who": "owner or boards.admin",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_share": {
+            "action": "board_share",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/share-set.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "member",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "a person or an agent"
+                },
+                {
+                    "name": "department",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "level",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "view or comment or edit or full"
+                }
+            ],
+            "undo": "board_unshare",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "board.share",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_unshare": {
+            "action": "board_unshare",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/share-remove.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "member",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "a person or an agent"
+                },
+                {
+                    "name": "department",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_share",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "board.unshare",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_access_set": {
+            "action": "board_access_set",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/access-set.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "level",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "none or view or comment or edit — for everyone in the business"
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "board.access_set",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_transfer": {
+            "action": "board_transfer",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/transfer.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "new_owner",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "a person who may make boards"
+                }
+            ],
+            "undo": null,
+            "confirm": true,
+            "approval": "other",
+            "log_event": "board.transfer",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_favorite": {
+            "action": "board_favorite",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/favorite.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_unfavorite",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.favorite",
+            "who": "level view",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "board_unfavorite": {
+            "action": "board_unfavorite",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/boards/unfavorite.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_favorite",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.unfavorite",
+            "who": "own",
+            "agent": true,
+            "record_id": "the board",
+            "built": false
+        },
+        "folder_create": {
+            "action": "folder_create",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/folders/save.php",
+            "params": [
+                {
+                    "name": "name",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "up to 120 characters"
+                },
+                {
+                    "name": "team",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no — seen by every Member"
+                }
+            ],
+            "undo": "folder_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "folder.create",
+            "who": "boards.view",
+            "agent": true,
+            "record_id": "the folder",
+            "built": false
+        },
+        "folder_update": {
+            "action": "folder_update",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/folders/save.php",
+            "params": [
+                {
+                    "name": "folder",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "name",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "team",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": false,
+            "approval": null,
+            "log_event": "folder.update",
+            "who": "own or boards.admin",
+            "agent": true,
+            "record_id": "the folder",
+            "built": false
+        },
+        "folder_delete": {
+            "action": "folder_delete",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/folders/delete.php",
+            "params": [
+                {
+                    "name": "folder",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "its boards stay where they are"
+                }
+            ],
+            "undo": null,
+            "confirm": true,
+            "approval": "deletion",
+            "log_event": "folder.delete",
+            "who": "own or boards.admin",
+            "agent": true,
+            "record_id": "the folder",
+            "built": false
+        },
+        "folder_add_board": {
+            "action": "folder_add_board",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/folders/add.php",
+            "params": [
+                {
+                    "name": "folder",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "folder_remove_board",
+            "confirm": false,
+            "approval": null,
+            "log_event": "folder.add",
+            "who": "own or boards.admin",
+            "agent": true,
+            "record_id": "the folder",
+            "built": false
+        },
+        "folder_remove_board": {
+            "action": "folder_remove_board",
+            "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
+            "endpoint": "/folders/remove.php",
+            "params": [
+                {
+                    "name": "folder",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "folder_add_board",
+            "confirm": false,
+            "approval": null,
+            "log_event": "folder.remove",
+            "who": "own or boards.admin",
+            "agent": true,
+            "record_id": "the folder",
+            "built": false
+        },
+        "ops_commit": {
+            "action": "ops_commit",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "endpoint": "/boards/ops.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "ops",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "the canvas's JSON batch"
+                },
+                {
+                    "name": "client_batch_id",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "client_id",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.batch",
+            "who": "level edit",
+            "agent": false,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "item_create_batch": {
+            "action": "item_create_batch",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "endpoint": "/items/create.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "type",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "sticky_note or shape or text"
+                },
+                {
+                    "name": "texts",
+                    "required": false,
+                    "repeated": true,
+                    "hint": "one item per text"
+                },
+                {
+                    "name": "frame",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "an item id"
+                },
+                {
+                    "name": "layout",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "grid or column or row — grid by default"
+                },
+                {
+                    "name": "columns",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "1 to 20"
+                },
+                {
+                    "name": "x",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "the first item's centre"
+                },
+                {
+                    "name": "y",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "color",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "a sticky colour or a fill"
+                },
+                {
+                    "name": "shape",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "rectangle or ellipse or diamond and the like"
+                },
+                {
+                    "name": "width",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "height",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.create",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "item_update_batch": {
+            "action": "item_update_batch",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "endpoint": "/items/update.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "items",
+                    "required": true,
+                    "repeated": true,
+                    "hint": "item ids"
+                },
+                {
+                    "name": "text",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "only with one item"
+                },
+                {
+                    "name": "color",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "x",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "only with one item"
+                },
+                {
+                    "name": "y",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "width",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "height",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "rotation",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "frame",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "an item id — or none for the canvas"
+                },
+                {
+                    "name": "front",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no — bring to front or send to back"
+                },
+                {
+                    "name": "locked",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.update",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "item_delete_batch": {
+            "action": "item_delete_batch",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "endpoint": "/items/delete.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "items",
+                    "required": true,
+                    "repeated": true,
+                    "hint": "item ids — a frame takes its children unless keep_children"
+                },
+                {
+                    "name": "keep_children",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": true,
+            "approval": "deletion",
+            "log_event": "item.delete",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "ops_undo": {
+            "action": "ops_undo",
+            "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
+            "endpoint": "/items/undo.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "count",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "1 to 10 — my last batches on this board within the hour"
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "ops.undo",
+            "who": "own",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "connector_create": {
+            "action": "connector_create",
+            "section": "Connectors and frames (slice 4)",
+            "endpoint": "/items/connect.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "from",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "an item id"
+                },
+                {
+                    "name": "to",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "an item id"
+                },
+                {
+                    "name": "shape",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "straight or elbowed or curved — elbowed by default"
+                },
+                {
+                    "name": "caption",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "arrow",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "end or start or both or none — end by default"
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.connect",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "frame_create": {
+            "action": "frame_create",
+            "section": "Connectors and frames (slice 4)",
+            "endpoint": "/items/frame.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "around",
+                    "required": false,
+                    "repeated": true,
+                    "hint": "item ids the frame wraps and takes in"
+                },
+                {
+                    "name": "x",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "y",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "width",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "height",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.frame",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "file_upload": {
+            "action": "file_upload",
+            "section": "Pen, images and files (slice 5)",
+            "endpoint": "/files/upload.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "file",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "png or jpg or gif or webp or svg or a document — up to 25 MB"
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "file.upload",
+            "who": "level edit",
+            "agent": false,
+            "record_id": "the attachment",
+            "built": false
+        },
+        "comment_create": {
+            "action": "comment_create",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/create.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "text",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "@Name mentions a person or an agent or a department"
+                },
+                {
+                    "name": "item",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "an item id to pin it to"
+                },
+                {
+                    "name": "x",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "a point on the canvas when no item"
+                },
+                {
+                    "name": "y",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "context",
+                    "required": false,
+                    "repeated": true,
+                    "hint": "the item ids it is about"
+                }
+            ],
+            "undo": "comment_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "comment.create",
+            "who": "level comment",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "comment_reply": {
+            "action": "comment_reply",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/reply.php",
+            "params": [
+                {
+                    "name": "comment",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "text",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "comment_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "comment.reply",
+            "who": "level comment",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "comment_resolve": {
+            "action": "comment_resolve",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/resolve.php",
+            "params": [
+                {
+                    "name": "comment",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "comment_reopen",
+            "confirm": false,
+            "approval": null,
+            "log_event": "comment.resolve",
+            "who": "level comment",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "comment_reopen": {
+            "action": "comment_reopen",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/reopen.php",
+            "params": [
+                {
+                    "name": "comment",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "comment_resolve",
+            "confirm": false,
+            "approval": null,
+            "log_event": "comment.reopen",
+            "who": "level comment",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "comment_edit": {
+            "action": "comment_edit",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/edit.php",
+            "params": [
+                {
+                    "name": "comment",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "text",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": false,
+            "approval": null,
+            "log_event": "comment.edit",
+            "who": "own",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "comment_delete": {
+            "action": "comment_delete",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/comments/delete.php",
+            "params": [
+                {
+                    "name": "comment",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "its replies go with a thread"
+                }
+            ],
+            "undo": null,
+            "confirm": true,
+            "approval": "deletion",
+            "log_event": "comment.delete",
+            "who": "own or level full",
+            "agent": true,
+            "record_id": "the comment",
+            "built": false
+        },
+        "prefs_save": {
+            "action": "prefs_save",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/settings/prefs.php",
+            "params": [
+                {
+                    "name": "email_enabled",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                },
+                {
+                    "name": "text_enabled",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                },
+                {
+                    "name": "kinds",
+                    "required": false,
+                    "repeated": true,
+                    "hint": "mention or reply or comment or share or agent_replied"
+                },
+                {
+                    "name": "text_kinds",
+                    "required": false,
+                    "repeated": true,
+                    "hint": ""
+                },
+                {
+                    "name": "digest",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": false,
+            "approval": null,
+            "log_event": "settings.prefs",
+            "who": "own",
+            "agent": true,
+            "record_id": "the prefs",
+            "built": false
+        },
+        "notification_read": {
+            "action": "notification_read",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/notifications/read.php",
+            "params": [
+                {
+                    "name": "notification",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "notification.read",
+            "who": "own",
+            "agent": true,
+            "record_id": "the notification",
+            "built": false
+        },
+        "notifications_read_all": {
+            "action": "notifications_read_all",
+            "section": "Comments, mentions and notifications (slice 6)",
+            "endpoint": "/notifications/read-all.php",
+            "params": [
+                {
+                    "name": "all",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes — every unread notice of mine"
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "notification.read_all",
+            "who": "own",
+            "agent": true,
+            "record_id": "the count",
+            "built": false
+        },
+        "version_save": {
+            "action": "version_save",
+            "section": "History, versions and restore (slice 7)",
+            "endpoint": "/boards/version-save.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "label",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "a name for this moment — up to 120 characters"
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "version.save",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the version",
+            "built": false
+        },
+        "version_restore": {
+            "action": "version_restore",
+            "section": "History, versions and restore (slice 7)",
+            "endpoint": "/boards/version-restore.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "version",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "its number — the board as it is now is saved first"
+                }
+            ],
+            "undo": "version_restore",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "version.restore",
+            "who": "level full",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "board_duplicate": {
+            "action": "board_duplicate",
+            "section": "Templates, duplicate and export (slice 8)",
+            "endpoint": "/boards/duplicate.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "folder",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "board.duplicate",
+            "who": "boards.create and level view",
+            "agent": true,
+            "record_id": "the new board",
+            "built": false
+        },
+        "template_use": {
+            "action": "template_use",
+            "section": "Templates, duplicate and export (slice 8)",
+            "endpoint": "/templates/use.php",
+            "params": [
+                {
+                    "name": "template",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "folder",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "template.use",
+            "who": "boards.create",
+            "agent": true,
+            "record_id": "the new board",
+            "built": false
+        },
+        "template_save": {
+            "action": "template_save",
+            "section": "Templates, duplicate and export (slice 8)",
+            "endpoint": "/templates/save.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "category",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "retrospective or brainstorm or strategy or planning or diagram or workshop or other"
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": false,
+            "approval": null,
+            "log_event": "template.save",
+            "who": "boards.create and level view",
+            "agent": true,
+            "record_id": "the template",
+            "built": false
+        },
+        "template_publish": {
+            "action": "template_publish",
+            "section": "Templates, duplicate and export (slice 8)",
+            "endpoint": "/templates/publish.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "title",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "category",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "retrospective or brainstorm or strategy or planning or diagram or workshop or other"
+                }
+            ],
+            "undo": "board_delete",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "template.publish",
+            "who": "templates.publish",
+            "agent": true,
+            "record_id": "the template",
+            "built": false
+        },
+        "items_arrange": {
+            "action": "items_arrange",
+            "section": "Agents, search and the siblings (slice 9)",
+            "endpoint": "/items/arrange.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "items",
+                    "required": true,
+                    "repeated": true,
+                    "hint": "item ids"
+                },
+                {
+                    "name": "layout",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "grid or column or row or cluster"
+                },
+                {
+                    "name": "frame",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "an item id to arrange them inside"
+                },
+                {
+                    "name": "columns",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "1 to 20"
+                },
+                {
+                    "name": "gap",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "in canvas units"
+                }
+            ],
+            "undo": "ops_undo",
+            "confirm": false,
+            "approval": null,
+            "log_event": "item.move",
+            "who": "level edit",
+            "agent": true,
+            "record_id": "the batch's seq",
+            "built": false
+        },
+        "dispatch_retry": {
+            "action": "dispatch_retry",
+            "section": "Agents, search and the siblings (slice 9)",
+            "endpoint": "/admin/dispatch-retry.php",
+            "params": [
+                {
+                    "name": "dispatch",
+                    "required": true,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": null,
+            "confirm": false,
+            "approval": null,
+            "log_event": "dispatch.retry",
+            "who": "agents.manage",
+            "agent": false,
+            "record_id": "the dispatch",
+            "built": false
+        },
+        "settings_save": {
+            "action": "settings_save",
+            "section": "Home, admin and settings (slice 10)",
+            "endpoint": "/admin/settings-save.php",
+            "params": [
+                {
+                    "name": "default_everyone_level",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "none or view or comment or edit"
+                },
+                {
+                    "name": "item_soft_budget",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "item_hard_cap",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "batch_max_ops",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "max_upload_mb",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "op_retention_days",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "interval_version_days",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "daily_version_days",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "trash_days",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                },
+                {
+                    "name": "live_enabled",
+                    "required": false,
+                    "repeated": false,
+                    "hint": "yes or no"
+                },
+                {
+                    "name": "business_name",
+                    "required": false,
+                    "repeated": false,
+                    "hint": ""
+                }
+            ],
+            "undo": "restore prior",
+            "confirm": true,
+            "approval": "other",
+            "log_event": "settings.save",
+            "who": "settings.manage",
+            "agent": true,
+            "record_id": "the settings",
+            "built": false
+        },
+        "trash_purge": {
+            "action": "trash_purge",
+            "section": "Home, admin and settings (slice 10)",
+            "endpoint": "/admin/trash-purge.php",
+            "params": [
+                {
+                    "name": "board",
+                    "required": true,
+                    "repeated": false,
+                    "hint": "gone for good with everything on it"
+                }
+            ],
+            "undo": null,
+            "confirm": true,
+            "approval": "deletion",
+            "log_event": "trash.purge",
+            "who": "trash.purge",
+            "agent": false,
+            "record_id": "the board",
+            "built": false
+        }
+    }
+}
