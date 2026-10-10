@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .DS_Store
 storage/
+mcp/venv/
+var/
+*.swp
