@@ -4,6 +4,18 @@ Written 2026-10-10 at the end of the research session (Claude Code on the user's
 **Ubuntu 24.04 dev server** after the user clones this repository there. Read this file, then the two research
 documents, before doing anything else.
 
+## Progress on the dev server (2026-10-10, the first session there)
+
+- Step 1 (install the plugins): **not done** — it changes the Claude Code setup every session on this server shares; the
+  owner's call. The skills were read from the local clones `~/htmx-php-builder` and `~/maludb-os-integration` (0.9.0).
+- Step 2 (survey): **done** — [research/dev-server-survey.md](research/dev-server-survey.md). Contract gap 2 answered: the
+  installer assigns only `APP_INTERNAL_PORT` and `endpoints[].port_env`; `BOARDS_LIVE_PORT` is pinned by `ROOT_STEPS.sh`.
+- Step 3 (shared schema): **done** — [boards-design.md](boards-design.md) §0.4 and §6.7. Three of the record's tables follow
+  existing families (`board_permissions`, `board_versions`, templates as `boards.is_template`).
+- Step 4 (the plan): **done** as [boards-design.md](boards-design.md) — the estate's `<key>-design.md` shape rather than
+  `01-phase0-plan.md` (open question (a) there). Awaiting the owner's answers to D1–D16.
+- Step 5 (the realtime spike): **next**, once the owner provides a scratch database and role (design §10.1).
+
 ## Where things stand
 
 - **Done:** research and the tech-stack decision. The user accepted every recommendation on 2026-10-10.
