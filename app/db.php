@@ -50,7 +50,8 @@ function db_message(Throwable $e, string $fallback): string
     }
     $text = trim((string) (preg_split('/\R|CONTEXT:|DETAIL:|HINT:/', substr($text, $at + 6))[0] ?? ''));
     // PostgreSQL's own constraint text is not a sentence for a person: only a trigger's RAISE is (the schema raises sentences)
-    if ($text === '' || preg_match('/violates (check|unique|foreign key|not-null) constraint|duplicate key value|null value in column/i', $text)) {
+    // (nor is its own "permission denied for table …" — a grant missing is a defect, never a sentence: 42501 is shown only when a function raised it)
+    if ($text === '' || preg_match('/violates (check|unique|foreign key|not-null) constraint|duplicate key value|null value in column|permission denied for /i', $text)) {
         return $fallback;
     }
     return $text;
@@ -59,10 +60,11 @@ function db_message(Throwable $e, string $fallback): string
 /**
  * The codes the schema's triggers and functions raise with a sentence for a person: our own RAISE (P0001), a rule refused
  * (check_violation), a name or key another record holds (unique_violation), a referent that does not exist (foreign_key_violation), a
- * record that does not (no_data_found). Carried from Sales CRM's kit (found in its Phase 2, 2026-10-09: a kit that read only P0001
+ * record that does not (no_data_found); and Boards' two more (Phase 2): a level or a rule of ownership refused (insufficient_privilege) and a
+ * malformed request (invalid_parameter_value). Carried from Sales CRM's kit (found in its Phase 2, 2026-10-09: a kit that read only P0001
  * answered 500 to every other refusal; Inventory found the check_violation half the same day).
  */
-const DB_SENTENCE_CODES = ['P0001', '23514', '23505', '23503', 'P0002'];
+const DB_SENTENCE_CODES = ['P0001', '23514', '23505', '23503', 'P0002', '42501', '22023'];
 
 /** The first column of the first row, or null. */
 function one_value(PDO $pdo, string $sql, array $args = []): mixed

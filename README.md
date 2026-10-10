@@ -20,7 +20,11 @@ Research complete; tech-stack decision accepted 2026-10-10. On the dev server th
 - `docs/phase1-consistency.md`;
 - `tests/phase1/check_specs.sh`, all green.
 
-Next: Phase 2, the shell. No screens yet.
+**Phase 2, the shell, is built and proven** (2026-10-10): sign-on, the menu by rights, the header, the tab bar, the command bar, the
+record picker, My tokens, My trail, the board gate, and a placeholder for every later screen naming its slice — `tests/phase2/run.sh`
+(258 checks under php -S, 266 under a real Apache; `BD_APP=apache tests/phase2/run.sh`).
+
+Next: slice 1, boards, folders and sharing.
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

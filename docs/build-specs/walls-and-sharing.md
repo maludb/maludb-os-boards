@@ -29,7 +29,7 @@ CRUD exemplar) builds for sharing, folders, favourites and the trash.
 
 ## PHP helpers
 
-`app/features/boards/wall.php` (slice 1) — the only PHP that touches a level, and it decides nothing:
+`app/features/boards/wall.php` (built and proven by Phase 2, loaded by the bootstrap) — the only PHP that touches a level, and it decides nothing:
 
 ```php
 /** The board row for the caller at least at $need ('view'|'comment'|'edit'|'full'), or a 404/403 answer. */

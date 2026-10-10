@@ -17,7 +17,8 @@ documents, before doing anything else.
 - Step 5 (the realtime spike): **done** — decision record §6.1. Every check passed; the code was deleted.
 - After the handoff: the owner took every recommendation (design §15); K40 was applied (kernel db/180); **Phase 0 is
   complete** (design §16). Phase 1 was written and **approved by the owner as written** (2026-10-10); step 1 stays
-  undone at the owner's word (the plugins are read from the clones). Next: Phase 2, the shell.
+  undone at the owner's word (the plugins are read from the clones). **Phase 2, the shell, is built and proven** (`tests/phase2/run.sh`).
+  Next: slice 1, boards, folders and sharing.
 
 ## Where things stand
 

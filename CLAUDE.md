@@ -20,3 +20,9 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
   `boards`, `board_folders`, `board_folder_entries`, `board_items`, `board_ops`.
 - The plugins on this server: Claude Code registers only `htmx-php-builder` 0.4.1; read the skills from the local clones
   `~/htmx-php-builder` and `~/maludb-os-integration` (both 0.9.0).
+- Proofs, one after the other (they share ports 9101–9103): `tests/phase0/run.sh` (the kit), `tests/phase0/schema.sh` (the schema),
+  `tests/phase1/check_specs.sh` (the specs' claims), `tests/phase2/run.sh` and `BD_APP=apache tests/phase2/run.sh` (the shell, under php -S and
+  under a user-level Apache rendering the deploy vhost — no root). A slice's suite re-runs every earlier one.
+- Every board page, door and handler starts with `bd_board_or_404($pdo, $board, <level>)` (`app/features/boards/wall.php`): the database
+  decides the level and answers 404/403 in its own words through `bd_guard()`. A slice's first step on a screen is removing its
+  `render_nav_stub()` call; the Phase 2 suite follows the placeholders still owed.

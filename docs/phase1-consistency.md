@@ -184,8 +184,11 @@ decided where the design was silent, what it changed in Phase 0's files, and how
    (slice 9). Two drafts both claimed 014.
 10. **The manifest's doors** gained the rail and the file door's `?size=`, and its log events `item.restore`.
 
+11. **Found in Phase 2:** the shell spec and walls-and-sharing named different colours for the level badge, and different files for the
+    board gate. walls-and-sharing wins both (full `dark`, edit `success`; `app/features/boards/wall.php`); sso-shell.md is corrected.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
-approved it as written on 2026-10-10**, the ★ decisions with it. Next: Phase 2 (the shell), then slice 1, then the exemplars, slices 2 and 3. All of these, and slices 4 and 5, are the
+approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 is built and proven** (2026-10-10). Next: slice 1, then (the shell), then slice 1, then the exemplars, slices 2 and 3. All of these, and slices 4 and 5, are the
 planning model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

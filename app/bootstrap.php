@@ -86,8 +86,12 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/directory.php';
 require_once __DIR__ . '/mail.php';
 require_once __DIR__ . '/api/kernel.php';
-// The shell's navigation, the switcher and the record picker are Phase 2's (docs/build-specs/sso-shell.md); the kit stands without them.
-// The live relay (live/relay.py) is a separate process that never writes: every board write is a PHP handler here (design R3).
+require_once __DIR__ . '/switcher.php';                 // the application switcher (K31): os_my_applications(), the header's Helpdesk button and menu
+require_once __DIR__ . '/picker.php';                   // the record picker: picker_field(), picker_source() — the registry is app/pickers.php
+require_once __DIR__ . '/features/shell/nav.php';       // the ONE menu table, the tabs, the placeholders (render_nav_stub)
+require_once __DIR__ . '/features/shell/queries.php';   // the bell, the business name, the level badge's words
+require_once __DIR__ . '/features/boards/wall.php';     // the board gate every slice calls: bd_board_or_404(), bd_level(), bd_level_at_least()
+// The live relay (live/relay.py, slice 3) is a separate process that never writes: every board write is a PHP handler here (design R3).
 
 // A JSON caller (the kernel's actions server, an approval replay) never receives PHP's own
 // error output — a 500 it can parse instead of an HTML fragment.

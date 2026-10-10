@@ -56,9 +56,9 @@ A placeholder answers 200 to a person ("Built by slice N — {what it will do}",
 - `app/features/shell/{nav,queries}.php` — `NAV_ITEMS` (Boards `/boards` · Templates `/templates` · Folders `/folders` · Trash `/trash` · Admin
   `/admin` with `boards.admin`), `NAV_SLICES` (every placeholder's screen → slice and line), `render_nav_stub(string $screen, int $slice): never`,
   `bell_count()`, `business_name()`.
-- `app/features/settings/{queries,write}.php` (tokens), `app/features/activity/{queries,present}.php`, `app/switcher.php` (verbatim from
-  `~/htmx-php-builder/skills/design-system/examples/php/app-switcher/switcher.php`, the kit branch), **`app/gate.php`** — the board gate every
-  slice calls (walls-and-sharing "PHP helpers" fixes its names and signatures; this phase builds it and proves it with a fixture route).
+- `app/features/settings/{queries,write}.php` (tokens), `app/features/activity/queries.php`, `app/switcher.php` (verbatim from
+  `~/htmx-php-builder/skills/design-system/examples/php/app-switcher/switcher.php`, the kit branch), **`app/features/boards/wall.php`** — the board
+  gate every slice calls (walls-and-sharing "PHP helpers" fixes its names, signatures and place; this phase builds it and proves it with a fixture route).
 - The record picker verbatim from `examples/php/record-picker/`: `app/picker.php`, `app/pickers.php` with **two sources** — `member` (people and
   agents admitted here, a kind chip "Agent" on agents, param `kind` = human | agent to narrow; never an external to an external caller) and
   `department` (the mirror's live departments) — `html/pick/index.php`, `app/views/shared/picker-rows.php`, `html/assets/js/record-picker.js`, the
@@ -111,7 +111,8 @@ id), `token.mint`, `token.revoke` (the token's id and label, never its secret or
 
 ## Status vocabulary
 The bell `badge text-bg-danger` with the unread count (hidden at 0). The level badge (`shared/level-badge.php`, every later slice uses it):
-view `text-bg-secondary` "Can view" · comment `text-bg-info` "Can comment" · edit `text-bg-primary` "Can edit" · full `text-bg-success` "Owner".
+view `text-bg-secondary` "Can view" · comment `text-bg-info` "Can comment" · edit `text-bg-success` "Can edit" · full `text-bg-dark` "Owner" (the
+owner) or "Full" — walls-and-sharing.md's locked vocabulary (reconciled in the build).
 Ids: `header-search`, `header-user-name`, `bell`, `bell-count`, `tab-bar`, `nav-{key}`, `nav-stub`, `token-list`, `token-{id}-revoke`,
 `token-form-field-label`, `activity-row-{id}`, `record-picker`, `assistant-bar`.
 
@@ -144,3 +145,43 @@ servers (Phase 4).
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-10)
+The shell stands. A person signs on through the kernel's hand-off (their notification preferences made on the way in, and for every admitted
+member at each sync) and lands on **Home** — slice 10's placeholder with one live link, **Boards**. The sidebar is `NAV_ITEMS`: Boards · Templates ·
+Folders · Trash, **Admin** for `boards.admin`, then Me (Notifications · My settings · My tokens · My trail), each item gated by its right. The header
+carries the business name, the highest role as a badge (Super-admin › Boards admin › Member › Viewer), the search box (a plain GET to `/search`; a
+magnifier at 375), the bell (the unread count, hidden at 0), the switcher (K31) and the user menu (My trail · My tokens · Sign out). The phone's tab
+bar is **Home · Boards · Search · Me** (Me opens the sidebar; My trail without JavaScript). The command bar posts to the kernel's chat endpoint as
+the person and renders the reply, a paused action and a `navigate`. **My tokens** mints an MCP token shown once with the two MCP URLs and revokes
+one's own; **My trail** is my rows in sentences ("You created *Q4 retro*", "You moved 3 items on *Q4 retro*" — the title a link to that board's
+rows), filtered by since and by board, paged 50. The record picker carries `member` (people and agents, an agent chipped, `kind=human|agent`; an
+external offered only themselves) and `department`. **The board gate** (`bd_board_or_404()`, `bd_level()`, `bd_level_at_least()`) is live, and
+`bd_guard()` answers 42501 → 403 and 22023 → 422 in the database's words. **24 placeholders** in 23 controllers call `render_nav_stub($screen,
+$slice)`: the right first, then — for a board's page — the board's wall at its level (a stranger 404, the page naming the board and the caller's
+level badge), then "Built by slice N — what it will do" (the manifest's line); 501 `not_built` to JSON and to a POST. The worker runs one pass of
+eight steps, seven of them stubs naming their slice. The registry reads **26 screens (2 built, 24 stubs), 45 actions (2 built)**.
+
+**Proven** by `tests/phase2/run.sh` (scratch `bd_dev_p2`): **258 checks under php -S, 266 under a real Apache** — the user-level Apache of
+`tests/phase2/apache.conf.tmpl` (prefork + mod_php, mod_headers loaded only there) serving `deploy/apache-boards.conf` rendered as the installer
+renders it, the public vhost on 9101 and the internal one on 9107 — browser 56 (375 × 740, 1280 × 800, every placeholder with JavaScript off, the
+manifest), shell 64, tokens 29, guard 19, picker 26, switcher 12, vhost 49/57, plus the schema proof (167), the registry `--check` and the kernel's
+installer `plan` (40 steps, 6 notes). Phase 0's kit (87) and Phase 1's checks (66) re-run green.
+
+**Decisions taken in the build:**
+1. **The board gate lives in `app/features/boards/wall.php`**, where walls-and-sharing.md places it (this spec had said `app/gate.php`); Phase 2
+   builds it, the bootstrap loads it, and `render_nav_stub()` puts it in front of every board's placeholder so the slices inherit the same 404/403.
+2. **The level badge follows walls-and-sharing.md's locked vocabulary**: full `text-bg-dark` ("Owner" for the owner, "Full" otherwise), edit
+   `success` "Can edit", comment `info`, view `secondary` — this spec's Status vocabulary had full `success` and edit `primary`; the build spec wins.
+3. **`render_nav_stub(string $screen, int $slice)`** reads `NAV_SLICES` (screen → slice, title, the manifest's line, the right, the menu item, the
+   board level when it is a board's page) and refuses a call whose slice disagrees with the table.
+4. **`folders/form.php` answers two screens** (`folder-add` at `/folders/new`, `folder-edit` at `/folders/{id}/edit`), as the vhost rewrites both to it.
+5. **My trail leaves screen views out** — they are the activity MCP's `member_activity`; every action I took is in. A board I can no longer open
+   never names itself ("… a board").
+6. **The picker's params** may be an integer filter or an enumerated one (`'kind' => ['human', 'agent']`); `/pick/` forwards only a declared value.
+7. **The command bar refuses an action token** ("The command bar is for a person at the screen.", 403): the kernel runs agents itself; an agent's
+   call there would be a turn inside a turn.
+8. **`db_message()` shows 42501 only when a function raised it**: PostgreSQL's own "permission denied for table …" falls back to the handler's sentence.
+9. **Under `/api` only `/api/v1/health` answers** — the vhost 404s the rest, `/api/v1/health.php` included; the dev router now does the same.
+10. **The proofs' Apache**: the public vhost moved to 9101 and the internal one on 9107 (this spec said "Apache on 9107"); the gate's fixture route
+    `/__proof/gate.php` exists only under the scratch environment (the dev router) and a proof-only Alias in the rendered vhost — never `html/` or `deploy/`.

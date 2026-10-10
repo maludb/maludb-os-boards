@@ -1,0 +1,15 @@
+# The user-level Apache of the Phase 2 proofs (tests/phase2/servers.sh renders this, then site.conf from deploy/apache-boards.conf).
+# Run as the proofs' own user with `apache2 -f <state>/apache/main.conf` — no root: prefork + mod_php from the system's module directory,
+# the modules this host leaves disabled (mod_headers) loaded here only. {{STATE}} is the proofs' state directory.
+ServerRoot "/etc/apache2"
+DefaultRuntimeDir {{STATE}}
+PidFile {{STATE}}/apache.pid
+ErrorLog {{STATE}}/apache.err
+ServerName localhost
+LogLevel warn
+Include /etc/apache2/mods-enabled/*.load
+Include /etc/apache2/mods-enabled/*.conf
+{{EXTRA_MODULES}}
+Define APACHE_LOG_DIR {{STATE}}
+Listen 9101
+Include {{STATE}}/site.conf

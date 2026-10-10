@@ -14,8 +14,8 @@ declare(strict_types=1);
  * a pass selects by; honoured only when APP_ENV is not prod. Exits 1 when a pass failed.
  *
  * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
- * (design §10): `trash` slice 1's; `thumbnails` slice 5's; `outbox` slice 6's; `versions`, `compaction` slice 7's; `dispatches`,
- * `search_catch_up` slice 9's. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
+ * (design §10): `thumbnails` slice 5's; `outbox` slice 6's; `versions`, `compaction` slice 7's; `dispatches`,
+ * `search_catch_up` slice 9's; `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
 require_once dirname(__DIR__) . '/app/bootstrap.php';
@@ -77,19 +77,19 @@ exit($report['errors'] === [] ? 0 : 1);
 // ---- the passes (stubs until their slice) ------------------------------------------------------------------------------------------
 
 /** SLICE 7 — a board that changed since its last interval version, at most hourly while active: one `interval` version (board_versions); interval versions past interval_version_days thinned to one a day, those past daily_version_days deleted; named versions never. */
-function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['saved' => 0, 'thinned' => 0, 'stub' => true]; }
+function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['saved' => 0, 'thinned' => 0, 'stub' => 'slice 7']; }
 /** SLICE 6 — notification_outbox: queued email (MaluMail) and text (K6) rows sent, failed ones retried with backoff; the digest at its hour. */
-function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => true]; }
+function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 6']; }
 /** SLICE 9 — agent_dispatches: a mention of an agent becomes ONE chat turn of that agent through the kernel (Spaces' route); a long run polled, a refusal shown in the kernel's words, a 5xx backed off. */
-function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => true]; }
+function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 9']; }
 /** SLICE 9 — search_index catch-up: every board, item and comment whose index row is older than its change. */
-function worker_pass_search_catch_up(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['indexed' => 0, 'stub' => true]; }
+function worker_pass_search_catch_up(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['indexed' => 0, 'stub' => 'slice 9']; }
 /** SLICE 5 — attachments without their three thumbnail sizes (GD) or a PDF's first page (pdftoppm): made, width/height recorded. */
-function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['made' => 0, 'stub' => true]; }
-/** SLICE 1 — boards in the trash longer than trash_days: purged with their items, ops, versions, comments and files. */
-function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['purged' => 0, 'stub' => true]; }
+function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['made' => 0, 'stub' => 'slice 5']; }
+/** SLICE 10 — boards in the trash longer than trash_days: purged with their items, ops, versions, comments and files. */
+function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['purged' => 0, 'stub' => 'slice 10']; }
 /** SLICE 7 — board_ops older than op_retention_days: a `compaction` version at the cut, then the rows go (design §6.3, D6). */
-function worker_pass_compaction(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['compacted' => 0, 'stub' => true]; }
+function worker_pass_compaction(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['compacted' => 0, 'stub' => 'slice 7']; }
 /** bd_prune_key_usage() (db/005): minute buckets older than a day, day buckets older than 35 days. Real from the kit. */
 function worker_pass_key_usage_prune(PDO $pdo, int $limit, DateTimeImmutable $now): array
 {

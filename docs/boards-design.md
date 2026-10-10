@@ -873,4 +873,16 @@ The open questions:
 - **2026-10-10: PHASE 1 APPROVED by the owner as written**, the six ★ decisions of `docs/phase1-consistency.md` with it. The plugins stay
   uninstalled (open question (b)): the work reads 0.9.0 from the local clones. The repository pushed (main = b7f0a2e).
 
-  **NEXT:** Phase 2 (sso-shell) → slice 1 → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and Phase 4.
+- **2026-10-10: PHASE 2 — THE SHELL — BUILT AND PROVEN** (`docs/build-specs/sso-shell.md` "Built and proven"):
+  - the nxl shell with the menu gated by rights (Boards · Templates · Folders · Trash, Admin for a Boards admin, then Me), the header (badge,
+    search box, bell, switcher, user menu), the phone's tab bar Home · Boards · Search · Me, the command bar through the kernel, the record picker
+    (`member`, `department`);
+  - My tokens (`token_mint`, `token_revoke`) and My trail in sentences; notification preferences made at sign-on and at every sync;
+  - **the board gate** `app/features/boards/wall.php` live, and `bd_guard()` answering 42501 → 403 and 22023 → 422 in the database's words;
+  - 24 placeholders, each behind its right — and a board's behind the board's wall — saying which slice builds it; the worker's eight steps;
+  - `tests/phase2/run.sh`: **258 checks under php -S, 266 under a real Apache** with the rendered vhost; the kit (87), the schema (167) and
+    Phase 1's checks (66) green; the installer's plan clean (40 steps).
+  - Reconciled in the build: the level badge follows walls-and-sharing's vocabulary (full `dark`, edit `success`); the gate's file is where
+    walls-and-sharing places it.
+
+  **NEXT:** slice 1 (boards, folders and sharing — the CRUD exemplar) → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and Phase 4.

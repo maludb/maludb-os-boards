@@ -148,7 +148,12 @@ function bd_ref(PDO $pdo, string $name, ?int $keep, string $sql, string $label, 
     return (int) $v;
 }
 
-/** Run a step: our own sentence (DomainException) or the database's refusal (P0001, 23514, 23503, 23505 → 422; P0002 → 404; db/DB_SENTENCE_CODES) answers with the schema's sentence. Anything else is a 500. */
+/**
+ * Run a step: our own sentence (DomainException) or the database's refusal answers with the schema's sentence (db/DB_SENTENCE_CODES):
+ * P0001, 23514, 23503, 22023 (a malformed request — a batch, a level, a setting) → 422; 23505 → 422; P0002 → 404 (a board one cannot see
+ * does not exist to them); 42501 → 403 ("You can see this board but not change it", "Only the board's owners can do that" — Phase 2,
+ * sso-shell divergence 2; Sales CRM's lesson: a guard that reads only some codes answers 500 to the rest). Anything else is a 500.
+ */
 function bd_guard(PDO $pdo, callable $step): mixed
 {
     try {
@@ -173,6 +178,12 @@ function bd_guard(PDO $pdo, callable $step): mixed
         }
         if ($e instanceof PDOException && (string) $e->getCode() === 'P0002') {
             refuse(404, db_message($e, 'Not found.'));
+        }
+        if ($e instanceof PDOException && (string) $e->getCode() === '42501') {
+            refuse(403, db_message($e, 'You may not do that.'));          // the board's wall, an owner's rule, the acting member
+        }
+        if ($e instanceof PDOException && (string) $e->getCode() === '22023') {
+            refuse(422, db_message($e, 'That request is not well formed.'));
         }
         throw $e;
     }

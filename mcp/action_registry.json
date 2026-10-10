@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-10T21:25:38+00:00",
+    "generated_at": "2026-10-10T23:43:51+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -8,7 +8,7 @@
             "section": "The shell (Phase 2 — sso-shell)",
             "when": "my own trail here: what I did on which boards",
             "params": [],
-            "built": false,
+            "built": true,
             "stub": false
         },
         "settings-tokens": {
@@ -17,7 +17,7 @@
             "section": "The shell (Phase 2 — sso-shell)",
             "when": "my MCP tokens for my own AI tools: mint (shown once), revoke",
             "params": [],
-            "built": false,
+            "built": true,
             "stub": false
         },
         "boards-list": {
@@ -34,7 +34,7 @@
                 "updated"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-add": {
             "screen": "board-add",
@@ -46,7 +46,7 @@
                 "title"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-settings": {
             "screen": "board-settings",
@@ -55,7 +55,7 @@
             "when": "a board's settings: title, description, folder, background, the start view, the lock, duplicate, delete",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-share": {
             "screen": "board-share",
@@ -64,7 +64,7 @@
             "when": "who can open a board and at what level: everyone in the business, people, agents, departments, the owner, transfer",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "folders": {
             "screen": "folders",
@@ -73,7 +73,7 @@
             "when": "my folders and the team folders",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "folder-view": {
             "screen": "folder-view",
@@ -82,7 +82,7 @@
             "when": "one folder's boards, as cards",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "folder-add": {
             "screen": "folder-add",
@@ -93,7 +93,7 @@
                 "name"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "folder-edit": {
             "screen": "folder-edit",
@@ -102,7 +102,7 @@
             "when": "to rename a folder or make it a team folder",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "trash": {
             "screen": "trash",
@@ -111,7 +111,7 @@
             "when": "my deleted boards (an admin: everyone's), with when each is purged, to bring one back",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-view": {
             "screen": "board-view",
@@ -126,7 +126,7 @@
                 "comment"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-outline": {
             "screen": "board-outline",
@@ -135,7 +135,7 @@
             "when": "a board as a list: frames in order, their items, the connectors, the open comments — the 375 px reader and the screen reader's view",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-comments": {
             "screen": "board-comments",
@@ -147,7 +147,7 @@
                 "mine"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "notifications": {
             "screen": "notifications",
@@ -156,7 +156,7 @@
             "when": "my notices, unread first",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "settings": {
             "screen": "settings",
@@ -165,7 +165,7 @@
             "when": "my preferences: which notices by email and by text, the morning digest",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "board-history": {
             "screen": "board-history",
@@ -179,7 +179,7 @@
                 "since"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "templates": {
             "screen": "templates",
@@ -191,7 +191,7 @@
                 "scope"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "template-view": {
             "screen": "template-view",
@@ -200,7 +200,7 @@
             "when": "a template's preview, and Use",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "search": {
             "screen": "search",
@@ -213,7 +213,7 @@
                 "board"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "admin-agents": {
             "screen": "admin-agents",
@@ -222,7 +222,7 @@
             "when": "the agents on Boards: who they are, which boards they can see, what they did this week",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "admin-dispatches": {
             "screen": "admin-dispatches",
@@ -234,7 +234,7 @@
                 "agent"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "home": {
             "screen": "home",
@@ -242,8 +242,8 @@
             "section": "Home, admin and settings (slice 10)",
             "when": "the start: recent boards, favourites, shared with me, team folders, New board and New from template",
             "params": [],
-            "built": true,
-            "stub": false
+            "built": false,
+            "stub": true
         },
         "admin": {
             "screen": "admin",
@@ -252,7 +252,7 @@
             "when": "the admin's page: usage against the budget, the trash, the agents, the settings",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "admin-usage": {
             "screen": "admin-usage",
@@ -264,7 +264,7 @@
                 "idle_days"
             ],
             "built": false,
-            "stub": false
+            "stub": true
         },
         "admin-settings": {
             "screen": "admin-settings",
@@ -273,7 +273,7 @@
             "when": "the defaults: a new board's everyone level, the limits, retention, the trash's days, live updates on or off",
             "params": [],
             "built": false,
-            "stub": false
+            "stub": true
         }
     },
     "actions": {
@@ -302,7 +302,7 @@
             "who": "own and tokens.own",
             "agent": false,
             "record_id": "the token",
-            "built": false
+            "built": true
         },
         "token_revoke": {
             "action": "token_revoke",
@@ -323,7 +323,7 @@
             "who": "own",
             "agent": false,
             "record_id": "the token",
-            "built": false
+            "built": true
         },
         "board_create": {
             "action": "board_create",
