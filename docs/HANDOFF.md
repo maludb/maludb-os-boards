@@ -16,7 +16,8 @@ documents, before doing anything else.
   `01-phase0-plan.md` (open question (a) there). Awaiting the owner's answers to D1–D16.
 - Step 5 (the realtime spike): **done** — decision record §6.1. Every check passed; the code was deleted.
 - After the handoff: the owner took every recommendation (design §15); K40 was applied (kernel db/180); **Phase 0 is
-  complete** (design §16). Next: the owner's go → Phase 1.
+  complete** (design §16). Phase 1 was written and **approved by the owner as written** (2026-10-10); step 1 stays
+  undone at the owner's word (the plugins are read from the clones). Next: Phase 2, the shell.
 
 ## Where things stand
 

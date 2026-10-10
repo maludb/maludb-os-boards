@@ -186,6 +186,6 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 
 ## State
 
-**Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and it is ready for
-the owner. On approval: Phase 2 (the shell), then slice 1, then the exemplars, slices 2 and 3. All of these, and slices 4 and 5, are the
+**Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
+approved it as written on 2026-10-10**, the ★ decisions with it. Next: Phase 2 (the shell), then slice 1, then the exemplars, slices 2 and 3. All of these, and slices 4 and 5, are the
 planning model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

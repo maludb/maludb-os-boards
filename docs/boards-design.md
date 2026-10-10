@@ -870,5 +870,7 @@ The open questions:
   - **`tests/phase1/check_specs.sh`: 66 ok, all green.** Every row is claimed once and every tool named; each agent's job description
     names exactly its grants.
 
-  **NEXT:** the owner approves Phase 1 → Phase 2 (sso-shell) → slice 1 → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and
-  Phase 4.
+- **2026-10-10: PHASE 1 APPROVED by the owner as written**, the six ★ decisions of `docs/phase1-consistency.md` with it. The plugins stay
+  uninstalled (open question (b)): the work reads 0.9.0 from the local clones. The repository pushed (main = b7f0a2e).
+
+  **NEXT:** Phase 2 (sso-shell) → slice 1 → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and Phase 4.
