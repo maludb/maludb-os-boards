@@ -768,7 +768,34 @@ R1–R8 (§0.1) are decided and not asked again.
 
 ## 15. The owner's answers
 
-*Awaiting the owner* — D1–D16 and (a)–(b).
+**2026-10-10 — every recommendation of §13 taken** ("I accept all recommendations, so please begin"). These are now rules:
+
+- **D1.** "Boards", key `boards`, label `boards`, prefix `bd_`, area Operations, category `communication`, icon `feather-pen-tool`.
+- **D2.** Three roles: Viewer (capped at `comment`, never creates), Member (`user`), Boards admin.
+- **D3.** Spaces' permission rows with an `everyone` level; a new board is private (`default_everyone_level = none`);
+  externals only by name; folders grant nothing; no public link in v1.
+- **D4.** Miro's coordinates (the centre, relative to the frame) with an absolute `bbox` kept by trigger and indexed; frames do
+  not nest.
+- **D5.** Plain item text with whole-item style, stored as rich-text runs; comments in full rich text.
+- **D6.** Ops kept 90 days, then compacted; interval versions 30 days, then daily for a year; named versions forever.
+- **D7.** Warn at 4,000 items, refuse creates above 10,000; 500 ops a batch; 25 MB uploads; 2,000 points a drawing; 100 sockets
+  a room.
+- **D8.** Per-person undo of one's own changes; `ops_undo` for an agent's own batches within the hour.
+- **D9.** png, jpg, gif, webp and sandboxed svg; three GD thumbnails; a PDF's first page; other files as cards; 25 MB.
+- **D10.** Boards Expert and Facilitator, both hired on install, no duties, the pause list of §5.
+- **D11.** An agent sees what its member id may see (`everyone` includes agents); a mention never grants; agents appear live
+  with their own cursor.
+- **D12.** Templates in v1 as `is_template` boards, six seeded.
+- **D13.** PNG export made by the client, plus the SVG download; PDF Extended.
+- **D14.** Two K7 shares, `boards_index` and `board_outline`; no reads in v1.
+- **D15.** On request, not a default; the repository private.
+- **D16.** Ports 8198 / 8849 / 8850, live 8851, scratch 9101–9107; the planning model builds K40, Phase 0 with the spike,
+  Phase 1, Phase 2 and slices 1–5; Sonnet 5.5 builds slices 6–10 and Phase 4.
+
+The open questions:
+
+- **(a)** This file stays the plan; there is no `01-phase0-plan.md`.
+- **(b)** Installing the plugins stays the owner's to decide; the work reads them from the local clones.
 
 ## 16. State
 
@@ -780,5 +807,9 @@ R1–R8 (§0.1) are decided and not asked again.
     `board_versions`, templates as `is_template` rows).
   - This design written.
 
-  **NEXT:** the owner's answers (§15) → the realtime spike (the scratch database from the owner) → K40 (db/180) → Phase 0's
-  schema, kit, manifest, agents, skills and deploy → the owner's go → Phase 1.
+- **2026-10-10.**
+  - **The owner took every recommendation** (§15).
+  - The scratch database `bd_spike` was created by the owner for the spike.
+
+  **NEXT:** the realtime spike → K40 (db/180) → Phase 0's schema, kit, manifest, agents, skills and deploy → the owner's go →
+  Phase 1.
