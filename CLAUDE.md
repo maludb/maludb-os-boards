@@ -9,7 +9,9 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
 - Exception to the default stack, already decided: the board canvas is a TypeScript + Konva.js island (bundle built with
   esbuild in `client/`, committed under `html/assets/boards/`), and live collaboration goes through a Python WebSocket
   relay that never writes board data. Everything else is PHP + HTMX + Bootstrap 5.3 nxl.
-- The user runs all `sudo` commands; ask for them.
+- The user runs all `sudo` commands; ask for them. **One standing exception (the owner, 2026-10-10):** `sudo -n -u postgres` for
+  scratch `bd_*` databases and the three `boards_*` roles in the proofs, and for applying the kernel's Boards migration (K40).
+  Nothing else — no Apache, systemd, `/etc` or the installer's `apply`.
 - The plan is [docs/boards-design.md](docs/boards-design.md) (§0–§16, the estate's shape; the owner's answers go in §15).
   Ports: `APP_INTERNAL_PORT=8198`, `MCP_RECORDS_PORT=8849`, `MCP_ACTIVITY_PORT=8850`, `BOARDS_LIVE_PORT=8851`, scratch
   9101–9107 (8194–8197 are txtSchedules' proof servers). Prefix `bd_`. Kernel item K40 = the catalog row (db/180).
