@@ -198,9 +198,63 @@ changing the item model.
 |---|---|
 | Building canvas UX ourselves is the bulk of the work (selection, snapping, connectors routing, text) | MVP object set kept to Miro's core eight; renderer isolated; tldraw kept as a costed alternative |
 | Large boards (pen strokes, images) | Culling + Konva caching + image thumbnails from `attachments.thumbnail_path`; document a 5,000-object budget like Miro |
-| Relay down | Polling fallback via `ops?after=`; the board stays editable |
-| PHP latency on commits | Batches, optimistic local apply, one round-trip per drop; PHP-FPM/opcache |
+| Relay down | Polling fallback via `ops?after=`; the board stays editable. **Measured (§6.1):** a lost `LISTEN` reconnects and tells every room `resync` in 0.6 s |
+| PHP latency on commits | Batches, optimistic local apply, one round-trip per drop. **Measured (§6.1):** about 80 ms from a drop to the other tab, most of it a fresh PostgreSQL connection; 9 ms with a persistent connection once the server allows it (the CPU type or a pgbouncer — the owner's) |
 | Activity log flood | One entry per committed batch; coalesced text edits; ephemeral traffic never logged |
+
+### 6.1 The realtime spike — measured 2026-10-10 on the dev server
+
+**What was built.** The chain the handoff named, in a scratch directory on ports 9101–9104 against a scratch database
+`bd_spike`, with no root:
+
+- PHP under `php -S`: a commit door that inserts a `board_ops` row whose `AFTER INSERT` trigger runs `pg_notify`; a catch-up
+  door; a ticket door.
+- The relay sketch: Python 3.12, `websockets` 15.0.1 + asyncpg 0.32 `LISTEN`; rooms keyed by string, an HMAC ticket, the
+  rate limit, the level filter, and the check every 5 s instead of 60.
+- **A user-level Apache 2.4.58** (`apache2 -f`, `mod_proxy_http` only) carrying the production line
+  `ProxyPass /live http://127.0.0.1:<port>/ upgrade=websocket`.
+- Scripted WebSocket clients.
+
+The code was deleted afterwards. The cursor feel in two real browsers waits for slice 3.
+
+| Measure | Result |
+|---|---|
+| Commit → the other tab (through Apache) | **p50 1.8 ms, p95 2.7 ms, max 4.7 ms** (200 commits); direct to the relay 1.9 / 2.7 / 5.3 — Apache's tunnel costs nothing measurable |
+| A person's drop → the other tab (POST start → receipt, through Apache) | **p50 77 ms, p95 107 ms**, with a new PostgreSQL connection per request. **p50 9 ms, p95 14 ms** with a persistent connection (below) |
+| Cursors: 10 clients × 20 Hz × 10 s through Apache | **18,000 of 18,000 delivered**, p50 4.3 ms, p95 8.5 ms, max 81 ms; the relay used **23.5 % of one core** and **32 MB RSS** |
+| A 11.7 kB batch (over NOTIFY's 8 kB) | the trigger sent `{seq}` alone; the relay read the batch through its role; **30 of 30 ops** delivered |
+| A retried POST with the same `client_batch_id` | the same `seq`, `duplicate: true`, **one** ops message to the room |
+| A tampered ticket / an expired ticket | both closed **4401** before any message |
+| A viewer's socket sending `drag` and `cursor` | the peer received only the cursor |
+| 100 messages sent at once | **30** delivered (the 30/s bucket), 70 dropped |
+| The level lowered edit → view in the database | the socket was told `{"t":"level","level":"view"}` at the next check |
+| The member's sessions ended | the socket closed **4403** at the next check (5.0 s with a 5 s check — **≤ 60 s** in production) |
+| The relay's `LISTEN` backend killed (`pg_terminate_backend`) | reconnected; every room was told **`resync` within 0.56 s**; the next commit was delivered |
+| Two concurrent transactions, the first-inserted committed last | notifications arrived **406 then 405** — commit order, not `seq` order |
+
+**What the spike changed** (each a rule in the Phase 1 specs `canvas-core` and `live-relay`):
+
+1. **Hold every background task.** `asyncio.create_task()` keeps only a weak reference. The first relay's `LISTEN` task,
+   parked on a future nothing else held, was garbage-collected: "Task was destroyed but it is pending!", and no
+   notification was ever delivered. The relay keeps its tasks in a list and `gather`s them.
+2. **Order is commit order.** Notifications arrive in commit order, and the relay keeps it with one queue. `seq` order can
+   differ only for batches that touch different items: two batches on one item serialise on its row lock, **provided the
+   handler writes `board_items` before it inserts the `board_ops` row**, so the `seq` is drawn while the locks are held.
+   Clients apply ops in arrival order and keep the set of `seq`s applied recently. A catch-up asks
+   `ops?after=<last seq − 500>` and skips what it has already applied.
+3. **The per-request connection is the latency.**
+   - A fresh PDO connection costs **48 ms** on this VM: SCRAM hashing and TLS negotiation on an emulated x86-64-v2 CPU.
+     `sslmode=disable` on the loopback DSN brings it to **35 ms**.
+   - A persistent connection takes a request to **3.5 ms**. But Apache here is **prefork + mod_php with 150 workers**,
+     against PostgreSQL's **`max_connections = 100`** shared by every application on the server. Persistent connections
+     could starve the estate, and the kit sets the member's identity session-wide.
+   - **v1 keeps one connection per request.** The person who drops never waits, because the change applies locally first.
+     The other tab sees it about 80 ms later, which is faster than Miro over the internet.
+   - The route to 9 ms is the owner's and estate-wide: the VM's CPU type `host` (already asked for by the Data Lake), or a
+     pgbouncer in transaction mode in front of every application's database.
+4. **Apache needs no change** beyond the vhost line; `proxy_wstunnel` stays off.
+5. **The relay is cheap.** 10 people moving their cursors constantly cost a quarter of one core, so a room of 100 at the
+   relay's 30/s cap is within one process. Larger rooms would need a per-room fan-out budget, recorded for v2.
 
 ## 7. Checkpoint — decided 2026-10-10 (recommended option taken on each)
 

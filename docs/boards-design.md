@@ -532,6 +532,17 @@ So Spaces can run the same relay for co-editing.
 
 **Revocation (contract gap 5).** Every 60 s the relay runs `bd_live_check` for each socket (§3).
 
+**Rules from the spike** (record §6.1):
+
+- The handler writes `board_items` **before** it inserts the `board_ops` row, so a batch's `seq` is drawn while its row
+  locks are held.
+- The relay forwards notifications through one queue, in commit order.
+- Clients apply ops in arrival order and skip `seq`s already applied; a catch-up asks from `last seq − 500`.
+- The relay holds a reference to every background task.
+- A lost `LISTEN` reconnects and tells every room `resync`.
+- One PostgreSQL connection per request (prefork's 150 workers against `max_connections = 100`). The loopback DSN may set
+  `sslmode=disable`.
+
 **Polling fallback.** If the socket cannot open, or drops, the page polls `ops?after=` every 3 s while visible and says
 "Live updates paused". The board stays editable.
 
@@ -649,8 +660,15 @@ It measures:
 The results go into the decision record's risks (§6) and into `canvas-core`/`live-relay`, and the spike code is deleted. The
 owner's two-browser check of cursor feel waits for slice 3 at `boards.<domain>`.
 
-**The owner provides** a scratch database and a login role for it. This session runs no `sudo`; the commands are in the
-handoff of this session.
+**Done 2026-10-10 — every check passed** (the measurements are in record §6.1):
+
+- commit → the other tab: 1.8 ms at p50 through Apache;
+- a drop → the other tab: about 80 ms, which is the per-request connection;
+- cursors: 18,000 of 18,000 at p50 4.3 ms, with the relay at a quarter of one core;
+- a sign-out: the socket closed at the next check;
+- a lost `LISTEN`: every room told `resync` in 0.6 s.
+
+The scratch database `bd_spike` was made by the owner; the spike's tables were dropped and its code deleted.
 
 ## 11. Extended, later, and what other applications owe
 
@@ -811,5 +829,7 @@ The open questions:
   - **The owner took every recommendation** (§15).
   - The scratch database `bd_spike` was created by the owner for the spike.
 
-  **NEXT:** the realtime spike → K40 (db/180) → Phase 0's schema, kit, manifest, agents, skills and deploy → the owner's go →
-  Phase 1.
+  - **The realtime spike passed** (§10.1, record §6.1). Its five rules are in §8. One finding is estate-wide: a fresh
+    PostgreSQL connection costs 35–48 ms on this VM.
+
+  **NEXT:** K40 (db/180) → Phase 0's schema, kit, manifest, agents, skills and deploy → the owner's go → Phase 1.
