@@ -30,8 +30,10 @@
   - `GET /boards/{board}/ops?after=` — the catch-up after a reconnect, and the 3-second poll when the socket is down;
   - `POST /boards/{board}/live-ticket` — a fresh 60-second ticket, which changes nothing;
   - `POST /boards/{board}/thumbnail` — the cards' preview, posted by one editor's client at most every five minutes;
-  - `GET /boards/{board}/export` (the SVG dialect as a download) and `POST` (a PNG export the client made, logged `board.export`);
-  - `GET /files/{id}` and `GET /files/{id}/{size}` — an image, a file or a thumbnail behind the board's wall;
+  - `GET /boards/{board}/export[?frame=]` (the SVG dialect as a download — a whole board only up to 400 items, else 422 "export a frame") and
+    `POST` (a PNG export the client made, logged `board.export`) — slice 8;
+  - `GET /files/{id}` and `GET /files/{id}?size=256|1024|2048` — an image, a file or a thumbnail behind the board's wall (slice 5);
+  - `GET /boards/{board}/rail?panel=item|comments|history|outline|badge` — the canvas's right rail, one partial door (canvas-core);
   - `wss /live` — the relay, never PHP;
   - the picker (`/pick/`), `/sso`, `/sso/logout`, `/api/v1/health`.
 
@@ -50,7 +52,7 @@
   - `template.publish` beside `template.save`.
 
   The canvas's own door logs **one event per committed batch**, named by its verb: `item.create`, `item.update`, `item.move`,
-  `item.delete`, `item.text` (an edited text, once per editing session), or `item.batch` for a mixed batch. It is people-only, so no
+  `item.delete`, `item.restore`, `item.text` (an edited text, once per editing session), or `item.batch` for a mixed batch. It is people-only, so no
   agent's call is matched against it.
 - **Endpoints** are POST to `/{base}/{file}` with `bd_handler_begin()` (`require_post()`, `require_login()`, `verify_csrf()` or the relayed
   action token), the right (`require_right()`), and the board's level (`bd_require_level($board, 'view'|'comment'|'edit'|'full')`). Below

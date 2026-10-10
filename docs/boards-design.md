@@ -858,5 +858,17 @@ The open questions:
       - The installer's `plan` reads clean (33 steps); with the ports pinned as step 0 pins them, no placeholder is left
         unfilled.
 
-  **NEXT:** the owner's go → Phase 1 (the tool surface, the action manifest and its registry, the build specs `canvas-core`,
-  `live-relay` and `walls-and-sharing`, and ten slice specs).
+- **2026-10-10, at the owner's word ("Begin Phase 1"): PHASE 1 WRITTEN.**
+  - **The tool surface** (`docs/boards-mcp-tool-surface.md`): 27 records tools and 7 activity tools; the SVG dialect, normative.
+  - **The action manifest** (`docs/boards-action-manifest.md`): 26 screens, 45 actions, 12 paused for an agent, 6 people only.
+    `mcp/action_registry.json` is generated from it.
+  - **db/013, the reads:** the SVG renderer, the overview, the outlines, the usage view. The schema proof is now 167 checks.
+  - **Found:** `board_items.z` must be `COLLATE "C"`.
+  - **The specs:** three build specs (`canvas-core`, `live-relay`, `walls-and-sharing`) and eleven slice specs, written by three forks
+    in parallel from a fixed claim map and tool map. The planning model reconciled where they disagreed.
+  - **`docs/phase1-consistency.md`** records every decision.
+  - **`tests/phase1/check_specs.sh`: 66 ok, all green.** Every row is claimed once and every tool named; each agent's job description
+    names exactly its grants.
+
+  **NEXT:** the owner approves Phase 1 → Phase 2 (sso-shell) → slice 1 → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and
+  Phase 4.

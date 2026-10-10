@@ -12,7 +12,15 @@ Research complete; tech-stack decision accepted 2026-10-10. On the dev server th
 - **Phase 0 complete**: the kit and the schema (db/001–012, proven by 152 + 86 checks), `maludb-os.json`, the two agents,
   eight skills, and `deploy/` (the installer's plan clean). K40 is in the kernel's catalog.
 
-Next: the owner's go, then Phase 1. No screens yet.
+**Phase 1 is written** (2026-10-10):
+
+- the MCP tool surface;
+- the action manifest and its registry;
+- three build specs and eleven slice specs;
+- `docs/phase1-consistency.md`;
+- `tests/phase1/check_specs.sh`, all green.
+
+Next: the owner's approval, then Phase 2. No screens yet.
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).
