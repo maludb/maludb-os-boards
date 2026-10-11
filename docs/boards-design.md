@@ -892,5 +892,15 @@ The open questions:
   open); the trash and restore. `tests/phase3/slice1/run.sh`: **188 checks under php -S and under a real Apache**; Phase 2's suite now follows
   the placeholders still owed. The registry: 11 screens and 18 actions built.
 
-  **NEXT:** slice 2, the canvas — THE FIRST EXEMPLAR (`docs/build-specs/canvas.md`, `canvas-core.md`) → slice 3, live (the second) → slices 4–5 →
-  Sonnet for 6–10 and Phase 4.
+- **2026-10-11: SLICE 2 — THE CANVAS, THE FIRST EXEMPLAR — BUILT AND PROVEN** (`docs/build-specs/canvas.md` "Built and proven";
+  `canvas-core.md` "Built in slice 2"): the TypeScript + Konva island (TypeScript 5.9.3, Konva 9.3.22, esbuild 0.25.12; the bundle committed under
+  `html/assets/boards/`, `bin/check_bundle.php` failing a stale one) — stickies, Miro's ten shapes and text, the text overlay, select / shift /
+  marquee, move into and out of frames, resize and rotate, front/back, lock, copy/paste/duplicate, paste lines as stickies, undo/redo of one's own
+  batches, touch (pinch, two-finger pan, long press, double tap) at 375 px; every gesture ONE batch through `bd_commit_ops()`; another member's
+  changes by the poll with the per-property rule; "You replaced …'s edit — Undo"; the right rail (Properties, Outline); the outline page; the state,
+  the catch-up, the thumbnail; the agents' item actions with the server's layout engine. `tests/phase3/slice2/run.sh`: **191 checks under
+  php -S, 143 under a real Apache**; the 5,000-item board pans at a 16.7 ms median frame headless. The registry: 13 screens and 23 actions built.
+  Found: an agent's batch id needed the action and its parameters, not the run's request id alone; `style`/`data` must reach the database as
+  objects; a Konva node an item cannot hold 5,000 items — the batches can; the kernel's actions server splits a repeated parameter on commas.
+
+  **NEXT:** slice 3, live — THE SECOND EXEMPLAR (`docs/build-specs/live.md`, `live-relay.md`, db/014) → slices 4–5 → Sonnet for 6–10 and Phase 4.

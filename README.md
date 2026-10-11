@@ -27,7 +27,12 @@ record picker, My tokens, My trail, the board gate, and a placeholder for every 
 **Slice 1, boards, folders and sharing (the CRUD exemplar), is built and proven** (2026-10-10): `tests/phase3/slice1/run.sh`, 188 checks
 under php -S and under a real Apache.
 
-Next: slice 2, the canvas.
+**Slice 2, the canvas (the first exemplar), is built and proven** (2026-10-11): the TypeScript + Konva island (sources in `client/`, the bundle
+committed under `html/assets/boards/` — `node client/build.mjs` rebuilds it, `php bin/check_bundle.php` says whether it is current; the server
+never runs Node), the outline, the rail, the agents' item actions — `tests/phase3/slice2/run.sh`, 191 checks under php -S, 143 under a real Apache,
+with a headless performance gate on a 5,000-item board.
+
+Next: slice 3, live (the relay).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

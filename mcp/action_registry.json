@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T00:02:50+00:00",
+    "generated_at": "2026-10-11T10:25:15+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -125,8 +125,8 @@
                 "item",
                 "comment"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-outline": {
             "screen": "board-outline",
@@ -134,8 +134,8 @@
             "section": "The canvas (slice 2 — THE FIRST EXEMPLAR)",
             "when": "a board as a list: frames in order, their items, the connectors, the open comments — the 375 px reader and the screen reader's view",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-comments": {
             "screen": "board-comments",
@@ -812,7 +812,7 @@
             "who": "level edit",
             "agent": false,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "item_create_batch": {
             "action": "item_create_batch",
@@ -899,7 +899,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "item_update_batch": {
             "action": "item_update_batch",
@@ -986,7 +986,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "item_delete_batch": {
             "action": "item_delete_batch",
@@ -1019,7 +1019,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "ops_undo": {
             "action": "ops_undo",
@@ -1046,7 +1046,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "connector_create": {
             "action": "connector_create",

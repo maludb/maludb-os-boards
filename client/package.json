@@ -1,0 +1,16 @@
+{
+  "name": "boards-client",
+  "private": true,
+  "description": "The canvas island (docs/build-specs/canvas-core.md): TypeScript + Konva, bundled by esbuild into html/assets/boards/ and COMMITTED — the installer never runs npm.",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "konva": "9.3.22"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "typescript": "5.9.3"
+  }
+}

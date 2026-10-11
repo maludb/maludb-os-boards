@@ -7,9 +7,9 @@ declare(strict_types=1);
  * $opts: actor_member_id, source, screen, route, before, after, request_id, agent_run_id, department_id, location_id, kernel_request_id,
  *        token_id (the token a call ran under), board_id (Boards' audit key, design §6.6 — a board's TRAIL is one index; a uuid).
  * Boards' records are UUID-keyed: entity_id (bigint) stays NULL for a board, an item or a comment and the board's uuid rides in
- * board_id — taken from the entity when the entity IS a board. ONE ROW PER COMMITTED BATCH of items, never per drag frame. A STICKY'S
- * TEXT, A COMMENT'S BODY, A TOKEN OR A FILE PATH IS NEVER IN A PAYLOAD: ids, names, counts, kinds, levels and byte sizes are; a token is
- * named by its LABEL in `after`.
+ * board_id — taken from the entity when the entity IS a board. ONE ROW PER COMMITTED BATCH of items, never per drag frame. A COMMENT'S
+ * BODY, A TOKEN OR A FILE PATH IS NEVER IN A PAYLOAD: ids, names, counts, kinds, levels and byte sizes are; a token is named by its LABEL
+ * in `after`. An item's text appears only on item.text, cut to its first 200 characters (the manifest's "Log payloads"; slice 2).
  */
 function log_activity(PDO $pdo, string $action, ?string $entityType = null, int|string|null $entityId = null, array $opts = []): void
 {

@@ -88,8 +88,13 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
     'the tab is highlighted and the screen stamped boards-list for the command bar');
   ok((await overflow(page)).sw === 375, 'no sideways scroll on Boards');
   await page.goto(BASE + '/boards/' + board, { waitUntil: 'networkidle' });
-  ok((await page.locator('#nav-stub-line').innerText()).includes('Built by slice 2') && (await page.locator('.page-header-title').innerText()).includes('SMOKE Q4 retro') && (await page.locator('.level-badge').innerText()) === 'Owner',
-    'a board\'s page names the board, her level (Owner) and the slice that builds the canvas');
+  if (await page.locator('#board-canvas').count()) {          // slice 2 built the canvas: its top bar names the board and her level
+    ok((await page.locator('#board-title').innerText()).includes('SMOKE Q4 retro') && (await page.locator('#board-level-badge .level-badge').innerText()) === 'Owner',
+      'a board\'s page (the canvas since slice 2) names the board and her level (Owner)');
+  } else {
+    ok((await page.locator('#nav-stub-line').innerText()).includes('Built by slice 2') && (await page.locator('.page-header-title').innerText()).includes('SMOKE Q4 retro') && (await page.locator('.level-badge').innerText()) === 'Owner',
+      'a board\'s page names the board, her level (Owner) and the slice that builds the canvas');
+  }
   for (const p of ['/activity', '/settings/tokens/', '/search', '/notifications', '/templates', '/folders', '/trash', `/boards/${board}/share`]) {
     await page.goto(BASE + p, { waitUntil: 'networkidle' });
     ok((await overflow(page)).sw === 375, 'no sideways scroll on ' + p.replace(board, '{board}'));

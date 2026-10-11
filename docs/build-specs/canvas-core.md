@@ -251,7 +251,9 @@ in the same batch when the block would run past its edge; else **empty space**: 
    `bd_undo_ops()` is the agents' (`ops_undo`).
 4. `bd_guard()` gains `42501 → 403` and `22023 → 422` in Phase 2 (the shell owns the kit).
 5. The SVG export takes the whole board only up to 400 items (`bd_region_svg()`'s cap); above, a frame. PNG has no such limit.
-6. An agent's retried call is idempotent: `client_batch_id` = a uuid from md5 of the request id.
+6. An agent's retried call is idempotent: `client_batch_id` = a uuid from md5 of the request id. **Corrected in slice 2:** md5 of the run's
+   request id, the action's path and its parameters — every call of a run carries the run's request id, so a second, different call in the same
+   turn would have answered "duplicate".
 7. The layout engine grows a target frame to fit, and places a block with no position below everything else on the board.
 8. `data-test="1"` is set only under `tests/dev_router.php` (`BD_TEST_HOOKS`) and never in production.
 9. Headless performance passes at median ≤ 33 ms a frame (30 fps) on this host; 60 fps is checked by the owner in a real browser.
@@ -260,3 +262,40 @@ in the same batch when the block would run past its edge; else **empty space**: 
 ## Open questions
 
 - (none)
+
+## Built in slice 2 — notes for slices 3, 4 and 5 (2026-10-11)
+
+What the exemplar became, where it differs from the text above or adds to it. canvas.md "Built and proven" holds the decisions.
+
+- **How an item is drawn** (`render/layers.ts`): each type has `draw<Type>(ctx, item, zoom)` over its own box `[0, w] × [0, h]`
+  (`render/items/sticky.ts`, `shape.ts`, `text.ts`, `placeholder.ts`). What is not selected is painted by **batch shapes**: a `Konva.Shape` walks a
+  run of items in z order and calls the draw functions on the canvas directly. A selected item gets a node of its own, a `Konva.Shape` at its centre,
+  rotated, whose scene function is the same draw function. The Transformer needs a node, and the runs split around it so the z order holds. Below
+  zoom 0.4 a run is flat rectangles in one pass (`lod.ts drawFlats`). **Slices 4 and 5 add a type by adding its draw function to `drawItem()`.**
+  `placeholder.ts` stands in until then, and is replaced the same way.
+- **Text** is laid out by the island (`render/items/text.ts`: `layoutText()`, cached per text, size and width; `fitFontSize()` searches the size
+  ladder by halves). The editor's overlay uses the same sizes and padding. Konva.Text is not used.
+- **Layers:** the background is a CSS pattern on the stage's element, moved with the camera. Frames and items are two groups of one canvas layer.
+  The selection layer (Transformer, marquee, lock outlines) and the presence layer (slice 3: cursors, agents) draw only while they hold
+  something. That is three canvases in all, and every canvas costs a clear and a composite a frame on software rendering.
+- **The context** every tool and UI part shares is `client/src/board.ts` (`Board`): the store, the view, the renderer, the committer, the undo
+  stack, the selection, the toasts, the level, `commit(ops)` (applied now, undoable, the poll kicked), `setTool`, `editText`, `frameAt`.
+- **Input** is one router (`tools/input.ts`, pointer events on the stage's element). One pointer drives the active tool's gesture
+  (`down → move → up | cancel`). Two fingers pinch and pan, cancelling the gesture. The wheel pans, and Ctrl+wheel zooms at the pointer. The
+  middle button and Space+drag pan. A press on the Transformer's handles is Konva's. Double-click or double-tap calls the tool's `dbl`.
+  **A new tool** (slice 4's connector and frame, slice 5's pen, highlighter, eraser and image, slice 6's comment) is a class with
+  `name`, `cursor`, `down(p) → Gesture | null` and an optional `dbl`. It is registered in `main.ts`'s `tools` and gets a `data-tool` button in
+  `app/views/boards/partials/toolbar.php`.
+- **Files beyond the list above:** `board.ts`, `tools/input.ts`, `ui/clipboard.ts`, `ui/thumbnail.ts`, `ui/testhook.ts`,
+  `render/items/placeholder.ts`, `boards.css` (built into `boards.<hash>.css`; `manifest.json` names both, and `bin/check_bundle.php` checks both).
+- **The sync's last-writer rule** (`sync/commit.ts`). `pendingKeys` holds my unanswered writes by `id|field`, with style and data by key
+  (`style.fillColor`). `ackedKeys` holds the seq of my last answered write of each. A remote op's field gives way to either, so a remote batch
+  older than my write never overwrites it in my view. `catchup.lastSeq` moves only with remote batches; my own seqs join the applied set.
+- **Slice 3 replaces `sync/socket.ts`'s body and keeps its shape:** `connectLive(cfg, {onBatch, onState, onResync, onLevel})` answering
+  `{state, close()}`. `main.ts` already stops the poll when the state is `live` and starts it otherwise.
+- **The test hook** (`window.__boards`, only under `tests/dev_router.php`) adds to the list above: `ready()`, `selection()`, `camera()`,
+  `setCamera(x, y, zoom)`, `pending()`, `thumbnail()`, `resetPerf()`, and `panFrames(dx, dy, frames)`, the performance gate's pan (one step a
+  frame, drawn in that frame).
+- **The performance gate** (`tests/phase3/slice2/perf.mjs`) measures three views (the opening one, 100 %, 45 %). Its reading for a shared VM is
+  canvas.md "Built and proven" 7.
+

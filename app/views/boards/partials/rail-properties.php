@@ -1,0 +1,78 @@
+<?php
+/**
+ * The rail's Item panel — the selection's Properties (canvas.md "The rail partials"): the sticky colour (Miro's palette), a shape's fill, a
+ * text's colour, the text size (S M L XL = 14 18 24 36), the alignment, Lock, Bring to front / Send to back, Delete; for ONE item its type,
+ * size and "Set as the start view". Every control is a button carrying data-board-command: the island turns it into ONE batch (optimistic
+ * and undoable like any edit) — never a form post. Refreshed on `boards:select`. Data: board, rows (rail_selection), sum (rail_summary or
+ * null), may (I can change items here), mayStart (I can set the start view — board_update, level edit)
+ */
+$ids = implode(',', array_map(static fn ($r) => (string) $r['item_id'], $rows));
+$swatch = static fn (string $cmd, string $key, string $value, string $hex, string $label, string $types, bool $on): string =>
+    '<button type="button" class="board-swatch-btn' . ($on ? ' active' : '') . '" data-board-command="' . e($cmd) . '" data-key="' . e($key) . '" data-value="' . e($value)
+    . '" data-types="' . e($types) . '" title="' . e($label) . '" aria-pressed="' . ($on ? 'true' : 'false') . '"><span style="background:' . e($hex) . '"></span><span class="visually-hidden">' . e($label) . '</span></button>';
+?>
+<div id="rail-item" class="rail-panel" data-ids="<?= e($ids) ?>"
+     hx-get="/boards/<?= e($board) ?>/rail?panel=item" hx-trigger="boards:select from:body" hx-target="this" hx-swap="outerHTML"
+     hx-vals='js:{ids: (document.getElementById("page-content").dataset.selection || "")}'>
+<?php if ($rows === []): ?>
+    <p class="text-muted fs-13 mb-0 p-3" id="rail-item-empty">Select something on the board to see its properties here.</p>
+<?php else: ?>
+    <div class="p-3">
+        <div class="fw-semibold mb-2" id="rail-item-title"><?= count($rows) === 1 ? e(item_type_words($rows[0])) : count($rows) . ' items selected' ?>
+            <?php if ($sum['all_locked']): ?><span class="badge text-bg-warning ms-1" id="rail-item-locked"><i class="feather-lock me-1"></i>Locked</span><?php endif; ?></div>
+        <?php if ($may && !$sum['all_locked']): ?>
+            <?php if ($sum['sticky_color'] !== null): ?>
+                <div class="rail-label">Sticky colour</div>
+                <div class="rail-swatches" id="rail-sticky-colors">
+                    <?php foreach (STICKY_COLORS as $name => $hex): ?><?= $swatch('style', 'fillColor', $name, $hex, str_replace('_', ' ', $name), 'sticky_note', $sum['sticky_color'] === $name) ?><?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($sum['fill'] !== null): ?>
+                <div class="rail-label">Fill</div>
+                <div class="rail-swatches" id="rail-fill-colors">
+                    <?php foreach (ITEM_PALETTE as $hex): ?><?= $swatch('style', 'fillColor', $hex, $hex, $hex, 'shape', strtolower($sum['fill']) === $hex) ?><?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($sum['text_color'] !== null): ?>
+                <div class="rail-label">Text colour</div>
+                <div class="rail-swatches" id="rail-text-colors">
+                    <?php foreach (ITEM_PALETTE as $hex): ?><?= $swatch('style', 'textColor', $hex, $hex, $hex, 'text', strtolower($sum['text_color']) === $hex) ?><?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($sum['has_text']): ?>
+                <div class="rail-label">Text size</div>
+                <div class="btn-group mb-2" role="group" id="rail-text-size">
+                    <?php foreach (TEXT_SIZES as $label => $px): ?>
+                        <button type="button" class="btn btn-outline-secondary btn-touch<?= $sum['font_size'] === (string) $px ? ' active' : '' ?>" data-board-command="style" data-key="fontSize" data-value="<?= (int) $px ?>" data-types="sticky_note,shape,text" id="rail-size-<?= e($label) ?>"><?= e($label) ?></button>
+                    <?php endforeach; ?>
+                </div>
+                <div class="rail-label">Alignment</div>
+                <div class="btn-group mb-2" role="group" id="rail-align">
+                    <?php foreach (['left' => 'feather-align-left', 'center' => 'feather-align-center', 'right' => 'feather-align-right'] as $al => $icon): ?>
+                        <button type="button" class="btn btn-outline-secondary btn-touch<?= $sum['align'] === $al ? ' active' : '' ?>" data-board-command="style" data-key="textAlign" data-value="<?= e($al) ?>" data-types="sticky_note,shape,text" id="rail-align-<?= e($al) ?>" title="<?= e(ucfirst($al)) ?>"><i class="<?= e($icon) ?>"></i></button>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <button type="button" class="btn btn-light btn-touch" data-board-command="front" id="rail-front"><i class="feather-chevrons-up me-1"></i>Bring to front</button>
+                <button type="button" class="btn btn-light btn-touch" data-board-command="back" id="rail-back"><i class="feather-chevrons-down me-1"></i>Send to back</button>
+                <button type="button" class="btn btn-light btn-touch" data-board-command="lock" data-value="1" id="rail-lock"><i class="feather-lock me-1"></i>Lock</button>
+                <button type="button" class="btn btn-outline-danger btn-touch" data-board-command="delete" id="rail-delete"><i class="feather-trash-2 me-1"></i>Delete</button>
+            </div>
+        <?php elseif ($may): ?>
+            <button type="button" class="btn btn-light btn-touch mt-1" data-board-command="lock" data-value="0" id="rail-unlock"><i class="feather-unlock me-1"></i>Unlock</button>
+        <?php endif; ?>
+        <?php if (count($rows) === 1): $r = $rows[0]; ?>
+            <dl class="rail-facts mt-3 mb-0 fs-12">
+                <dt>Size</dt><dd id="rail-item-size"><?= (int) round((float) $r['width']) ?> × <?= (int) round((float) $r['height']) ?></dd>
+                <dt>Centre</dt><dd id="rail-item-centre"><?= (int) round(((float) $r['x1'] + (float) $r['x2']) / 2) ?>, <?= (int) round(((float) $r['y1'] + (float) $r['y2']) / 2) ?></dd>
+                <?php if ((float) $r['rotation'] != 0.0): ?><dt>Rotation</dt><dd><?= (int) round((float) $r['rotation']) ?>°</dd><?php endif; ?>
+            </dl>
+            <?php if ($mayStart): ?>
+                <button type="button" class="btn btn-link btn-sm p-0 mt-2" data-board-command="start-view" id="rail-start-view"
+                        data-x="<?= e((string) round(((float) $r['x1'] + (float) $r['x2']) / 2)) ?>" data-y="<?= e((string) round(((float) $r['y1'] + (float) $r['y2']) / 2)) ?>"><i class="feather-flag me-1"></i>Set as the start view</button>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+</div>

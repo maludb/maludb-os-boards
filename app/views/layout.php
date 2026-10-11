@@ -7,7 +7,8 @@
  * holder of its right) and the main pane #page-content (the HTMX target); the header carries the search box, the switcher, the bell, the
  * account menu. At 375 px: the header's menu button (or the Me tab) opens the sidebar as an offcanvas; the bottom tab bar carries
  * Home · Boards · Search · Me; the command bar sits above it; search is the header's magnifier and the tab.
- * The canvas (slice 2) is the one screen that is an island inside #page-content; everything else is HTMX.
+ * The canvas (slice 2) is the one screen that is an island inside #page-content; everything else is HTMX. Its page sets `canvas`: the
+ * menu starts collapsed, the footer goes, the island sizes the page to the window (an HTMX navigation into a board is a full load).
  */
 $title      = $title      ?? app_name();
 $content    = $content    ?? '';
@@ -15,6 +16,7 @@ $activeNav  = $activeNav  ?? '';
 $screen     = $screen     ?? '';
 $entity     = $entity     ?? '';
 $recordId   = $recordId   ?? '';
+$canvas     = !empty($canvas);      // the board's canvas (slice 2): the menu collapsed, no footer, the page never scrolls — the island fills it
 $navlink = function (string $id, string $url, string $icon, string $label) use ($activeNav): string {
     $active = $activeNav === $id ? ' active' : '';
     return '<li class="nxl-item" id="nav-' . e($id) . '">'
@@ -28,7 +30,7 @@ $navlink = function (string $id, string $url, string $icon, string $label) use (
 $first = array_key_first(nav_groups());
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?= $canvas ? ' class="minimenu"' : '' ?>>
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
@@ -48,7 +50,7 @@ $first = array_key_first(nav_groups());
     <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
     <link rel="stylesheet" type="text/css" href="/assets/css/app-overrides.css" />
 </head>
-<body>
+<body<?= $canvas ? ' class="board-canvas-page"' : '' ?>>
     <!--! [Start] Navigation (the sidebar on a desktop; the offcanvas from the menu button on a phone) !-->
     <nav class="nxl-navigation" id="left-sidenav">
         <div class="navbar-wrapper">

@@ -158,3 +158,72 @@ history and versions (7); exports and templates (8); `items_arrange` (9). The ra
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-11)
+The canvas stands — THE FIRST EXEMPLAR, the one every canvas slice extends. **The page** (`/boards/{board}`): the nxl shell with the menu
+collapsed and the footer gone, sized to the window between the header and the command bar; the top bar (back, the title, the level badge, Locked,
+Outline, Share for `full`, the panel's toggle, the board's menu — Export, Duplicate and Save as template shown disabled for slice 8); the
+island's mount with canvas-core's attributes; the left toolbar (Select · Hand · Sticky · Shape with Miro's ten · Text; the later tools disabled
+with their slice) that becomes the bottom bar at 375 px with a "More"; the bottom bar (Undo/Redo, zoom −/+, the percentage, Fit); the right rail
+— Item (the selection's Properties: Miro's sticky palette, fills and text colours, S M L XL, alignment, front/back, Lock/Unlock, Delete, and for
+one item its size, centre and "Set as the start view"), Outline, Comments (slice 6), History (slice 7) — a bottom sheet at 375 px. An HTMX
+navigation into a board is a full page load; leaving the canvas over HTMX takes the island down. Without JavaScript the page links the outline.
+**The island** (`client/`, TypeScript 5.9.3 + Konva 9.3.22, built by esbuild 0.25.12 into `html/assets/boards/boards.<hash>.js/.css`, committed
+with `manifest.json`): draw stickies, Miro's ten shapes and text; edit text in a DOM overlay (auto-fitting a sticky's words); select, shift-
+select and marquee; move (a drop re-parents into the frame under the item's centre), resize and rotate with Konva's Transformer; front/back;
+lock; Ctrl+C / Ctrl+V / Ctrl+X, Ctrl+D (24 further on), Delete; paste outside text as a sticky a line (≤ 50); undo/redo of MY batches (Ctrl+Z,
+Ctrl+Shift+Z, the bar); the wheel pans and Ctrl+wheel zooms (0.05–8); one finger pans the empty canvas, two pinch and pan, a long press opens
+the Item sheet, a double tap edits; every gesture ONE batch through `POST /boards/{board}/ops` with its local inverse kept for a refusal (the
+database's sentence in a toast), a retry with the same `client_batch_id` after 1, 3, 10 s, then "Not saved — check your connection"; another
+member's batches arrive by the poll (`ops?after=`, `poll_seconds`) with the per-property rule (a remote field gives way to my pending or later
+write); "You replaced Priya's edit — Undo"; the soft budget's banner once a session; a viewer or commenter selects and reads, with no tool and no
+Transformer. **The outline page** reads the board as a list (every line opens the canvas at its item; "Copy as Markdown" is `bd_board_outline()`).
+**The doors**: the state (one statement, gzip), the catch-up (≤ 500 a page, `resync` after a compaction), the commit, the rail, the thumbnail (an
+editor's 480 × 300 PNG at most every five minutes, the card in `/boards` showing it). **The agents' item actions** (`/items/create|update|delete|
+undo.php`) place with the layout engine (`bd_layout()` + `items_layout()`, in a frame growing to hold the block, at x/y, or below the board), map
+colours and Miro's shape names, commit ONE batch with source agent / command_bar / web, and answer the seq. The registry reads **13 screens and
+23 actions built**.
+
+**Proven** by `tests/phase3/slice2/run.sh` (scratch `bd_dev2`): **191 checks under php -S, 143 under a real Apache** — the bundle 2 (current;
+stale after a source is touched; current again), doors 46, the commit 33 (refusals 403/404/409/422 in the database's words, the retry, per-property
+last-writer-wins, `replaced`, one log row a batch by its verbs, the cap, and the z keys: PHP's and TypeScript's twins make the same 14 cases),
+the agents' actions 31, undo 17, JSON 6, the browser 48 under php -S (real mouse, keyboard and CDP touch; two members, the poll within 1.7 s;
+a commenter; 375 px; JavaScript off; no console error) and 6 under Apache (no test hook there: real input asserted on the database), the
+performance gate 6 (php -S), the registry 2 — then slice 1's suite (188 under both) and Phase 2's (258 / 266) — both follow what is built. The
+kit (87), the schema (167) and Phase 1's checks (66) green. **The performance gate on the 5,000-item fixture** (headless Chromium, software
+rendering, this VM): the state in ~0.6 s, the first frame in ~1.7 s, and a 2,000 px pan at the opening view (all 5,000 at the low detail), at
+100 % in a cluster and at 45 % across clusters (the most text) — **a median frame of 16.7 ms (60 fps) in every view**, the island's own work a
+frame 3–9 ms (median).
+
+**Decisions taken in the build:**
+1. **Where the two specs disagreed, canvas-core won** (as reconciliation 1 already ruled): the layout's gap 24 (this spec said 20), a text cell
+   200 × 60 (300 × 60), the paste and duplicate offset 24 (20), the rail's panel `item` with `ids=` (this spec said `properties` / `items=`; the
+   manifest agrees with canvas-core). **One exception, this spec's door table:** the commit answers an item id another item holds **409
+   conflict** (the island tells a collision from a rule); everywhere else 23505 stays the kit's 422.
+2. **A block in a frame goes below what the frame already holds** (gap 24 from its left, its children's bottom + 24 — under the title band +
+   24 when empty); canvas-core's "top-left + (gap, 60 + gap)" would have stacked a second call on the first. The frame grows to hold the block
+   and a gap, its top-left fixed (its children are relative to it).
+3. **An agent's batch id is md5 of the run's request id, the action's path and its parameters** (canvas-core decision 6, corrected): every call of
+   one agent run carries the run's request id, so the request id alone would have answered a second, different call in the same turn
+   "duplicate" and done nothing. A retried call (same parameters) still commits once and answers the first commit's items.
+4. **`style` and `data` are always JSON objects at the database**: `commit_ops()` turns an empty or list PHP array into an object. Found by the
+   proof — PHP decodes the island's `{}` into `[]`, and a text item made with no colour had `style: []`; the column's check would have refused
+   both.
+5. **The thumbnail is not logged** (canvas-core decision 10; this spec's event list named `board.thumbnail`). An editor's island also posts
+   one a few seconds after opening a board whose preview is missing or older than five minutes, so boards changed by agents get one.
+6. **How items are drawn** (canvas-core "Built in slice 2"): one draw function a type over the item's own box; batches paint what is not
+   selected, a selected item has a node of its own whose scene function is the same draw function; text laid out by the island's own cached
+   layout (Konva.Text is not used); the background is a CSS pattern; three canvases. Found by the performance gate — a Konva node an item cost
+   42 ms a frame at 5,000 items; the batches cost 3–4 ms.
+7. **The performance gate on this VM** (decision 9 read for a shared machine): an EMPTY animation-frame loop here shows single frames of
+   100–330 ms now and then (other sessions' load), printed in every run. So the gate is the frame interval's median ≤ 33.4 ms (30 fps — intervals
+   come in 16.7 ms steps), its 95th percentile ≤ 100 ms and the island's own work in every frame ≤ 100 ms, with up to three attempts a view
+   (every attempt printed; a regression fails all three). The longest interval is printed beside the empty loop's. 60 fps in a real browser is
+   the owner's check.
+8. **"Set as the start view"** goes through the island as `board_update` (`start_view` "x y zoom", JSON) — the canvas stays open.
+9. **A text item left empty when it was just made goes again** when its editor closes (one more batch, a delete). A sticky or a shape stays.
+10. **Selected items are always drawn and held**: the cull keeps them, so the Transformer never loses its node off-screen.
+
+**Found for the owner:** the kernel's actions server splits a repeated parameter on commas before posting it (`mcp/application_actions.py`,
+`texts[]` → `split(",")`), so an agent's sticky text cannot contain a comma through `item_create_batch`. Boards takes the list as sent and never
+dedupes it; the fix is the kernel's (a JSON list, or a separator agents are told of).

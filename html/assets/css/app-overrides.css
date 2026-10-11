@@ -113,7 +113,8 @@ label.btn-touch { display: flex; }
    pickers take the row's width on a phone.
    ========================================================================== */
 .board-card-thumb { width: 64px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;
-    border: 1px solid rgba(0,0,0,.1); text-decoration: none; }
+    border: 1px solid rgba(0,0,0,.1); text-decoration: none; overflow: hidden; }
+.board-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }   /* slice 2: the canvas's preview */
 .board-star .btn { min-width: 44px; min-height: 44px; font-size: 1.1rem; line-height: 1; }
 .board-swatch { position: relative; cursor: pointer; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 .board-swatch .board-swatch-chip { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); }

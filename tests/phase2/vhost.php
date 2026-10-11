@@ -31,10 +31,21 @@ foreach (['' => 'board-view', '/settings' => 'board-settings', '/share' => 'boar
     ok($r['code'] === 200 && str_contains($r['body'], 'data-screen="' . $screen . '"'), "/boards/{board}$suffix → boards/" . ($suffix === '' ? 'view' : ltrim($suffix, '/')) . '.php with the board');
 }
 ok(str_contains(page($jp, "/templates/$board")['body'], 'data-screen="template-view"'), '/templates/{board} → templates/view.php');
+// the doors: rewritten to their files — answering as themselves once their slice built them (slice 2: state, ops, rail, thumbnail), 404 until then
+$doorOk = ['/state' => static fn ($r) => $r['code'] === 200 && isset(body_json($r)['last_seq']), '/ops' => static fn ($r) => $r['code'] === 200 && isset(body_json($r)['batches']),
+           '/rail' => static fn ($r) => $r['code'] === 200 && str_contains($r['body'], 'rail-item'), '/thumbnail' => static fn ($r) => $r['code'] === 404 && str_contains($r['body'], 'no preview yet')];
 foreach (['/state', '/ops', '/live-ticket', '/thumbnail', '/export', '/rail'] as $door) {
-    ok(page($jp, "/boards/$board$door")['code'] === 404, "the door /boards/{board}$door is rewritten to its file, which a later slice builds: 404 until then");
+    $built = is_file(dirname(__DIR__, 2) . '/html/boards/' . ltrim($door, '/') . '.php');
+    $r = page($jp, "/boards/$board$door", ['headers' => ['Accept: application/json']]);
+    if ($door === '/rail') { $r = page($jp, "/boards/$board$door"); }
+    ok($built ? ($doorOk[$door] ?? static fn ($r) => $r['code'] !== 404)($r) : $r['code'] === 404,
+        "the door /boards/{board}$door is rewritten to its file" . ($built ? ', which answers as itself' : ', which a later slice builds: 404 until then'));
 }
-ok(req('POST', '/items/create.php', ['jar' => $jp])['code'] === 404 && req('POST', '/comments/create.php', ['jar' => $jp])['code'] === 404, 'the later slices\' handlers: 404 until their slice (items 2, comments 6)');
+foreach (['/items/create.php' => 2, '/comments/create.php' => 6] as $file => $slice) {
+    $built = is_file(dirname(__DIR__, 2) . '/html' . $file);
+    $code = req('POST', $file, ['jar' => $jp])['code'];
+    ok($built ? $code === 403 : $code === 404, $built ? "$file (slice $slice) answers: a POST without the page's CSRF token is refused (403)" : "$file: 404 until slice $slice");
+}
 ok(req('GET', '/nosuchscreen', ['jar' => $j])['code'] === 404, 'an unknown path: 404');
 $h = req('GET', '/api/v1/health');
 ok($h['code'] === 200 && (body_json($h)['application'] ?? '') === 'boards' && (body_json($h)['storage'] ?? '') === 'ok', '/api/v1/health answers, its store ok');

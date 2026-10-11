@@ -70,8 +70,10 @@ let board = '';
   await page.click('#board-form-save-btn');
   await page.waitForURL(/\/boards\/[0-9a-f-]{36}$/);
   board = page.url().split('/').pop();
-  await page.waitForSelector('#nav-stub-line');
-  ok((await page.locator('#nav-stub-line').innerText()).includes('slice 2') && (await page.locator('.page-header-title').innerText()).includes('SMOKE Browser board'), 'saved: it lands on the board (the canvas is slice 2\'s), named');
+  await page.waitForSelector('#board-canvas.ready, #nav-stub-line');
+  ok(await page.locator('#board-canvas').count() ? (await page.locator('#board-title').innerText()).includes('SMOKE Browser board')
+    : (await page.locator('#nav-stub-line').innerText()).includes('slice 2') && (await page.locator('.page-header-title').innerText()).includes('SMOKE Browser board'),
+    'saved: it lands on the board — the canvas since slice 2 — named');
   await page.goto(BASE + '/boards', { waitUntil: 'networkidle' });
   ok(await page.isVisible(`#board-card-${board}`) && await overflow(page) === 0, 'the list shows its card, no sideways scroll');
   const card = await page.locator(`#board-card-${board}`).boundingBox();

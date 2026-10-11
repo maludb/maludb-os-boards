@@ -191,8 +191,19 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     and `maludb-os.json` were right. And a Boards admin's "own or boards.admin" on a folder needed a path past `mcp_folders`, which lists a
     person's own folder only to them (boards-folders.md "Built and proven" 2).
 
+13. **Found in slice 2:** canvas.md and canvas-core.md disagreed on the layout's gap (20 / 24), a text cell (300 × 60 / 200 × 60), the paste
+    offset (20 / 24) and the rail's panel name (`properties` / `item`) — canvas-core won, as reconciliation 1 had ruled; the commit's answer to
+    an item id taken follows canvas.md's door table (409). canvas-core's decision 6 is corrected: an agent's batch id is md5 of the run's request id,
+    the action's path and its parameters — the run's request id alone made a second call in the same turn a "duplicate". A block placed in a frame
+    goes below what the frame holds, not on top of it. canvas.md named a `board.thumbnail` event; canvas-core (not logged) won.
+14. **Found in slice 2, the performance gate:** "no frame over 100 ms" is not measurable as a raw frame interval on this shared VM (an empty
+    animation-frame loop shows 100–330 ms frames now and then); the gate reads the interval's median and 95th percentile and the island's own
+    work a frame, three attempts a view (canvas.md "Built and proven" 7). The rendering became batches with nodes for the selection only
+    (canvas-core "Built in slice 2").
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
-approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10). Next: the exemplars, slices 2 and 3, then slices 4 and 5 — all the planning
+approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
+first exemplar —, is built and proven** (2026-10-11). Next: the second exemplar, slice 3 (live), then slices 4 and 5 — all the planning
 model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

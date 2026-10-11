@@ -22,7 +22,11 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
   `~/htmx-php-builder` and `~/maludb-os-integration` (both 0.9.0).
 - Proofs, one after the other (they share ports 9101–9103): `tests/phase0/run.sh` (the kit), `tests/phase0/schema.sh` (the schema),
   `tests/phase1/check_specs.sh` (the specs' claims), `tests/phase2/run.sh` and `BD_APP=apache tests/phase2/run.sh` (the shell, under php -S and
-  under a user-level Apache rendering the deploy vhost — no root). A slice's suite re-runs every earlier one.
+  under a user-level Apache rendering the deploy vhost — no root), `tests/phase3/slice1/run.sh`, `tests/phase3/slice2/run.sh` (each also with
+  `BD_APP=apache`). A slice's suite re-runs every earlier one.
+- The canvas is `client/` (TypeScript + Konva; Node is a development tool here only): after any change under `client/src/` run
+  `node client/build.mjs` and commit `html/assets/boards/` with it — `php bin/check_bundle.php` fails a stale bundle, and every slice's proof runs
+  it. How an item is drawn, how a tool is added and what slice 3 replaces: `docs/build-specs/canvas-core.md` "Built in slice 2".
 - Every board page, door and handler starts with `bd_board_or_404($pdo, $board, <level>)` (`app/features/boards/wall.php`): the database
   decides the level and answers 404/403 in its own words through `bd_guard()`. A slice's first step on a screen is removing its
   `render_nav_stub()` call; the Phase 2 suite follows the placeholders still owed.

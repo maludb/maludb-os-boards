@@ -1,7 +1,7 @@
 <?php
 /**
- * A board as a card (RecordCard's look — the owner's rule for named things): the thumbnail (slice 2's — until then the board's initial on its
- * background colour), the title as a link carrying ?back=, the owner, the level badge, "Locked", "{n} items", "{n} open threads", "updated …",
+ * A board as a card (RecordCard's look — the owner's rule for named things): the thumbnail (the canvas's preview, slice 2 — the board's
+ * initial on its background colour until an editor's canvas has posted one), the title as a link carrying ?back=, the owner, the level badge, "Locked", "{n} items", "{n} open threads", "updated …",
  * the star. On a folder's page its owner sees "Remove from folder". Data: r (a find_boards row), back, folder (row or null), tz
  */
 $id = (string) $r['board_id'];
@@ -13,7 +13,11 @@ $isOwner = (int) ($r['owner_member_id'] ?? 0) === (int) current_member_id();
 ?>
 <div class="card record-card board-card mb-0 h-100" id="board-card-<?= e($id) ?>"><div class="card-body py-3 d-flex gap-3 align-items-start">
     <a href="<?= e(with_back('/boards/' . $id, $back)) ?>" class="board-card-thumb rounded flex-shrink-0" style="background-color: <?= e($color) ?>" aria-hidden="true" tabindex="-1">
-        <span class="<?= $dark ? 'text-white' : 'text-dark' ?>"><?= e($initial) ?></span>
+        <?php if (!empty($r['thumbnail_id'])): ?>
+            <img src="/boards/<?= e($id) ?>/thumbnail?v=<?= (int) $r['thumbnail_id'] ?>" alt="" loading="lazy" id="board-card-<?= e($id) ?>-thumb">
+        <?php else: ?>
+            <span class="<?= $dark ? 'text-white' : 'text-dark' ?>"><?= e($initial) ?></span>
+        <?php endif; ?>
     </a>
     <div class="min-w-0 flex-grow-1">
         <div class="d-flex align-items-start gap-1">

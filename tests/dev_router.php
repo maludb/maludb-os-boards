@@ -7,7 +7,8 @@
  * /templates/{board} → templates/view.php; a page of a numbered record (/folders/12/edit) and the canonical URLs (/x/new, /x/{id}/edit,
  * /x/{id}, /x → x.php or x/index.php). /live is the relay's (Apache proxies it; never PHP's) and answers 404 here; and, under the
  * scratch environment only, the proofs' fixture doors /__proof/<name>.php (tests/phase2/routes/ — never a file of html/).
- * A rewrite to a file its slice has not built yet answers 404, as Apache does. Anything that is a real file is served as it is.
+ * A rewrite to a file its slice has not built yet answers 404, as Apache does. Anything that is a real file is served as it is. Under the
+ * scratch environment it defines BD_TEST_HOOKS, which alone puts the canvas's test hook on the page (slice 2).
  */
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $root = dirname(__DIR__) . '/html';
@@ -43,6 +44,11 @@ else { http_response_code(404); echo 'Not found'; return true; }
 if (!is_file($root . $target)) { http_response_code(404); echo 'Not found'; return true; }
 $_SERVER['SCRIPT_NAME'] = $target;
 $_SERVER['SCRIPT_FILENAME'] = $root . $target;
+// the canvas's test hook (canvas-core decision 8): the mount carries data-test="1" — and the island installs window.__boards — ONLY when
+// this router served the page under the scratch environment; never under Apache, never in production
+if ((string) getenv('BD_DEV_ENV') !== '' && !defined('BD_TEST_HOOKS')) {
+    define('BD_TEST_HOOKS', true);
+}
 chdir(dirname($root . $target));
 require $root . $target;
 return true;

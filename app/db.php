@@ -74,3 +74,12 @@ function one_value(PDO $pdo, string $sql, array $args = []): mixed
     $v = $st->fetchColumn();
     return $v === false ? null : $v;
 }
+
+/** The first row (an associative array), or null. (Sales CRM's kit addition, slice 3.) */
+function one_row(PDO $pdo, string $sql, array $args = []): ?array
+{
+    $st = $pdo->prepare($sql);
+    $st->execute($args);
+    $r = $st->fetch(PDO::FETCH_ASSOC);
+    return $r === false ? null : $r;
+}

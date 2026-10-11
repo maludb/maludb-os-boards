@@ -85,7 +85,8 @@ function find_boards(PDO $pdo, array $filters, int $page): array
     $total = (int) one_value($pdo, "SELECT count(*) FROM mcp_boards b WHERE $w", $args);
     $page = max(1, $page);
     $st = $pdo->prepare("SELECT b.board_id, b.title, b.description, b.owner_member_id, b.owner_name, b.my_level, b.is_locked, b.item_count,
-                                b.open_threads, b.last_activity_at, b.is_favorite, b.background, b.updated_at
+                                b.open_threads, b.last_activity_at, b.is_favorite, b.background, b.updated_at,
+                                (SELECT bb.thumbnail_attachment_id FROM boards bb WHERE bb.id = b.board_id) AS thumbnail_id
                            FROM mcp_boards b WHERE $w ORDER BY b.last_activity_at DESC, b.board_id
                           LIMIT " . BOARD_PAGE . ' OFFSET ' . (($page - 1) * BOARD_PAGE));
     $st->execute($args);
