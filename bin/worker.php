@@ -15,7 +15,7 @@ declare(strict_types=1);
  *
  * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
  * (design §10): `thumbnails` slice 5's (REAL since slice 5 — with the purge of uploads never committed and of items deleted past
- * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's (REAL since slice 6 — email through MaluMail, texts through K6, the digest); `versions`, `compaction` slice 7's; `dispatches`,
+ * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's (REAL since slice 6 — email through MaluMail, texts through K6, the digest); `versions`, `compaction` slice 7's (REAL since slice 7); `dispatches`,
  * `search_catch_up` slice 9's; `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
@@ -77,8 +77,12 @@ exit($report['errors'] === [] ? 0 : 1);
 
 // ---- the passes (stubs until their slice) ------------------------------------------------------------------------------------------
 
-/** SLICE 7 — a board that changed since its last interval version, at most hourly while active: one `interval` version (board_versions); interval versions past interval_version_days thinned to one a day, those past daily_version_days deleted; named versions never. */
-function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['saved' => 0, 'thinned' => 0, 'stub' => 'slice 7']; }
+/** SLICE 7 (history-versions.md) — a board that changed since its last interval version, at most hourly while active: one `interval` version (board_versions); interval versions past interval_version_days thinned to one a day, those past daily_version_days deleted; named versions never. app/features/history/write.php. */
+function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/history/write.php';
+    return versions_pass($pdo, $now);
+}
 /**
  * SLICE 6 (comments-notifications.md) — notification_outbox: the morning digests that are due (07:00 in the member's own time zone) are queued, then
  * queued email (MaluMail, at most once) and text (the kernel's K6, retried with backoff) rows are sent. app/features/worker/outbox.php.
@@ -125,8 +129,12 @@ function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): a
 }
 /** SLICE 10 — boards in the trash longer than trash_days: purged with their items, ops, versions, comments and files. */
 function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['purged' => 0, 'stub' => 'slice 10']; }
-/** SLICE 7 — board_ops older than op_retention_days: a `compaction` version at the cut, then the rows go (design §6.3, D6). */
-function worker_pass_compaction(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['compacted' => 0, 'stub' => 'slice 7']; }
+/** SLICE 7 — board_ops older than op_retention_days: a `compaction` version at the cut, then the rows go (design §6.3, D6). Once a night, at 03:xx in the business's time zone. */
+function worker_pass_compaction(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/history/write.php';
+    return compaction_pass($pdo, $now);
+}
 /** bd_prune_key_usage() (db/005): minute buckets older than a day, day buckets older than 35 days. Real from the kit. */
 function worker_pass_key_usage_prune(PDO $pdo, int $limit, DateTimeImmutable $now): array
 {

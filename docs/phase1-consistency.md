@@ -223,10 +223,14 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     REPLY's id, so `?comment=` may name any comment of a thread and the island flies to the thread's root. The shell's bell was already `#bell` /
     `#bell-count` (sso-shell.md) — `#header-bell` wraps it and polls. A mention needs the person's full display name.
 
+19. **Found in slice 7:** `bd_interval_versions()` (db/011) would have saved a version of a shipped template, which the history spec says never happens → db/015 adds the condition. `summary.counts` holds
+    only the op verbs (create, update, delete, restore), so history says "changed", not "moved". The handlers ask the right (`boards.edit`) before the board, so an external with no editing right is told 403, not 404.
+    The compaction pass records the local date it ran (`on`) because `worker_passes.started_at` is the real clock even under `BD_WORKER_NOW`. The rail's History panel stays slice 7's placeholder until a slice that owns `rail.php` touches it.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
 first exemplar —, slice 3, live — the second —, slice 4, connectors and frames, and slice 5, pen, images and files, are built and proven**
-(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model).
-Next: slices 7–10 and Phase 4, Sonnet 5.5 workers (D16).
+(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model); **slice 7, history, versions and restore, is built and proven** (2026-10-11, a Sonnet 5.5 worker).
+Next: slices 8–10 and Phase 4, Sonnet 5.5 workers (D16).

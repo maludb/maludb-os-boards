@@ -119,3 +119,48 @@ canvas (the restore's batch is handled by slice 2's protocol); the relay.
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-11)
+History, versions and restore — built by a Sonnet 5.5 worker on slice 1's patterns (the handler order, the whitelist presenters, HTMX partials) and slice 6's newest idiom. **The page**
+(`board-history`, `html/boards/history.php`, `app/features/history/`, `app/views/history/`): three anchored sections. **Changes** — `mcp_board_changes` newest first, 50 a page, by day, each batch a card
+with the initial and name (the name links to `?member=` — only that person's changes), the **agent** / **command bar** / **restore** chip, what changed in words (`change_words()`), when (relative, the exact
+time on hover), its seq, **Show** (`/boards/{board}?x=&y=&zoom=1` at the centre of `summary.bbox`, none without a box) and "undid #n"; the filters are chips (source) and a date (`since`), never a `<select>`;
+"Since your last visit" is a divider at `mcp_boards.my_last_visit` (not with a `since` filter); "Older changes" is an HTMX button (`?part=changes&page=N` answers only the next rows) that is a plain
+`?page=N` link without HTMX. **Versions** — `mcp_board_versions` newest first: the label (a named version bold), the reason in words, items, who, when; **Preview** (`?version=N`), **Restore** with
+`hx-confirm` for `full`, and **Save this moment** (`#version-form-field-label`) for `edit`. **The preview** — the version's header and its outline (`bd_version_outline()` through `outline_html()`: `#`/`##`
+headings as h4/h5, `- ` lines, `**bold**`, everything escaped first), **Restore this version** (full) and **Back to the history**. **Visits** (edit and above) — `board_trail()`: per member, opens and edits of
+the last 30 days from `mcp_activity_log`. The two handlers (`html/boards/version-save.php`, `version-restore.php`) are one database function each (`bd_save_version`, `bd_restore_version`); the restore is ONE
+`bd_commit_ops()` batch with source `restore` (the island receives it through its poll like any batch), its `client_batch_id` derived from the request id, and answers "Restored version N — n changes in
+one batch; the board as it was is version M" or "Nothing to restore — the board already matches version N". **The worker**: `versions` (`versions_pass()` — `bd_interval_versions()` then
+`bd_prune_versions()`) and `compaction` (`compaction_pass()` — `bd_compact_ops()`, only at 03:xx in the business's zone, once a night) are real.
+
+**Proven** by `tests/phase3/slice7/run.sh` — **158 checks under php -S** (history 54, restore 30, worker 19, json 23, browser 32) and **156 under a real Apache** (the browser proof has no test hook there: it
+judges the open canvas by the catch-up it fetches — 30), then every earlier suite (slice 6's and within it 5's, 4's, 3's, 2's, 1's and Phase 2's): the changes — four batches (three people's, one agent's through
+`bd_commit_ops()`) newest first with their words, chips and Show at the batch's centre, `member=` / `source=` / `since=` and the ignoring of a value that is not one, the divider between what is newer and older than
+my last visit (none with a filter, none without a visit), an undo's "undid #n", 59 batches paged 50 and 9 (the HTMX partial the next 9 rows alone, without HTMX a whole page); a named version by an editor and the
+refusals (a commenter and a viewer 403, empty / missing / over-long names 422, an external with no editing right 403), bold in the list, logged with the board; the preview for a viewer, escaped, 404 for a stranger, a
+missing or non-numeric version, `screen.view` with `after.version`; the visits (counted, an editor sees them, a commenter does not, the 30-day limit); the restore — a moved sticky back, an added one gone, a deleted one
+back, a frame's title as it was, ONE `board_ops` row with source `restore`, versions `before_restore` (holding the board as it was) and `restore`, an editor's / commenter's / viewer's restore refused, a version the
+board does not have 422, no version 422, "Nothing to restore" (and one restore only for a retry of the same request id), the catch-up after the batch Bea last saw returning the restore as one batch, a locked item
+unlocked for the change and locked again, the registry (`version_restore` pauses `other`, `version_save` does not), an agent at edit refused the restore by the database and allowed the save; the worker — one interval
+version for a changed board, none within the hour, another two hours on, none for a quiet board or a shipped template, thinning (one a day past `interval_version_days`, the dailies past `daily_version_days`, never a named or a
+recent one), compaction at 03:xx only (not 04:xx), once a night, the compaction version holding the board at the cut, the business's own zone (03:30 UTC is not 03:xx in Chicago), counts and never an item's text in
+`worker_passes`; JSON on both handlers (401, 405, CSRF 403, the answers' shapes, an agent's run token, a person's action token as the assistant) and on the screen (a whitelist: no ops, summary or snapshot); the browser —
+the page at 1280 and 375, Show opening the canvas at that place, Save this moment landing on its preview with the notice, Preview, the confirm dismissed (nothing restored) then accepted (the board restored in ONE
+batch) and a second person's open canvas showing it within 5 s, an editor and a commenter seeing the controls their level allows, no sideways scroll, no console error.
+
+**Found and fixed:** a defect in db/011 — `bd_interval_versions()` would have saved a version of a shipped template (they never change; the spec says never) → **db/015_interval_versions_not_templates.sql**
+(`CREATE OR REPLACE`, one added condition, grants kept; the schema proof re-run: 167). In the build: PDO reads `?` as a parameter, so the jsonb existence operator in the once-a-night check became
+`jsonb_exists()`; the worker's `worker_passes.started_at` is the real clock even under `BD_WORKER_NOW`, so "once a night" keys on the local date the pass records itself (`on`); three earlier proofs that
+asserted `versions` a stub (Phase 2's shell, Phase 0's run.sh) now follow whether it is built.
+
+**Decisions taken here (within the spec):**
+1. **`change_words()` says "changed", not "moved"**: the batch's `summary.counts` holds only the op verbs (create, update, delete, restore), so a move cannot be told from any other update. One item type in the
+   batch: the noun follows every verb ("created 3 stickies · deleted 1 sticky"); several: the verbs plain and the types after a dash ("created 3 — 2 stickies, 1 frame"). A `restore` op reads "brought back".
+2. **The right is asked before the board** (the spec's handler order: `require_right('boards.edit')` first): an external or viewer without `boards.edit` is turned away with 403 whether or not the board exists; the
+   board's wall (404 for a stranger) and the level (403) follow for those who hold the right.
+3. **The member filter is the name's link** (and an "Everyone" chip), not a picker or a `<select>` — the names on the page are the people who changed the board.
+4. **A failed `since`, `member` or `source` is ignored**, not an error; a `version` that is not a number is 404 like one that does not exist.
+5. **`compaction_pass()` skips with a reason** (`{compacted: 0, skipped: "not the hour" | "already done today"}`) and records the local date it ran (`on`); the spec's `{compacted}` is the whole of a real run's count.
+6. **The rail's History panel** (`html/boards/rail.php?panel=history`, `app/views/history/partials/rail.php`, added by the planning model at review — canvas.md says the rail's History panel is slice 7's): the ten newest changes drawn by the page's own `change-row.php` (Show flies to one) and **Versions and all changes** to the page; versions, Save and Restore stay on the page.
+7. **Visits count `board.open` and `item.*` rows** of the last 30 days per member; a member since gone is "Someone who has since left".

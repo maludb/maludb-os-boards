@@ -48,7 +48,11 @@ drop or paste, with thumbnails sized to the screen and an SVG always sandboxed; 
 people, agents and departments (a mention never grants: an agent that cannot see the board is offered "Share it at edit?"), the thread in the rail and on the comments page, the bell,
 my notices and my settings, and the worker's outbox — email through MaluMail, texts through the kernel, the morning digest — `tests/phase3/slice6/run.sh`.
 
-Next: slices 7–10 and Phase 4 (Sonnet 5.5 workers, design D16).
+**Slice 7, history, versions and restore, is built and proven** (2026-10-11): a board's history page — what changed, by whom, where (click to fly there), "since your last visit" —, named and
+automatic versions with a preview as the outline, a restore that is never destructive (the board as it is is saved first, then ONE batch turns it into the version and every open canvas receives it),
+the visits, and the worker's interval-version and compaction passes — `tests/phase3/slice7/run.sh` (db/015).
+
+Next: slices 8–10 and Phase 4 (Sonnet 5.5 workers, design D16).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

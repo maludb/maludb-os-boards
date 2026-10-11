@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T19:08:11+00:00",
+    "generated_at": "2026-10-11T20:44:23+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -178,8 +178,8 @@
                 "source",
                 "since"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "templates": {
             "screen": "templates",
@@ -1463,7 +1463,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the version",
-            "built": false
+            "built": true
         },
         "version_restore": {
             "action": "version_restore",
@@ -1490,7 +1490,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "board_duplicate": {
             "action": "board_duplicate",

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * GET /boards/{board}/rail?panel=item|frames|outline|comments|history|badge[&ids=a,b,…] — the canvas's right rail, ONE partial door (canvas-core.md
  * "The right rail"; decision 1). Level view. item: the selection's Properties (colour, text size, alignment, lock, front/back, delete, and
  * for one item its type, size and "Set as the start view") — every control fires `boards:command` for the island, which makes it ONE
- * batch (never a form post); outline: the board as a list; comments: the Comments panel (slice 6 — the new-thread form, the open thread, the threads as cards; `comment-list` its list alone), history: slice 7's placeholder; badge: my level's badge.
+ * batch (never a form post); outline: the board as a list; comments: the Comments panel (slice 6 — the new-thread form, the open thread, the threads as cards; `comment-list` its list alone), history: the ten newest changes and the way to the history page (slice 7); badge: my level's badge.
  */
 require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 require_once dirname(__DIR__, 2) . '/app/features/canvas/queries.php';
@@ -40,7 +40,9 @@ switch ($panel) {
             ['board' => $id, 'level' => $level, 'tz' => member_timezone(), 'list' => $r['rows'], 'total' => $r['total']]);
         break;
     case 'history':
-        echo view('boards/partials/rail-pending.php', ['board' => $id, 'panel' => 'history', 'slice' => 7, 'what' => 'History: every change, versions, restore.']);
+        require_once dirname(__DIR__, 2) . '/app/features/history/queries.php';
+        $r = board_changes($pdo, $id, ['member' => null, 'source' => null, 'since' => null], 1);
+        echo view('history/partials/rail.php', ['b' => $gate, 'rows' => array_slice($r['rows'], 0, 10), 'total' => $r['total'], 'tz' => member_timezone()]);
         break;
     case 'badge':
         echo view('shared/level-badge.php', ['level' => $level, 'owner' => (int) ($gate['owner_member_id'] ?? 0) === (int) current_member_id()]);

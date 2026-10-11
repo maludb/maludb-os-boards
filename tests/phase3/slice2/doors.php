@@ -104,7 +104,7 @@ ok(str_contains($rp['body'], 'id="rail-fill-colors"') && str_contains($rp['body'
 $rp = page($jd, "/boards/$b/rail?panel=item&ids=" . $sticky['item']['id']);
 ok($rp['code'] === 200 && !str_contains($rp['body'], 'data-board-command') && str_contains($rp['body'], 'Sticky note'), 'a commenter sees the item but no control');
 ok(str_contains(page($jb, "/boards/$b/rail?panel=outline")['body'], 'id="rail-outline"') && str_contains(page($jb, "/boards/$b/rail?panel=comments")['body'], 'id="comment-rail"')
-   && str_contains(page($jb, "/boards/$b/rail?panel=history")['body'], 'Built by slice 7') && str_contains(page($jb, "/boards/$b/rail?panel=badge")['body'], 'Can edit'),
+   && str_contains(page($jb, "/boards/$b/rail?panel=history")['body'], 'id="rail-history-open"') && str_contains(page($jb, "/boards/$b/rail?panel=badge")['body'], 'Can edit'),
     'the rail\'s other panels: the outline, Comments (slice 6\'s) and History (slice 7\'s placeholder), my badge');
 ok(page($jl, "/boards/$b/rail?panel=item")['code'] === 404 && page($jb, "/boards/$b/rail?panel=nope")['code'] === 404, 'the rail is behind the wall; an unknown panel is 404');
 
