@@ -51,7 +51,7 @@ canvas and live exemplars) and verifies and commits your work. Follow this brief
 - The relay (`live/relay.py`) is a relay: it never writes. Every board write is a PHP handler and `bd_commit_ops()`.
 
 ## Migrations
-`db/001`–`db/014` are never modified. A schema defect you find gets a NEW numbered migration (the next free number, `db/015_<what>.sql`, additive,
+Committed migrations are never modified. A schema defect you find gets a NEW numbered migration (the next free number — `ls db/`; a spec's number may be stale —, additive,
 views keep `security_barrier`, grants checked afterwards), applied by `tests/setup_dev.sh` with the rest, recorded under "Found and fixed". Re-run
 the schema proof (`tests/phase0/schema.sh`) after it.
 
