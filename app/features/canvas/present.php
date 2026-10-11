@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/items/write.php';
 require_once dirname(__DIR__, 2) . '/live.php';
+require_once dirname(__DIR__) . '/boards/queries.php';          // BOARD_COLORS — a frame's fills are the theme's eight
+require_once dirname(__DIR__) . '/items/connectors.php';
 
 /** The committed bundle (client/build.mjs): ['js' => '/assets/boards/boards.<hash>.js', 'css' => …] or null when it was never built. */
 function canvas_bundle(): ?array
@@ -107,6 +109,18 @@ function rail_summary(array $rows): array
         'font_size' => $sized === [] ? null : ($shared($sized, static fn ($r) => isset($r['style']['fontSize']) ? (string) (int) $r['style']['fontSize'] : '') ?? ''),
         'align' => $sized === [] ? null : ($shared($sized, static fn ($r) => $r['style']['textAlign'] ?? ($r['type'] === 'text' ? 'left' : 'center')) ?? ''),
         'has_text' => $sized !== [],
+        'connector' => ($k = array_values(array_filter($rows, static fn ($r): bool => $r['type'] === 'connector'))) === [] ? null : [
+            'shape' => $shared($k, static fn ($r) => $r['data']['shape'] ?? 'elbowed'),
+            'style' => $shared($k, static fn ($r) => $r['style']['strokeStyle'] ?? 'normal'),
+            'width' => $shared($k, static fn ($r) => (string) (int) ($r['style']['strokeWidth'] ?? 2)),
+            'color' => $shared($k, static fn ($r) => $r['style']['strokeColor'] ?? '#1a1a1a'),
+            'start' => $shared($k, static fn ($r) => $r['style']['startStrokeCap'] ?? 'none'),
+            'end' => $shared($k, static fn ($r) => $r['style']['endStrokeCap'] ?? 'arrow'),
+        ],
+        'frame' => ($f = array_values(array_filter($rows, static fn ($r): bool => $r['type'] === 'frame'))) === [] ? null : [
+            'fill' => $shared($f, static fn ($r) => $r['style']['fillColor'] ?? '#ffffff'),
+            'title' => count($f) === 1 ? (string) ($f[0]['data']['title'] ?? '') : null,
+        ],
     ];
 }
 

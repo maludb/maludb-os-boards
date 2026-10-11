@@ -8,7 +8,10 @@ import type { Fields, Item, Op } from '../model/types';
 import { plainOf } from '../model/types';
 import { boxFromPoints, containsBox, frameTopLeft, hitsRotated, normaliseRotation, round2 } from '../model/geometry';
 import { textFontSize, textHeightFor } from '../render/items/text';
+import { distanceTo, routeOf, sideHandles, snapOn, type Side } from '../render/items/connector';
+import { titleBox } from '../render/items/frame';
 import type { Gesture, PointerInfo, Tool } from './input';
+import { connectorGesture, endpointGesture } from './connector';
 
 const DRAG_THRESHOLD = 4;
 
@@ -16,6 +19,9 @@ export class Selection {
   readonly ids = new Set<string>();
   readonly tr: Konva.Transformer;
   private outline = new Konva.Group({ listening: false });
+  /** the item under the mouse: its four side handles start a connector (slice 4) */
+  hovered: string | null = null;
+  private handles = new Konva.Group({ listening: false });
   private listeners: (() => void)[] = [];
   private startAttrs = new Map<string, { x: number; y: number; w: number; h: number; tlx: number; tly: number }>();
 
@@ -25,7 +31,7 @@ export class Selection {
       ignoreStroke: true, flipEnabled: false, rotationSnaps: [0, 45, 90, 135, 180, 225, 270, 315], rotationSnapTolerance: 4,
       boundBoxFunc: (oldBox, newBox) => (Math.abs(newBox.width) < 20 || Math.abs(newBox.height) < 20 ? oldBox : newBox),
     });
-    b.renderer.selection.add(this.outline, this.tr);
+    b.renderer.selection.add(this.outline, this.handles, this.tr);
     this.tr.on('transformstart', () => this.onTransformStart());
     this.tr.on('transform', () => { b.renderer.request(); this.sendGhost(); });
     this.tr.on('transformend', () => { b.live?.drag([]); this.onTransformEnd(); });
@@ -60,7 +66,8 @@ export class Selection {
   /** Called after every frame: the Transformer holds the selected, unlocked, attached nodes; locked ones get an outline. */
   refresh(): void {
     const items = this.list().map((id) => this.b.store.get(id)).filter((i): i is Item => !!i);
-    const movable = this.b.editable ? items.filter((i) => !i.locked) : [];
+    // the Transformer holds what can be resized: never a connector (its ends decide where it is)
+    const movable = this.b.editable ? items.filter((i) => !i.locked && i.type !== 'connector') : [];
     const nodes = movable.map((i) => this.b.renderer.nodeOf(i.id)).filter((n): n is Konva.Shape => !!n && !!n.getLayer());
     const current = this.tr.nodes();
     if (nodes.length !== current.length || nodes.some((n, k) => n !== current[k])) {
@@ -83,11 +90,47 @@ export class Selection {
     const z = this.b.view.camera.zoom;
     for (const i of items) {
       if (movable.includes(i)) continue;
+      if (i.type === 'connector') {
+        const r = routeOf(i, this.b.renderer.boxOf);
+        if (r) for (const e of [r.start, r.end]) this.outline.add(new Konva.Circle({ x: e.x, y: e.y, radius: 6 / z, fill: '#ffffff', stroke: '#3454d1',
+          strokeWidth: 2 / z, listening: false, name: 'end-handle' }));
+        continue;
+      }
       const c = this.b.store.absCentre(i);
       this.outline.add(new Konva.Rect({ x: c.x, y: c.y, width: i.width, height: i.height, offsetX: i.width / 2, offsetY: i.height / 2,
         rotation: i.type === 'frame' ? 0 : i.rotation, stroke: i.locked ? '#f59f00' : '#3454d1', strokeWidth: 2 / z, dash: i.locked ? [6 / z, 4 / z] : undefined,
         listening: false }));
     }
+    // the hovered item's side handles (an editor's, on an item that takes connectors)
+    this.handles.destroyChildren();
+    const h = this.hovered ? this.b.store.get(this.hovered) : undefined;
+    const hb = h ? this.b.renderer.boxOf(h.id) : null;
+    if (h && hb && this.b.editable && this.b.tool() === 'select') {
+      for (const s of sideHandles(hb)) {
+        const e = snapOn(hb, s.side);
+        this.handles.add(new Konva.Circle({ x: s.x + e.dx * 14 / z, y: s.y + e.dy * 14 / z, radius: 5 / z, fill: '#3454d1', stroke: '#ffffff', strokeWidth: 1.5 / z,
+          listening: false, name: 'side-handle' }));
+      }
+    }
+  }
+
+  /** Where the hovered item's side handles are (canvas units), for a press to start a connector there. */
+  sideHandleAt(x: number, y: number): { id: string; side: Side } | null {
+    const h = this.hovered ? this.b.store.get(this.hovered) : undefined;
+    const hb = h ? this.b.renderer.boxOf(h.id) : null;
+    if (!h || !hb || !this.b.editable) return null;
+    const z = this.b.view.camera.zoom;
+    for (const s of sideHandles(hb)) {
+      const e = snapOn(hb, s.side);
+      if (Math.hypot(x - (s.x + e.dx * 14 / z), y - (s.y + e.dy * 14 / z)) <= 10 / z) return { id: h.id, side: s.side };
+    }
+    return null;
+  }
+
+  setHover(id: string | null): void {
+    if (id === this.hovered) return;
+    this.hovered = id;
+    this.b.renderer.request();
   }
 
   /** What the Transformer holds, as the peers' ghost: centre, size and rotation mid-gesture. */
@@ -157,9 +200,20 @@ export function hitTest(b: Board, x: number, y: number): Item | null {
   let best: Item | null = null;
   let bestFrame: Item | null = null;
   const slop = 4 / b.view.camera.zoom;
+  const z = b.view.camera.zoom;
   for (const it of b.store.items.values()) {
+    if (it.type === 'connector') {
+      const r = routeOf(it, b.renderer.boxOf);
+      if (r && distanceTo(r, x, y) <= Math.max(6, Number(it.style.strokeWidth) || 2) / z && (!best || it.z > best.z)) best = it;
+      continue;
+    }
     const box = b.store.box(it.id);
-    if (!box || x < box.x1 - slop || x > box.x2 + slop || y < box.y1 - slop || y > box.y2 + slop) continue;
+    if (!box) continue;
+    if (it.type === 'frame') {
+      const tb = titleBox(it, { x: box.x1, y: box.y1 }, z);
+      if (x >= tb.x1 && x <= tb.x2 && y >= tb.y1 && y <= tb.y2) { if (!bestFrame || it.z > bestFrame.z) bestFrame = it; continue; }
+    }
+    if (x < box.x1 - slop || x > box.x2 + slop || y < box.y1 - slop || y > box.y2 + slop) continue;
     const c = b.store.absCentre(it);
     if (!hitsRotated(x, y, c.x, c.y, it.width, it.height, it.type === 'frame' ? 0 : it.rotation, slop)) continue;
     if (it.type === 'frame') { if (!bestFrame || it.z > bestFrame.z) bestFrame = it; }
@@ -196,15 +250,36 @@ export class SelectTool implements Tool {
   readonly cursor = 'default';
   constructor(private b: Board) {}
 
+  /** The mouse over the canvas with no button down: the item under it shows its side handles. */
+  hover(p: PointerInfo): void {
+    const hit = this.b.editable && !p.touch ? hitTest(this.b, p.x, p.y) : null;
+    if (hit && hit.type !== 'connector' && hit.type !== 'frame' && !hit.locked) this.b.selection.setHover(hit.id);
+    else if (!this.b.selection.sideHandleAt(p.x, p.y)) this.b.selection.setHover(null);
+  }
+
   down(p: PointerInfo): Gesture | null {
     const b = this.b;
+    // a connector's end handle: re-attach that end (or free it)
+    const sel = b.selection.list();
+    if (b.editable && sel.length === 1 && b.store.get(sel[0])?.type === 'connector') {
+      const k = b.store.get(sel[0])!;
+      const r = routeOf(k, b.renderer.boxOf);
+      const z = b.view.camera.zoom;
+      if (r) for (const which of ['start', 'end'] as const) {
+        const e = which === 'start' ? r.start : r.end;
+        if (Math.hypot(p.x - e.x, p.y - e.y) <= 10 / z) return endpointGesture(b, k, which, p);
+      }
+    }
+    // a side handle of the item under the mouse: a new connector from that side
+    const handle = b.selection.sideHandleAt(p.x, p.y);
+    if (handle) return connectorGesture(b, { id: handle.id, snap: handle.side }, p);
     const hit = hitTest(b, p.x, p.y);
     if (hit) {
       const wasSelected = b.selection.has(hit.id);
       if (p.shift) { b.selection.toggle(hit.id); return null; }
       if (p.touch && !wasSelected) return touchOn(b, p, hit);       // a finger: a tap selects, a drag pans, a long press opens its panel
       if (!wasSelected) b.selection.set([hit.id]);
-      const movable = b.editable ? b.selection.list().filter((id) => { const i = b.store.get(id); return i && !i.locked; }) : [];
+      const movable = b.editable ? b.selection.list().filter((id) => { const i = b.store.get(id); return i && !i.locked && i.type !== 'connector'; }) : [];
       if (movable.length === 0) return longPressOnly(b, p, hit);
       return this.drag(p, movable, hit);
     }
@@ -218,10 +293,10 @@ export class SelectTool implements Tool {
 
   dbl(p: PointerInfo): void {
     const hit = hitTest(this.b, p.x, p.y);
-    if (hit && this.b.editable && !hit.locked && ['sticky_note', 'shape', 'text'].includes(hit.type)) {
-      this.b.selection.set([hit.id]);
-      this.b.editText(hit.id);
-    }
+    if (!hit || !this.b.editable || hit.locked) return;
+    this.b.selection.set([hit.id]);
+    if (['sticky_note', 'shape', 'text'].includes(hit.type)) this.b.editText(hit.id);
+    else if (hit.type === 'frame' || hit.type === 'connector') this.b.editInline(hit.id);       // a frame's title, a connector's caption
   }
 
   private drag(p: PointerInfo, ids: string[], hit: Item): Gesture {

@@ -299,3 +299,17 @@ What the exemplar became, where it differs from the text above or adds to it. ca
 - **The performance gate** (`tests/phase3/slice2/perf.mjs`) measures three views (the opening one, 100 %, 45 %). Its reading for a shared VM is
   canvas.md "Built and proven" 7.
 
+
+## Built in slice 4 — what connectors and frames added to the island (2026-10-11)
+- **A connector is drawn absolute**, not in a box of its own: `drawConnector(c, item, zoom, boxOf, flat?)` (`render/items/connector.ts`) takes
+  `renderer.boxOf`, the ends' boxes *as they are drawn* (a drag's offset included), and computes the route every frame — never stored. A batch
+  run calls it in place of `drawItem()`; a selected connector's node is placed at (0, 0) with no size. Its hit test is the distance to its
+  route (`distanceTo`), not a box.
+- **The Transformer never holds a connector** (`Selection.refresh()`); its end handles are drawn in the selection layer and a press on one is
+  the select tool's (`endpointGesture`).
+- **`Tool.hover?(p)`** is optional and new: `tools/input.ts` calls it on a mouse move with no button down (the select tool's side handles).
+- **One-line editors** for a frame's title and a connector's caption are `ui/inline.ts` (an `<input>` over the canvas, placed again on every
+  camera change; Enter or a click away commits one update, Escape leaves it); the keyboard's shortcuts are off while it is open.
+- **A frame is drawn by `render/items/frame.ts`** (its title above the top-left at a constant 13 px, `titleBox()` its hit area); the frames group
+  stays below the items group. `ui/navigator.ts` (reading order, `fit(id)`, `step(±1)`) and `ui/minimap.ts` are the rail's and the bottom bar's.
+- `ui/toast.ts` gained `ask(message, answers, id)` — a question that stays until answered (deleting a frame), never a modal.

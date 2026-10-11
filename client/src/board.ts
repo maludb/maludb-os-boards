@@ -11,7 +11,7 @@ import type { Toasts } from './ui/toast';
 import type { LiveConnection } from './sync/socket';
 import type { Presence } from './ui/presence';
 
-export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text';
+export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text' | 'connector' | 'frame';
 
 export interface Board {
   boardId: string;
@@ -39,6 +39,8 @@ export interface Board {
   setTool(t: ToolName): void;
   tool(): ToolName;
   editText(id: string, created?: boolean): void;
+  /** a frame's title or a connector's caption, in place (slice 4) */
+  editInline(id: string): void;
   /** the last pointer position on the canvas (paste goes there) */
   pointer: { x: number; y: number } | null;
   fire(name: string, detail: unknown): void;

@@ -913,4 +913,11 @@ The open questions:
   killed → resync in 0.55 s. Found: two tickets minted in one second were one string (the nonce); a socket opened before the first load could lose
   a batch (it opens after).
 
-  **NEXT:** slices 4 (connectors and frames) and 5 (pen, images and files) — the planning model's — → Sonnet for 6–10 and Phase 4.
+- **2026-10-11: SLICE 4 — CONNECTORS AND FRAMES — BUILT AND PROVEN** (`docs/build-specs/connectors-frames.md` "Built and proven"): connectors
+  from side handles or the Connector tool, routed at render time (straight, elbowed, curved) and drawn from their ends' boxes as drawn, arrowheads,
+  styles, a caption in place, free ends re-attached by their handles; frames drawn, titled in place, holding their children (dropped in and out,
+  dragged as one row, resized without moving them, deleted with or without them); the navigator and the minimap; the agents' `connector_create`
+  and `frame_create`. `tests/phase3/slice4/run.sh` 58 checks under php -S, 28 under Apache, every earlier suite after it. Found: an agent's
+  frame with no place goes below the board (the spec had said right of it); `frames.php` lacked the items helpers.
+
+  **NEXT:** slice 5 (pen, images and files) — the planning model's — → Sonnet for 6–10 and Phase 4.

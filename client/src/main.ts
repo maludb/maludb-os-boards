@@ -29,6 +29,12 @@ import { Clipboard } from './ui/clipboard';
 import { Thumbnails } from './ui/thumbnail';
 import { installTestHook } from './ui/testhook';
 import { Presence } from './ui/presence';
+import { ConnectorTool } from './tools/connector';
+import { FrameTool } from './tools/frame';
+import { InlineEditor } from './ui/inline';
+import { Navigator } from './ui/navigator';
+import { Minimap } from './ui/minimap';
+import { frameTopLeft, round2 } from './model/geometry';
 
 declare global { interface Window { __boardsIsland?: { destroy(): void } } }
 
@@ -127,7 +133,11 @@ function boot(mount: HTMLElement): { destroy(): void } {
   b.selection = selection;
   const editor = new TextEditor(b);
   const clipboard = new Clipboard(b);
-  const tools: Record<ToolName, Tool> = { select: new SelectTool(b), hand: new HandTool(b), sticky: new StickyTool(b), shape: new ShapeTool(b), text: new TextTool(b) };
+  const tools: Record<ToolName, Tool> = { select: new SelectTool(b), hand: new HandTool(b), sticky: new StickyTool(b), shape: new ShapeTool(b), text: new TextTool(b),
+    connector: new ConnectorTool(b), frame: new FrameTool(b) };
+  const inline = new InlineEditor(b);
+  const navigator = new Navigator(b);
+  new Minimap(b);
   const toolbar = new Toolbar(b, document.getElementById('board-toolbar'));
 
   b.commit = (ops: Op[], kind = 'gesture') => {
@@ -146,6 +156,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
   };
   b.tool = () => tool;
   b.editText = (id: string, created = false) => { if (editable) editor.open(id, created); };
+  b.editInline = (id: string) => { if (editable) inline.open(id); };
   b.fire = (name: string, detail: unknown) => rail.fire(name, detail);
   b.frameAt = (x: number, y: number, except?: Set<string>) => {
     let best: Item | null = null;
@@ -162,9 +173,30 @@ function boot(mount: HTMLElement): { destroy(): void } {
   };
   zoomBar = new ZoomBar(b, fitBoard);
 
+  /** Delete what is selected; a frame that holds things not selected with it asks first: its contents too, or kept where they stand (slice 4). */
   const deleteSelection = () => {
     const ids = selection.list().filter((id) => !store.get(id)?.locked);
-    if (ids.length) b.commit([{ op: 'delete', ids }]);
+    if (!ids.length) return;
+    const chosen = new Set(ids);
+    const holding = ids.some((id) => store.get(id)?.type === 'frame' && store.children(id).some((c) => !chosen.has(c.id)));
+    if (!holding) { b.commit([{ op: 'delete', ids }]); return; }
+    toasts.ask('Delete its contents too?', [
+      { label: 'Keep them', id: 'board-ask-keep', run: () => b.commit([{ op: 'delete', ids, keep_children: true }]) },
+      { label: 'Delete all', id: 'board-ask-all', run: () => b.commit([{ op: 'delete', ids }]) },
+    ], 'board-ask-frame-delete');
+  };
+  /** Fit a frame to what it holds (40 around, 40 more on top): its box and — its top-left moving — its children's places, ONE batch. */
+  const fitFrame = (id: string) => {
+    const f = store.get(id);
+    const kids = f ? store.children(id) : [];
+    if (!f || !kids.length) { toasts.show('The frame holds nothing to fit.', { id: 'board-toast-fit' }); return; }
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    for (const k of kids) { const bx = store.box(k.id)!; x1 = Math.min(x1, bx.x1); y1 = Math.min(y1, bx.y1); x2 = Math.max(x2, bx.x2); y2 = Math.max(y2, bx.y2); }
+    x1 -= 40; y1 -= 80; x2 += 40; y2 += 40;
+    const old = frameTopLeft(f);
+    const ops: Op[] = [{ op: 'update', id, fields: { x: round2((x1 + x2) / 2), y: round2((y1 + y2) / 2), width: round2(x2 - x1), height: round2(y2 - y1) } }];
+    for (const k of kids) ops.push({ op: 'update', id: k.id, fields: { x: round2(k.x + old.x - x1), y: round2(k.y + old.y - y1) } });
+    b.commit(ops);
   };
   const reorder = (front: boolean) => {
     const items = selection.list().map((id) => store.get(id)).filter((i): i is Item => !!i && !i.locked).sort((x, y) => (x.z < y.z ? -1 : 1));
@@ -181,7 +213,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
   };
 
   const input = new Input(b, tools, (e) => {
-    if (editor.isOpen()) return false;
+    if (editor.isOpen() || inline.isOpen()) return false;
     const mod = e.ctrlKey || e.metaKey;
     const k = e.key.toLowerCase();
     if (mod && k === 'z') { void (e.shiftKey ? undo.redo() : undo.undo()); return true; }
@@ -198,7 +230,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
       return false;
     }
     if (!mod && !e.altKey) {
-      const map: Record<string, ToolName> = { v: 'select', h: 'hand', n: 'sticky', s: 'shape', t: 'text' };
+      const map: Record<string, ToolName> = { v: 'select', h: 'hand', n: 'sticky', s: 'shape', t: 'text', c: 'connector', f: 'frame' };
       if (map[k]) { b.setTool(map[k]); return true; }
     }
     return false;
@@ -209,9 +241,19 @@ function boot(mount: HTMLElement): { destroy(): void } {
       const ids = (c.ids && c.ids.length ? c.ids : selection.list()).filter((id) => store.has(id));
       if (!ids.length && c.kind !== 'start-view') return;
       switch (c.kind) {
+        case 'data': {
+          if (!c.key) return;
+          const ops: Op[] = ids.map((id) => store.get(id)!).filter((i) => !i.locked && (!c.types || c.types.includes(i.type)))
+            .map((i) => ({ op: 'update', id: i.id, fields: { data: { [c.key!]: c.value ?? null } } }));
+          if (ops.length) b.commit(ops);
+          break;
+        }
+        case 'fit-frame':
+          for (const id of ids) if (store.get(id)?.type === 'frame') fitFrame(id);
+          break;
         case 'style': {
           if (!c.key) return;
-          const value: unknown = c.key === 'fontSize' ? Number(c.value) : c.value;
+          const value: unknown = c.key === 'fontSize' || c.key === 'strokeWidth' ? Number(c.value) : c.value;
           const ops: Op[] = ids.map((id) => store.get(id)!).filter((i) => !i.locked && (!c.types || c.types.includes(i.type)))
             .map((i) => ({ op: 'update', id: i.id, fields: { style: { [c.key!]: value } } }));
           if (ops.length) b.commit(ops);
@@ -230,6 +272,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
       }
     },
     focus: (f) => {
+      if (f.id && store.get(f.id)?.type === 'frame' && f.fit) { navigator.fit(f.id); selection.set([f.id]); return; }
       if (f.id && store.has(f.id)) {
         const box = store.box(f.id)!;
         view.flyTo(view.cameraFor(box, 120, Math.max(1, view.camera.zoom)));

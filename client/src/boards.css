@@ -123,3 +123,16 @@ html.app-skin-dark .board-tool, html.app-skin-dark .board-shape-pick { color: #d
   #board-level-badge, #board-locked-badge { display: none; }
   .board-avatar { width: 26px; height: 26px; margin-left: -8px; font-size: 10px; }
 }
+
+/* slice 4: the one-line editors (a frame's title, a connector's caption), the minimap, the Frames panel, the frame-delete question */
+.board-inline-editor { position: absolute; z-index: 4; border: 0; outline: 2px solid #3454d1; border-radius: 4px; padding: 2px 6px; background: #fff; color: #1a1a1a; }
+.board-minimap { position: absolute; right: 12px; bottom: 72px; z-index: 5; width: 160px; height: 120px; background: #fff; border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, .15); overflow: hidden; cursor: pointer; }
+.board-minimap canvas { display: block; }
+.frame-list { padding-left: 1.2rem; }
+.frame-list li { margin: 4px 0; }
+.frame-list a { display: flex; flex-direction: column; text-decoration: none; color: inherit; min-height: 44px; justify-content: center; }
+.frame-list a:hover .frame-item-title { text-decoration: underline; }
+.frame-item-title { font-weight: 600; }
+.board-toast-ask { background: #1f2937; }
+@media (max-width: 991.98px) { .board-minimap { display: none !important; } #board-frame-nav { display: none; } }

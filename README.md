@@ -36,7 +36,11 @@ with a headless performance gate on a 5,000-item board.
 `mcp/venv`) — presence, cursors, selections, drag previews, the soft lock and every committed batch on every open canvas within milliseconds, the
 poll when it is down — `tests/phase3/slice3/run.sh` through a user-level Apache carrying the vhost's own `/live` line.
 
-Next: slices 4 and 5.
+**Slice 4, connectors and frames, is built and proven** (2026-10-11): connectors that stay attached (straight, elbowed, curved; arrowheads,
+captions), frames that hold their children, the navigator and the minimap, the agents' `connector_create` and `frame_create` —
+`tests/phase3/slice4/run.sh`.
+
+Next: slice 5.
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

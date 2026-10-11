@@ -23,6 +23,7 @@ $isOwner = (int) ($b['owner_member_id'] ?? 0) === (int) current_member_id();
     <div class="dropdown">
         <button type="button" class="btn btn-light btn-touch board-icon-btn" id="board-menu-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="The board's menu"><i class="feather-more-vertical"></i></button>
         <ul class="dropdown-menu dropdown-menu-end" id="board-menu">
+            <li class="d-lg-none"><button type="button" class="dropdown-item" id="board-menu-frames" data-open-panel="frames"><i class="feather-layout me-2"></i>Frames</button></li>
             <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/settings" id="board-menu-settings"><i class="feather-settings me-2"></i>Settings</a></li>
             <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/history" id="board-menu-history"><i class="feather-clock me-2"></i>History</a></li>
             <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/outline" id="board-menu-outline"><i class="feather-list me-2"></i>Outline</a></li>

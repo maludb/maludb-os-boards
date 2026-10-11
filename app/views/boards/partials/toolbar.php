@@ -1,12 +1,12 @@
 <?php
 /**
  * The left toolbar (canvas.md; canvas-core.md "375 px and touch" — at 375 px it is the bottom bar with 44 px targets): Select · Hand · Sticky
- * · Shape (Miro's ten) · Text for an editor; Select and Hand alone for a viewer or a commenter (the database refuses their writes anyway).
- * The tools of later slices show disabled with their slice. The island binds [data-tool]. Data: editable
+ * · Shape (Miro's ten) · Text · Connector · Frame (slice 4) for an editor; Select and Hand alone for a viewer or a commenter (the database refuses their writes anyway).
+ * The tools of later slices show disabled with their slice; at 375 px the connector, frame and later tools sit behind "More". The island binds [data-tool]. Data: editable
  */
 $shapes = ['rectangle' => 'Rectangle', 'round_rectangle' => 'Rounded rectangle', 'ellipse' => 'Ellipse', 'triangle' => 'Triangle', 'diamond' => 'Diamond',
            'parallelogram' => 'Parallelogram', 'hexagon' => 'Hexagon', 'star' => 'Star', 'right_arrow' => 'Arrow', 'wedge_round_rectangle_callout' => 'Callout'];
-$later = [['connector', 'feather-arrow-up-right', 'Connector', 4], ['frame', 'feather-square', 'Frame', 4], ['pen', 'feather-edit-2', 'Pen', 5],
+$later = [['pen', 'feather-edit-2', 'Pen', 5],
           ['image', 'feather-image', 'Image or file', 5], ['comment', 'feather-message-square', 'Comment', 6]];
 ?>
 <div class="board-toolbar" id="board-toolbar" role="toolbar" aria-label="Tools">
@@ -25,6 +25,8 @@ $later = [['connector', 'feather-arrow-up-right', 'Connector', 4], ['frame', 'fe
         <button type="button" class="board-tool" data-tool="text" id="board-tool-text" title="Text (T)" aria-pressed="false"><i class="feather-type"></i><span class="visually-hidden">Text</span></button>
         <button type="button" class="board-tool board-tool-more d-lg-none" id="board-tool-more" title="More tools" aria-expanded="false"><i class="feather-more-horizontal"></i><span class="visually-hidden">More</span></button>
         <div class="board-tool-later" id="board-tool-later">
+            <button type="button" class="board-tool" data-tool="connector" id="board-tool-connector" title="Connector (C)" aria-pressed="false"><i class="feather-arrow-up-right"></i><span class="visually-hidden">Connector</span></button>
+            <button type="button" class="board-tool" data-tool="frame" id="board-tool-frame" title="Frame (F)" aria-pressed="false"><i class="feather-maximize"></i><span class="visually-hidden">Frame</span></button>
             <?php foreach ($later as [$k, $icon, $label, $slice]): ?>
                 <button type="button" class="board-tool" disabled data-later="<?= e($k) ?>" id="board-tool-<?= e($k) ?>" title="<?= e($label) ?> — built by slice <?= (int) $slice ?>"><i class="<?= e($icon) ?>"></i><span class="visually-hidden"><?= e($label) ?> (slice <?= (int) $slice ?>)</span></button>
             <?php endforeach; ?>

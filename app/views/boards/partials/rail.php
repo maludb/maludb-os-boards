@@ -1,11 +1,12 @@
 <?php
 /**
  * The right rail (canvas-core.md "The right rail"): an HTMX panel beside the canvas on a desktop (the canvas narrows), a bottom sheet at
- * 375 px (40 % / 90 %, a handle) — never a modal. Tabs Item (the selection's Properties), Outline, Comments (slice 6), History (slice 7);
+ * 375 px (40 % / 90 %, a handle) — never a modal. Tabs Item (the selection's Properties), Frames (the navigator, slice 4), Outline,
+ * Comments (slice 6), History (slice 7);
  * each loads from ONE door, /boards/{board}/rail?panel=. Data: b, level
  */
 $id = (string) $b['board_id'];
-$tabs = ['item' => ['Item', 'feather-sliders'], 'outline' => ['Outline', 'feather-list'], 'comments' => ['Comments', 'feather-message-circle'], 'history' => ['History', 'feather-clock']];
+$tabs = ['item' => ['Item', 'feather-sliders'], 'frames' => ['Frames', 'feather-layout'], 'outline' => ['Outline', 'feather-list'], 'comments' => ['Comments', 'feather-message-circle'], 'history' => ['History', 'feather-clock']];
 ?>
 <aside class="board-rail" id="board-rail" aria-label="The board's panel">
     <button type="button" class="board-rail-handle d-lg-none" id="board-rail-handle" aria-label="Taller or shorter"><span></span></button>

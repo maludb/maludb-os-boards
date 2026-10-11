@@ -64,7 +64,8 @@ frame section (title, fill, "Fit to contents"), the rail's **Frames** panel (`GE
 - `frame_create`: `title` required (120). With `around[]`: the frame's box = the union of the items' boxes + 40 on every side + 40 more on top for
   the title; items already in another frame leave it; a listed frame is refused ("Frames do not nest"); ONE batch = the frame's create then each
   item's `update {parent_id, x, y}` (frame-relative). Without `around`: `x, y` (centre) and `width, height` (default 1200 × 800), else empty
-  space right of the extent (slice 2's rule). `did`: "Made the frame Went well around 6 items".
+  space below the extent (slice 2's rule as reconciled — `docs/phase1-consistency.md` reconciliation 1; this line said "right of" until the
+  build). `did`: "Made the frame Went well around 6 items".
 - Both: the board gate at `edit`, `bd_guard()`, `log_activity()` (`item.connect`, `item.frame`), `bd_done()` with `record_id` = the seq.
 
 ## Query functions (signatures fixed)
@@ -114,3 +115,48 @@ frame); connector waypoints a person drags (v2 — the routing is automatic); mi
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-11)
+Connectors that stay attached and frames that hold their children — built by the planning model on slice 2's patterns. **Connectors**: from a
+hovered item's side handles (four dots; a press 14 px out from a side starts one snapped to that side) or with the Connector tool (C) from an item
+(`auto`) or a point, to another item or into empty space (a free end, its point stored); routed at render time only — straight, elbowed
+(Manhattan, a 20 stub off each side, the fewest bends then the shortest) or curved (a cubic Bézier, controls a third of the way out) —, drawn in
+absolute coordinates from the ends' boxes as they are drawn, so a drag in progress moves its connectors before the drop commits; arrowheads
+none / arrow / filled triangle at either end, normal / dashed / dotted, 1–8 wide, the palette's colours, one caption typed in place on a double-click.
+**Frames**: drawn with the Frame tool (F) — a drag, or a click for 800 × 600 — taking in by centre what lies inside, titled "Frame N" and
+renamed in place at once; the title above the top-left at a constant 13 px is the frame's handle; a drop inside sets the frame and the
+frame-relative place, dragging the frame is one row, resizing never moves its children, deleting one that holds things asks "Delete its contents
+too?" (Keep them / Delete all), "Fit to contents" in Properties. **The navigator** (the rail's Frames panel in reading order with their counts;
+Prev / Next in the bottom bar) and **the minimap** (160 × 120, the board and the viewport, a click jumps), both hidden below 992 px where the
+board menu's "Frames" opens the panel as the sheet. **The agents' `connector_create` and `frame_create`** (`html/items/{connect,frame}.php` over
+`app/features/items/{connectors,frames}.php`).
+
+**Proven** by `tests/phase3/slice4/run.sh` — **58 checks under php -S, 28 under a real Apache** (no test hook there: a connector and a frame drawn
+by real input, asserted on the database), then every earlier suite (slice 3's, and within it 2's, 1's and Phase 2's): the actions 23 —
+`connector_create` with a caption and both arrows, one `item.connect` row, refused to a connector, across boards, to itself and with a shape it
+does not have; `frame_create` around three stickies (two out of another frame) in ONE batch with nothing moving on the canvas, around a frame
+"Frames do not nest", in empty space below the board, at x, y with a size, without a title; `frame_read`'s SQL (frame-relative children, the
+absolute `data-cx`), `item_connections`; a deleted item's connectors in its batch and its inverse bringing them back; a frame deleted keeping and
+taking its children, each undone; the Frames panel's order. The browser 33 with real pointer events — a connector from the right handle, snapped
+right and elbowed with only horizontal and vertical segments, following a moved shape on Bea's canvas too (by the poll); selected by a click on
+its line; curved, straight, a filled arrowhead, dashed, a caption; a free end attached later by its end handle; the shape deleted with its two
+connectors in one batch and Ctrl+Z; a frame drawn and titled, a sticky dropped in (frame-relative), the frame dragged by its title (one row) and
+resized from its left (the sticky still), the sticky dragged out; "Delete its contents too?" both ways and undone; reading order, a fly that
+fits, Prev / Next round the frames, the minimap's jump; at 375 the menu's Frames sheet and a tap that flies; no console error.
+
+**Decisions taken in the build:**
+1. **`frame_create` with no place lands below the board** (the extent's left edge, its bottom + 200), as reconciliation 1 ruled for every agent's
+   item; the agents' section above said "right of the extent" — corrected.
+2. **A connector is never held by the Transformer and never dragged as a whole**: its ends decide where it is. Selected, it shows its two end
+   handles; a drag of one re-attaches that end to an item (its free point cleared) or frees it.
+3. **Side handles need a hover**: `Tool.hover?(p)` is new, called by `tools/input.ts` on a mouse move with no button down. A finger has no
+   hover — on a phone the Connector tool draws from an item, its side `auto`.
+4. **The Frame tool takes in, by centre, every item but frames, connectors and locked items** (the database would refuse a locked item's move).
+5. **Prev / Next and the minimap are hidden below 992 px**, not only at 375 (the bottom bar has no room on a tablet in portrait either); the
+   board menu gains "Frames" on a phone.
+6. **Found by the proof:** `frames.php` loaded only the layout engine, not the items helpers it calls — every `frame_create` answered 500; and a
+   missing title passed (`bd_text()` judges an empty value, not an absent one) — now "The title is required." either way.
+7. **Found by the earlier suites:** slice 2's 375 check counted every enabled tool as a 44 px target, the connector and frame behind More
+   included — it now counts what is shown, then opens More. It opens it with a click: right after the proof's synthetic two-finger pinch
+   (CDP touch events), Chromium turns no Playwright `tap()` into a click — an artefact of synthetic touch; a fresh page's tap opens More.
+

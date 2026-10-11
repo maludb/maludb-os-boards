@@ -38,6 +38,37 @@ export class Toasts {
     return el;
   }
 
+  /** A question with answers (deleting a frame: "Delete its contents too?") — the canvas's own toast, never a modal; it stays until answered. */
+  ask(message: string, answers: { label: string; id: string; run: () => void }[], id: string): void {
+    if (!this.box) return;
+    document.getElementById(id)?.remove();
+    const el = document.createElement('div');
+    el.className = 'board-toast board-toast-ask';
+    el.id = id;
+    el.setAttribute('role', 'alertdialog');
+    const text = document.createElement('span');
+    text.className = 'board-toast-text';
+    text.textContent = message;
+    el.appendChild(text);
+    for (const a of answers) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'board-toast-action';
+      btn.id = a.id;
+      btn.textContent = a.label;
+      btn.addEventListener('click', () => { el.remove(); a.run(); });
+      el.appendChild(btn);
+    }
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'board-toast-close';
+    close.setAttribute('aria-label', 'Cancel');
+    close.textContent = '×';
+    close.addEventListener('click', () => el.remove());
+    el.appendChild(close);
+    this.box.appendChild(el);
+  }
+
   /** A warning shown once a session (per text). */
   warnOnce(message: string): void {
     if (this.warned.has(message)) return;

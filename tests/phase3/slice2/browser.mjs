@@ -434,8 +434,19 @@ for (let k = 1; k <= 8; k++) await touch('touchMove', [{ x: mid.x - 50 + k * 10,
 await touch('touchEnd', []);
 cam1 = await M.page.evaluate(() => window.__boards.camera());
 ok(Math.abs((cam0.x - cam1.x) * cam0.zoom - 80) < 4 && Math.abs(cam1.zoom - cam0.zoom) < 0.01, 'two fingers together: a pan, the zoom kept');
-ok(await overflow(M.page) === 0 && await M.page.evaluate(() => { const r = document.getElementById('board-toolbar').getBoundingClientRect(); return [...document.querySelectorAll('#board-toolbar .board-tool:not([disabled])')].every((b) => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44) && r.bottom <= innerHeight; }),
-  'the bottom bar\'s tools are 44 px targets; still no sideways scroll');
+// every tool shown is a 44 px target — those in the bar, then (More opened) those behind it (slice 4's connector and frame live there)
+const targets44 = () => M.page.evaluate(() => { const r = document.getElementById('board-toolbar').getBoundingClientRect(); const shown = [...document.querySelectorAll('#board-toolbar .board-tool:not([disabled])')].filter((b) => b.getClientRects().length > 0);
+  return shown.length > 0 && shown.every((b) => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44) && r.bottom <= innerHeight ? shown.length : 0; });
+const inBar = await targets44();
+const moreOpen = (on) => M.page.waitForFunction((v) => document.getElementById('board-toolbar').classList.contains('show-later') === v, on, { timeout: 3000 }).catch(() => null);
+// a click, not a tap: right after the CDP pinch above, Chromium's gesture detector turns no tap into a click (a synthetic-touch artefact —
+// a fresh page's tap opens More); what is proven here is the targets' size
+await M.page.click('#board-tool-more');
+await moreOpen(true);
+const withMore = await targets44();
+await M.page.click('#board-tool-more');
+await moreOpen(false);
+ok(await overflow(M.page) === 0 && inBar > 0 && withMore > inBar, `the bottom bar's tools are 44 px targets, and those behind More (${inBar} → ${withMore}); still no sideways scroll`);
 await M.page.screenshot({ path: `${SHOTS}/phone-canvas.png` });
 
 // ================================================================================================================================

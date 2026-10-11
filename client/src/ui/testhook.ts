@@ -5,6 +5,7 @@
 import type { Board } from '../board';
 import type { Op } from '../model/types';
 import type { Catchup } from '../sync/catchup';
+import { polyline, routeOf } from '../render/items/connector';
 
 export function installTestHook(b: Board, catchup: Catchup, extra: { thumbnail(): Promise<number>; ready: Promise<void> }): void {
   const page = (sx: number, sy: number) => {
@@ -39,6 +40,8 @@ export function installTestHook(b: Board, catchup: Catchup, extra: { thumbnail()
       }
       return { ...page(s.x, s.y), width: it.width * b.view.camera.zoom, height: it.height * b.view.camera.zoom, handles };
     },
+    route: (id: string) => { const it = b.store.get(id); const r = it ? routeOf(it, b.renderer.boxOf) : null; return r ? { shape: r.shape, points: r.points, polyline: polyline(r) } : null; },
+    frameOrder: () => b.store.all().filter((i) => i.type === 'frame').sort((x, y) => { const xb = b.store.box(x.id)!, yb = b.store.box(y.id)!; return xb.y1 - yb.y1 || xb.x1 - yb.x1; }).map((f) => f.id),
     perf: () => ({ ...b.renderer.stats(), attached: b.renderer.attachedCount(), items: b.store.count() }),
     frames: () => b.renderer.stats(),
     resetPerf: () => b.renderer.resetStats(),

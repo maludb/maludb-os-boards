@@ -206,9 +206,14 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     fades after 10 s; live.md and the record above say 5 — 5 it is. The relay's `resync` makes the island catch up (`ops?after=`), not reload a
     whole board. The socket opens after the first state load, so no batch can fall between the two.
 
+16. **Found in slice 4:** connectors-frames.md placed an agent's frame with no position "right of the extent"; reconciliation 1 had ruled
+    below for every agent's item — below it is, and the spec says so now. Prev / Next and the minimap hide below 992 px (the spec said 375).
+    Slice 2's 375 proof counted tools hidden behind More; after its synthetic CDP pinch no Playwright `tap()` becomes a click, so it opens
+    More with a click.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
-first exemplar —, and slice 3, live — the second —, are built and proven** (2026-10-11). Next: slices 4 and 5 — all the planning
-model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).
+first exemplar —, slice 3, live — the second —, and slice 4, connectors and frames, are built and proven** (2026-10-11). Next: slice 5 —
+the planning model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

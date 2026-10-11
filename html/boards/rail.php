@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * GET /boards/{board}/rail?panel=item|outline|comments|history|badge[&ids=a,b,…] — the canvas's right rail, ONE partial door (canvas-core.md
+ * GET /boards/{board}/rail?panel=item|frames|outline|comments|history|badge[&ids=a,b,…] — the canvas's right rail, ONE partial door (canvas-core.md
  * "The right rail"; decision 1). Level view. item: the selection's Properties (colour, text size, alignment, lock, front/back, delete, and
  * for one item its type, size and "Set as the start view") — every control fires `boards:command` for the island, which makes it ONE
  * batch (never a form post); outline: the board as a list; comments and history: their slices' placeholders; badge: my level's badge.
@@ -23,6 +23,10 @@ switch ($panel) {
         $rows = rail_selection($pdo, $id, $ids);
         echo view('boards/partials/rail-properties.php', ['board' => $id, 'rows' => $rows, 'sum' => rail_summary($rows), 'may' => $may,
             'mayStart' => bd_level_at_least($level, 'edit')]);
+        break;
+    case 'frames':
+        require_once dirname(__DIR__, 2) . '/app/features/items/frames.php';
+        echo view('boards/partials/rail-frames.php', ['board' => $id, 'frames' => frames_in_order($pdo, $id)]);
         break;
     case 'outline':
         echo view('boards/partials/rail-outline.php', ['board' => $id, 'html' => board_outline_html($pdo, $id) ?? '']);

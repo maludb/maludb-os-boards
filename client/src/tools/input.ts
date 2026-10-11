@@ -7,7 +7,7 @@ import type { Board, ToolName } from '../board';
 
 export interface PointerInfo { x: number; y: number; sx: number; sy: number; shift: boolean; touch: boolean; button: number; id: number; time: number }
 export interface Gesture { move(p: PointerInfo): void; up(p: PointerInfo): void; cancel(): void }
-export interface Tool { readonly name: string; readonly cursor: string; down(p: PointerInfo): Gesture | null; dbl?(p: PointerInfo): void }
+export interface Tool { readonly name: string; readonly cursor: string; down(p: PointerInfo): Gesture | null; dbl?(p: PointerInfo): void; hover?(p: PointerInfo): void }
 
 export function isTyping(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
@@ -111,7 +111,10 @@ export class Input {
     this.b.live?.cursor(p.x, p.y);
     if (this.konva.has(e.pointerId)) return;
     const prev = this.pointers.get(e.pointerId);
-    if (!prev) return;
+    if (!prev) {
+      if (this.pointers.size === 0 && e.pointerType === 'mouse') this.tools[this.b.tool()].hover?.(p);    // no button down: the tool may show handles
+      return;
+    }
     prev.sx = p.sx; prev.sy = p.sy;
     if (this.pinch && this.pointers.size >= 2) {
       const [a, b] = [...this.pointers.values()];

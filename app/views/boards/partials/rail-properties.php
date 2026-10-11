@@ -2,7 +2,8 @@
 /**
  * The rail's Item panel — the selection's Properties (canvas.md "The rail partials"): the sticky colour (Miro's palette), a shape's fill, a
  * text's colour, the text size (S M L XL = 14 18 24 36), the alignment, Lock, Bring to front / Send to back, Delete; for ONE item its type,
- * size and "Set as the start view". Every control is a button carrying data-board-command: the island turns it into ONE batch (optimistic
+ * size and "Set as the start view"; a connector's line (straight / elbowed / curved, style, width, colour, arrowheads) and a frame's title, fill and
+ * "Fit to contents" (slice 4). Every control is a button carrying data-board-command: the island turns it into ONE batch (optimistic
  * and undoable like any edit) — never a form post. Refreshed on `boards:select`. Data: board, rows (rail_selection), sum (rail_summary or
  * null), may (I can change items here), mayStart (I can set the start view — board_update, level edit)
  */
@@ -38,6 +39,40 @@ $swatch = static fn (string $cmd, string $key, string $value, string $hex, strin
                 <div class="rail-swatches" id="rail-text-colors">
                     <?php foreach (ITEM_PALETTE as $hex): ?><?= $swatch('style', 'textColor', $hex, $hex, $hex, 'text', strtolower($sum['text_color']) === $hex) ?><?php endforeach; ?>
                 </div>
+            <?php endif; ?>
+            <?php if ($sum['connector'] !== null): $k = $sum['connector']; $btn = static fn (string $cmd, string $key, string $val, string $label, ?string $on, string $idp) =>
+                '<button type="button" class="btn btn-outline-secondary btn-touch' . ($on === $val ? ' active' : '') . '" data-board-command="' . e($cmd) . '" data-key="' . e($key)
+                . '" data-value="' . e($val) . '" data-types="connector" id="' . e($idp . '-' . $val) . '">' . $label . '</button>'; ?>
+                <div class="rail-label">Line</div>
+                <div class="btn-group mb-2 flex-wrap" role="group" id="rail-connector-shape">
+                    <?= $btn('data', 'shape', 'straight', 'Straight', $k['shape'], 'rail-shape') ?><?= $btn('data', 'shape', 'elbowed', 'Elbowed', $k['shape'], 'rail-shape') ?><?= $btn('data', 'shape', 'curved', 'Curved', $k['shape'], 'rail-shape') ?>
+                </div>
+                <div class="btn-group mb-2 flex-wrap" role="group" id="rail-connector-style">
+                    <?= $btn('style', 'strokeStyle', 'normal', '—', $k['style'], 'rail-stroke') ?><?= $btn('style', 'strokeStyle', 'dashed', '– –', $k['style'], 'rail-stroke') ?><?= $btn('style', 'strokeStyle', 'dotted', '···', $k['style'], 'rail-stroke') ?>
+                </div>
+                <div class="btn-group mb-2 flex-wrap" role="group" id="rail-connector-width">
+                    <?php foreach (['1', '2', '4', '8'] as $wd): ?><?= $btn('style', 'strokeWidth', $wd, $wd, $k['width'], 'rail-width') ?><?php endforeach; ?>
+                </div>
+                <div class="rail-label">Arrowheads</div>
+                <div class="d-flex flex-wrap gap-2 mb-2" id="rail-connector-caps">
+                    <div class="btn-group" role="group"><?php foreach (['none' => 'None', 'arrow' => '←', 'filled_triangle' => '◀'] as $cap => $lab): ?><?= $btn('style', 'startStrokeCap', $cap, $lab, $k['start'], 'rail-start') ?><?php endforeach; ?></div>
+                    <div class="btn-group" role="group"><?php foreach (['none' => 'None', 'arrow' => '→', 'filled_triangle' => '▶'] as $cap => $lab): ?><?= $btn('style', 'endStrokeCap', $cap, $lab, $k['end'], 'rail-end') ?><?php endforeach; ?></div>
+                </div>
+                <div class="rail-label">Line colour</div>
+                <div class="rail-swatches" id="rail-connector-colors">
+                    <?php foreach (ITEM_PALETTE as $hex): ?><?= $swatch('style', 'strokeColor', $hex, $hex, $hex, 'connector', strtolower((string) $k['color']) === $hex) ?><?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($sum['frame'] !== null): $fr = $sum['frame']; ?>
+                <?php if ($fr['title'] !== null): ?>
+                    <div class="rail-label">Title</div>
+                    <input type="text" class="form-control mb-2" maxlength="120" value="<?= e($fr['title']) ?>" data-board-input="data" data-key="title" data-types="frame" id="rail-frame-title" aria-label="The frame's title">
+                <?php endif; ?>
+                <div class="rail-label">Frame fill</div>
+                <div class="rail-swatches" id="rail-frame-fills">
+                    <?php foreach (BOARD_COLORS as $hex => $label): ?><?= $swatch('style', 'fillColor', $hex, $hex, $label, 'frame', strtolower((string) $fr['fill']) === $hex) ?><?php endforeach; ?>
+                </div>
+                <button type="button" class="btn btn-light btn-touch mt-2" data-board-command="fit-frame" id="rail-frame-fit"><i class="feather-minimize-2 me-1"></i>Fit to contents</button>
             <?php endif; ?>
             <?php if ($sum['has_text']): ?>
                 <div class="rail-label">Text size</div>

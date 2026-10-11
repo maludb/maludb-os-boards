@@ -12,7 +12,7 @@ export class RailBridge {
   private pageContent = document.getElementById('page-content');
   private viewTimer: number | null = null;
 
-  constructor(private b: Board, handlers: { command(d: CommandDetail): void; focus(d: { id?: string; x?: number; y?: number; zoom?: number }): void; reload(): void }) {
+  constructor(private b: Board, handlers: { command(d: CommandDetail): void; focus(d: { id?: string; x?: number; y?: number; zoom?: number; fit?: boolean }): void; reload(): void }) {
     const body = document.body;
     const on = <T>(type: string, fn: (d: T) => void) => body.addEventListener(type, (e) => fn(((e as CustomEvent).detail ?? {}) as T));
     on('boards:command', handlers.command);
@@ -36,7 +36,7 @@ export class RailBridge {
       const line = t.closest('a.outline-item[data-item]') as HTMLAnchorElement | null;
       if (line) {
         e.preventDefault();
-        body.dispatchEvent(new CustomEvent('boards:focus', { detail: { id: line.dataset.item } }));
+        body.dispatchEvent(new CustomEvent('boards:focus', { detail: { id: line.dataset.item, fit: line.dataset.fit === '1' } }));
         if (window.matchMedia('(max-width: 991.98px)').matches) this.sheet(false);
         return;
       }
@@ -45,12 +45,21 @@ export class RailBridge {
         this.rail?.querySelectorAll('.board-rail-tab').forEach((x) => { x.classList.toggle('active', x === tab); x.setAttribute('aria-selected', x === tab ? 'true' : 'false'); });
       }
     });
+    // a field of the Properties panel (a frame's title): its change is ONE batch, like a button's
+    this.rail?.addEventListener('change', (e) => {
+      const input = (e.target as HTMLElement).closest('[data-board-input]') as HTMLInputElement | null;
+      if (!input) return;
+      body.dispatchEvent(new CustomEvent('boards:command', { detail: { kind: input.dataset.boardInput, key: input.dataset.key, value: input.value,
+        types: input.dataset.types ? input.dataset.types.split(',') : undefined, ids: b.selection.list() } }));
+    });
     document.getElementById('board-rail-toggle')?.addEventListener('click', (e) => {
       const hidden = document.getElementById('board-page')?.classList.toggle('rail-hidden');
       (e.currentTarget as HTMLElement).setAttribute('aria-expanded', hidden ? 'false' : 'true');
       window.dispatchEvent(new Event('resize'));
     });
     document.getElementById('board-rail-close')?.addEventListener('click', () => this.sheet(false));
+    // a phone's way to the panel without selecting anything: the board's menu → Frames (slice 4)
+    document.querySelectorAll<HTMLElement>('[data-open-panel]').forEach((el) => el.addEventListener('click', () => this.sheet(true, el.dataset.openPanel)));
     document.getElementById('board-rail-handle')?.addEventListener('click', () => this.rail?.classList.toggle('tall'));
     b.view.onChange(() => this.stampView());
   }

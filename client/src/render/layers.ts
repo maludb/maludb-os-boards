@@ -21,6 +21,9 @@ import { drawSticky } from './items/sticky';
 import { drawShape } from './items/shape';
 import { drawText } from './items/text';
 import { drawPlaceholder } from './items/placeholder';
+import { drawFrame } from './items/frame';
+import { drawConnector } from './items/connector';
+import type { Box } from '../model/types';
 
 Konva.autoDrawEnabled = false;
 
@@ -29,13 +32,14 @@ export interface FrameStats { frames: number; median: number; p95: number; max: 
 type Native = CanvasRenderingContext2D;
 const native = (ctx: Konva.Context): Native => (ctx as unknown as { _context: Native })._context;
 
-/** An item in its own box [0, w] × [0, h], by its type (flat below the low zoom). */
+/** An item in its own box [0, w] × [0, h], by its type (flat below the low zoom). A connector is not drawn here: it has no box of its own. */
 export function drawItem(c: Native, item: Item, zoom: number): void {
-  if (lodActive(zoom)) { drawFlatLocal(c, item, zoom); return; }
+  if (lodActive(zoom) && item.type !== 'frame') { drawFlatLocal(c, item, zoom); return; }
   switch (item.type) {
     case 'sticky_note': drawSticky(c, item, zoom); break;
     case 'shape': drawShape(c, item, zoom); break;
     case 'text': drawText(c, item, zoom); break;
+    case 'frame': drawFrame(c, item, zoom); break;
     default: drawPlaceholder(c, item, zoom);
   }
 }
@@ -178,9 +182,17 @@ export class Renderer {
       const c = native(ctx);
       const list = (shape.getAttr('list') as Item[]) ?? [];
       const zoom = this.view.camera.zoom;
-      if (lodActive(zoom)) { drawFlats(c, list, (i) => this.drawnCentre(i), zoom, this.hiddenIds); return; }
+      if (lodActive(zoom)) {
+        drawFlats(c, list.filter((i) => i.type !== 'connector' && i.type !== 'frame'), (i) => this.drawnCentre(i), zoom, this.hiddenIds);
+        for (const it of list) {
+          if (it.type === 'connector') drawConnector(c, it, zoom, this.boxOf, true);
+          else if (it.type === 'frame') this.drawLocal(c, it, zoom);
+        }
+        return;
+      }
       for (const it of list) {
         if (this.hiddenIds.has(it.id)) continue;
+        if (it.type === 'connector') { drawConnector(c, it, zoom, this.boxOf); continue; }
         const p = this.drawnCentre(it);
         const rot = it.type === 'frame' ? 0 : it.rotation;
         c.save();
@@ -193,13 +205,33 @@ export class Renderer {
     } });
   }
 
-  /** A kept item's node: a shape whose scene function is the item's own draw function. */
+  /** One item in its own box at where it is drawn (the low zoom's frames). */
+  private drawLocal(c: Native, it: Item, zoom: number): void {
+    const p = this.drawnCentre(it);
+    c.save();
+    c.translate(p.x - it.width / 2, p.y - it.height / 2);
+    drawItem(c, it, zoom);
+    c.restore();
+  }
+
+  /** An item's box where it is drawn now — its own drag, or its frame's (a connector's ends follow a drag as it happens). */
+  readonly boxOf = (id: string): Box | null => {
+    const b = this.store.box(id);
+    if (!b || this.dragOffsets.size === 0) return b;
+    const it = this.store.get(id);
+    const off = this.dragOffsets.get(id) ?? (it?.parent_id ? this.dragOffsets.get(it.parent_id) : undefined);
+    return off ? { x1: b.x1 + off.dx, y1: b.y1 + off.dy, x2: b.x2 + off.dx, y2: b.y2 + off.dy } : b;
+  };
+
+  /** A kept item's node: a shape whose scene function is the item's own draw function (a connector's draws its route, absolute). */
   private node(id: string): Konva.Shape {
     let n = this.nodes.get(id);
     if (!n) {
       n = new Konva.Shape({ listening: false, perfectDrawEnabled: false, sceneFunc: (ctx) => {
         const it = this.store.get(id);
-        if (it) drawItem(native(ctx), it, this.view.camera.zoom);
+        if (!it) return;
+        if (it.type === 'connector') drawConnector(native(ctx), it, this.view.camera.zoom, this.boxOf, lodActive(this.view.camera.zoom));
+        else drawItem(native(ctx), it, this.view.camera.zoom);
       } });
       n.setAttr('itemId', id);
       this.nodes.set(id, n);
@@ -209,6 +241,7 @@ export class Renderer {
 
   /** Put a node where its item is drawn (unless the Transformer is holding it mid-gesture: its scale is not 1). */
   private place(n: Konva.Shape, it: Item): void {
+    if (it.type === 'connector') { n.setAttrs({ x: 0, y: 0, width: 0, height: 0, offsetX: 0, offsetY: 0, rotation: 0, visible: true }); return; }
     if (n.scaleX() !== 1 || n.scaleY() !== 1) return;
     const p = this.drawnCentre(it);
     n.setAttrs({ x: p.x, y: p.y, width: it.width, height: it.height, offsetX: it.width / 2, offsetY: it.height / 2,

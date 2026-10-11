@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T10:25:15+00:00",
+    "generated_at": "2026-10-11T12:58:19+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -1097,7 +1097,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "frame_create": {
             "action": "frame_create",
@@ -1154,7 +1154,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "file_upload": {
             "action": "file_upload",
