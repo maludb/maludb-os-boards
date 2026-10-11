@@ -22,8 +22,13 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
   `~/htmx-php-builder` and `~/maludb-os-integration` (both 0.9.0).
 - Proofs, one after the other (they share ports 9101–9103): `tests/phase0/run.sh` (the kit), `tests/phase0/schema.sh` (the schema),
   `tests/phase1/check_specs.sh` (the specs' claims), `tests/phase2/run.sh` and `BD_APP=apache tests/phase2/run.sh` (the shell, under php -S and
-  under a user-level Apache rendering the deploy vhost — no root), `tests/phase3/slice1/run.sh`, `tests/phase3/slice2/run.sh` (each also with
-  `BD_APP=apache`). A slice's suite re-runs every earlier one.
+  under a user-level Apache rendering the deploy vhost — no root), `tests/phase3/slice1/run.sh`, `tests/phase3/slice2/run.sh`,
+  `tests/phase3/slice3/run.sh` (each also with `BD_APP=apache`; slice 3 needs `mcp/venv` — `python3 -m venv mcp/venv && mcp/venv/bin/pip install -r
+  mcp/requirements.txt`, gitignored, the installer makes the real one). A slice's suite re-runs every earlier one (`BD_SKIP_EARLIER=1` skips that
+  while working).
+- The relay (`live/relay.py`) is a RELAY: it connects as the records role and never writes; every board write stays a PHP handler and
+  `bd_commit_ops()`. Its tickets are single use (with a nonce); `docs/build-specs/live-relay.md` is normative. A scratch database has live
+  updates OFF unless `BD_LIVE=1` (`tests/setup_dev.sh`): suites without a relay prove the polling canvas; slice 3's (and later live ones) set it.
 - The canvas is `client/` (TypeScript + Konva; Node is a development tool here only): after any change under `client/src/` run
   `node client/build.mjs` and commit `html/assets/boards/` with it — `php bin/check_bundle.php` fails a stale bundle, and every slice's proof runs
   it. How an item is drawn, how a tool is added and what slice 3 replaces: `docs/build-specs/canvas-core.md` "Built in slice 2".

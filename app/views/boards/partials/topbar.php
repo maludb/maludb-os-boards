@@ -1,7 +1,7 @@
 <?php
 /**
  * The canvas's top bar (canvas-core.md "#board-header"): back to the boards, the title, the level badge (refreshed when the relay says the
- * level changed — slice 3), who is here (slice 3), Share for `full`, Outline (always — the 375 px reader), the rail's toggle, and the board's
+ * level changed), who is here (the presence strip, filled by the island from the relay), Share for `full`, Outline (always — the 375 px reader), the rail's toggle, and the board's
  * menu: Settings, History, Outline, Export, Duplicate, Save as template (the last three are slice 8's). Data: b, level, back
  */
 $id = (string) $b['board_id'];
@@ -14,7 +14,7 @@ $isOwner = (int) ($b['owner_member_id'] ?? 0) === (int) current_member_id();
         <?= view('shared/level-badge.php', ['level' => $level, 'owner' => $isOwner]) ?>
     </span>
     <?php if ($b['is_locked']): ?><span class="badge text-bg-warning" id="board-locked-badge"><i class="feather-lock me-1"></i>Locked</span><?php endif; ?>
-    <div class="board-presence ms-auto" id="board-presence" aria-label="Who is here"></div>
+    <?= view('boards/partials/presence.php') ?>
     <a href="/boards/<?= e($id) ?>/outline" class="btn btn-light btn-touch board-icon-btn" id="board-outline-link" title="Outline" aria-label="The board as a list"><i class="feather-list"></i></a>
     <?php if (bd_level_at_least($level, 'full')): ?>
         <a href="/boards/<?= e($id) ?>/share" class="btn btn-primary btn-touch" id="board-share-btn"><i class="feather-user-plus me-1"></i><span class="d-none d-sm-inline">Share</span></a>

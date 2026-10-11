@@ -57,6 +57,7 @@ export class Renderer {
   private drawnCount = 0;
   private drewSelection = true;
   private drewPresence = true;
+  private presenceReq: number | null = null;
   /** a drag in progress: id → the offset (canvas units) it is drawn at until the drop commits */
   readonly dragOffsets = new Map<string, { dx: number; dy: number }>();
   private afterFrame: (() => void)[] = [];
@@ -99,6 +100,17 @@ export class Renderer {
     this.requested = requestAnimationFrame((t) => { this.requested = null; this.frame(t); });
   }
 
+  /** Only the presence layer changed (a peer's cursor, a ghost): draw it alone in the next frame, unless a whole frame is coming anyway. */
+  requestPresence(): void {
+    if (this.requested !== null || this.presenceReq !== null) return;
+    this.presenceReq = requestAnimationFrame(() => {
+      this.presenceReq = null;
+      const pres = holds(this.presence);
+      if (pres || this.drewPresence) this.presence.draw();
+      this.drewPresence = pres;
+    });
+  }
+
   /** Draw now (a test, a thumbnail). */
   flush(): void {
     if (this.requested !== null) { cancelAnimationFrame(this.requested); this.requested = null; }
@@ -107,6 +119,7 @@ export class Renderer {
 
   private frame(at: number): void {
     const t0 = performance.now();
+    if (this.presenceReq !== null) { cancelAnimationFrame(this.presenceReq); this.presenceReq = null; }
     if (this.sortDirty) { this.sorted = sortedByZ(this.store); this.sortDirty = false; }
     const area = cullBox(this.view.viewport());
     const visFrames = inView(this.sorted.frames, this.store, area, this.keepIds);

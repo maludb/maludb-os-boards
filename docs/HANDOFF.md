@@ -19,7 +19,8 @@ documents, before doing anything else.
   complete** (design §16). Phase 1 was written and **approved by the owner as written** (2026-10-10); step 1 stays
   undone at the owner's word (the plugins are read from the clones). **Phase 2, the shell, is built and proven** (`tests/phase2/run.sh`).
   **Slice 1 (boards, folders and sharing — the CRUD exemplar) is built and proven** (`tests/phase3/slice1/run.sh`). **Slice 2 (the canvas — the
-  first exemplar) is built and proven** (`tests/phase3/slice2/run.sh`, 2026-10-11). Next: slice 3, live — the second exemplar.
+  first exemplar) is built and proven** (`tests/phase3/slice2/run.sh`, 2026-10-11). **Slice 3 (live — the second exemplar, the relay) is built
+  and proven** (`tests/phase3/slice3/run.sh`, 2026-10-11). Next: slices 4 and 5.
 
 ## Where things stand
 

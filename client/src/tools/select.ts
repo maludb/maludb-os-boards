@@ -27,8 +27,8 @@ export class Selection {
     });
     b.renderer.selection.add(this.outline, this.tr);
     this.tr.on('transformstart', () => this.onTransformStart());
-    this.tr.on('transform', () => b.renderer.request());
-    this.tr.on('transformend', () => this.onTransformEnd());
+    this.tr.on('transform', () => { b.renderer.request(); this.sendGhost(); });
+    this.tr.on('transformend', () => { b.live?.drag([]); this.onTransformEnd(); });
     b.renderer.onFrame(() => this.refresh());
     b.store.subscribe(() => {
       let gone = false;
@@ -88,6 +88,15 @@ export class Selection {
         rotation: i.type === 'frame' ? 0 : i.rotation, stroke: i.locked ? '#f59f00' : '#3454d1', strokeWidth: 2 / z, dash: i.locked ? [6 / z, 4 / z] : undefined,
         listening: false }));
     }
+  }
+
+  /** What the Transformer holds, as the peers' ghost: centre, size and rotation mid-gesture. */
+  private sendGhost(): void {
+    if (!this.b.live) return;
+    this.b.live.drag(this.tr.nodes().map((n) => {
+      const it = this.b.store.get(n.getAttr('itemId') as string);
+      return { id: n.getAttr('itemId') as string, x: n.x(), y: n.y(), width: (it?.width ?? 0) * Math.abs(n.scaleX()), height: (it?.height ?? 0) * Math.abs(n.scaleY()), rotation: n.rotation() };
+    }));
   }
 
   private onTransformStart(): void {
@@ -228,9 +237,14 @@ export class SelectTool implements Tool {
         window.clearTimeout(press);
         for (const id of ids) b.renderer.dragOffsets.set(id, { dx, dy });
         b.renderer.markDirty(ids.flatMap((id) => [id, ...b.store.children(id).map((c) => c.id)]));
+        b.live?.drag(ids.map((id) => b.store.get(id)).filter((i): i is Item => !!i).map((i) => {
+          const c = b.store.absCentre(i);
+          return { id: i.id, x: c.x + dx, y: c.y + dy, width: i.width, height: i.height, rotation: i.type === 'frame' ? 0 : i.rotation };
+        }));
       },
       up: () => {
         window.clearTimeout(press);
+        if (moved) b.live?.drag([]);
         const touched = ids.flatMap((id) => [id, ...b.store.children(id).map((c) => c.id)]);
         for (const id of ids) b.renderer.dragOffsets.delete(id);
         if (moved && (dx !== 0 || dy !== 0)) {
@@ -241,6 +255,7 @@ export class SelectTool implements Tool {
       },
       cancel: () => {
         window.clearTimeout(press);
+        if (moved) b.live?.drag([]);
         for (const id of ids) b.renderer.dragOffsets.delete(id);
         b.renderer.markDirty(ids.flatMap((id) => [id, ...b.store.children(id).map((c) => c.id)]));
       },

@@ -1,0 +1,21 @@
+# Slice 3's front door under php -S (tests/phase3/slice3/run.sh renders this; no root): a user-level Apache on 9107 — prefork, mod_proxy_http,
+# mod_rewrite — carrying the deploy vhost's OWN /live line (copied from deploy/apache-boards.conf at render time, {{LIVE_LINE}}), so the
+# relay is reached exactly as production reaches it (Apache 2.4.47+ tunnels upgrade=websocket itself; proxy_wstunnel stays off), and
+# everything else proxied to the application under php -S on 9101. Under BD_APP=apache the Phase 2 servers render the whole vhost on 9101
+# instead and this file is not used. {{STATE}} is the proofs' state directory.
+ServerRoot "/etc/apache2"
+DefaultRuntimeDir {{STATE}}
+PidFile {{STATE}}/front.pid
+ErrorLog {{STATE}}/front.err
+ServerName localhost
+LogLevel warn
+Include /etc/apache2/mods-enabled/*.load
+Include /etc/apache2/mods-enabled/*.conf
+{{EXTRA_MODULES}}
+Listen 9107
+<VirtualHost *:9107>
+	ProxyPreserveHost On
+{{LIVE_LINE}}
+	ProxyPass        /  http://127.0.0.1:9101/
+	ProxyPassReverse /  http://127.0.0.1:9101/
+</VirtualHost>

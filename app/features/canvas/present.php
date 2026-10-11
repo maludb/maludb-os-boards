@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 
 require_once dirname(__DIR__) . '/items/write.php';
+require_once dirname(__DIR__, 2) . '/live.php';
 
 /** The committed bundle (client/build.mjs): ['js' => '/assets/boards/boards.<hash>.js', 'css' => …] or null when it was never built. */
 function canvas_bundle(): ?array
@@ -54,9 +55,9 @@ function canvas_mount(array $b, string $level, array $me): array
         'data-background' => json_encode($b['background']),
         'data-thumbnail-age' => $b['thumbnail_age'] === null ? '' : (string) $b['thumbnail_age'],
     ];
-    // the 60-second live ticket is slice 3's (bd_live_ticket); until then the island polls (canvas.md divergence 1)
-    if (function_exists('bd_live_ticket') && !empty($s['live_enabled'])) {
-        $attrs['data-ticket'] = bd_live_ticket($id);
+    // the live relay's 60-second, single-use ticket (live.md) — absent when live updates are off: the island polls from the start
+    if (live_enabled(db())) {
+        $attrs['data-ticket'] = bd_live_ticket((int) $me['id'], $id, $level);
     }
     // the proofs' test hook: ONLY when tests/dev_router.php defined BD_TEST_HOOKS, and never in production (canvas-core decision 8)
     if (defined('BD_TEST_HOOKS') && !app_is_prod()) {

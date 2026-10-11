@@ -201,9 +201,14 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     work a frame, three attempts a view (canvas.md "Built and proven" 7). The rendering became batches with nodes for the selection only
     (canvas-core "Built in slice 2").
 
+15. **Found in slice 3:** the live ticket needed a nonce — two tickets minted for one person in the same second were the same string, and the
+    relay (single use) refused the second as a reuse (`{member}.{room}.{level}.{exp}.{nonce}.{hmac}` now). live-relay.md said an agent's avatar
+    fades after 10 s; live.md and the record above say 5 — 5 it is. The relay's `resync` makes the island catch up (`ops?after=`), not reload a
+    whole board. The socket opens after the first state load, so no batch can fall between the two.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
-first exemplar —, is built and proven** (2026-10-11). Next: the second exemplar, slice 3 (live), then slices 4 and 5 — all the planning
+first exemplar —, and slice 3, live — the second —, are built and proven** (2026-10-11). Next: slices 4 and 5 — all the planning
 model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

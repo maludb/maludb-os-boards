@@ -104,3 +104,22 @@ body.board-canvas-page .app-panes { min-height: 0; }
 html.app-skin-dark .board-topbar, html.app-skin-dark .board-rail { background: #0f172a; border-color: #1b2436; }
 html.app-skin-dark .board-toolbar, html.app-skin-dark .board-bar-group, html.app-skin-dark .board-shape-menu { background: #1b2431; }
 html.app-skin-dark .board-tool, html.app-skin-dark .board-shape-pick { color: #dbe2ea; }
+
+/* who is here (slice 3): the top bar's avatars — two and "+N" at 375 px; an agent with an "AI" mark; a peer typing ringed */
+.board-presence { display: flex; align-items: center; gap: 0; padding-left: 6px; }
+.board-avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px;
+  font-weight: 700; border: 2px solid var(--bs-body-bg, #fff); margin-left: -6px; position: relative; cursor: default; user-select: none; }
+.board-avatar.more { background: #868e96; }
+.board-avatar.editing { box-shadow: 0 0 0 2px #f59f00; }
+.board-avatar.agent::after { content: 'AI'; position: absolute; right: -6px; bottom: -4px; font-size: 8px; line-height: 1; padding: 2px 3px; border-radius: 4px;
+  background: #1f2937; color: #fff; }
+/* "Live updates paused": the socket is down, the canvas polls */
+.board-live-banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 7; padding: 6px 12px; border-radius: 8px; background: #fff3cd;
+  color: #664d03; font-size: 13px; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); max-width: 92%; text-align: center; }
+@media (max-width: 991.98px) { .board-avatar { width: 28px; height: 28px; font-size: 11px; } .board-live-banner { font-size: 12px; } }
+.board-presence { flex: 0 0 auto; }
+@media (max-width: 575.98px) {
+  /* 375 px: room for the title and who is here — the canvas's own tools already show what the level allows */
+  #board-level-badge, #board-locked-badge { display: none; }
+  .board-avatar { width: 26px; height: 26px; margin-left: -8px; font-size: 10px; }
+}

@@ -108,6 +108,7 @@ export class Input {
   private move(e: PointerEvent): void {
     const p = this.info(e);
     this.b.pointer = { x: p.x, y: p.y };
+    this.b.live?.cursor(p.x, p.y);
     if (this.konva.has(e.pointerId)) return;
     const prev = this.pointers.get(e.pointerId);
     if (!prev) return;

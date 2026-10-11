@@ -30,9 +30,10 @@ builds it and is THE SECOND EXEMPLAR. The realtime spike of 2026-10-10 proved th
 | `deploy/boards-live.service` | already written (Phase 0): `ExecStart={{APP_DIR}}/mcp/venv/bin/python -I {{APP_DIR}}/live/relay.py`, `Restart=always`, `ProtectSystem=strict`, `MemoryMax=256M`, `IPAddressDeny=any` + `IPAddressAllow=localhost` |
 | `client/src/sync/socket.ts`, `client/src/ui/presence.ts` | the island's side (below) |
 
-**The ticket** is `{member}.{room}.{level}.{exp}.{hmac}`: `room` = `board:<uuid>`, `level` = the caller's level now, `exp` = unix time + 60,
-`hmac` = lowercase hex HMAC-SHA256 of `{member}.{room}.{level}.{exp}` with the key `BOARDS_LIVE_KEY` (the 64-hex-character string itself,
-as bytes). `view.php` embeds one in the mount (`data-ticket`); the island asks the ticket door for a fresh one on every reconnect. The
+**The ticket** is `{member}.{room}.{level}.{exp}.{nonce}.{hmac}`: `room` = `board:<uuid>`, `level` = the caller's level now, `exp` = unix time + 60,
+`nonce` = 16 random hex characters, `hmac` = lowercase hex HMAC-SHA256 of `{member}.{room}.{level}.{exp}.{nonce}` with the key `BOARDS_LIVE_KEY`
+(the 64-hex-character string itself, as bytes). (The nonce was added in slice 3: without it two tickets minted in one second were one string,
+and the second was refused as a reuse — live.md "Built and proven" 1.) `view.php` embeds one in the mount (`data-ticket`); the island asks the ticket door for a fresh one on every reconnect. The
 relay accepts a ticket **once**: it keeps the ticket strings it accepted until their `exp`, and refuses a second use with 4401.
 
 ## Configuration
@@ -109,7 +110,7 @@ tickets from the used set.
 
 - **Where an agent works** needs no new channel: every batch an agent commits arrives as `ops` with `source: "agent"`, its `member_id` and
   `summary.bbox`. The island animates that agent's avatar (its colour, its initials, an "AI" mark) to the box's centre over 400 ms,
-  flashes the new and changed items, and fades the avatar after 10 s without another batch.
+  flashes the new and changed items, and fades the avatar after 5 s without another batch (live.md decision 2 and the consistency record).
 - **That an agent is working** (a mention's turn may run longer than a batch): the worker, when it starts a dispatch's chat turn and when
   the turn ends (answered, refused, failed or paused), runs `SELECT pg_notify('boards_presence', json)` with `{room, member_id, name,
   kind: "agent", state: "working" | "idle", dispatch_id}`. The relay fans it out as `presence` on the same queue; the header shows
@@ -161,6 +162,13 @@ line, `ProxyPass /` to 9101; no root). Scripted clients (`tests/phase3/slice3/cl
 Then Playwright (canvas-core.md "Proving the canvas") with two contexts through the user-level Apache: B sees A's cursor, A's drag ghost
 while dragging, and A's drop within one second; A signs out at the fake kernel → B's peer leaves; an agent's batch posted through
 `/items/create.php` with an action token moves the agent's avatar to the new stickies.
+
+## Built in slice 3 (2026-10-11)
+- `live/relay.py` keeps the names this spec fixes (`verify_ticket`, `handler`, `on_notify`, `fan_out_ops`, `listen_forever`, `check_forever`,
+  `main`) and adds `sweep_forever` (the idle close) and `read_settings`. `BOARDS_LIVE_IDLE_SECONDS` may lower the idle close (the proofs: 8 s).
+- The relay's `resync` makes the client catch up with `ops?after=` (exact per board); the catch-up reloads only when the ops are gone.
+- The proof's files are live.md's: `tests/phase3/slice3/relay_test.py` (this spec's `clients.py`) and `apache.conf.tmpl` (`httpd.conf`).
+- live.md "Built and proven" holds the measurements and the decisions.
 
 ## Decisions taken here
 

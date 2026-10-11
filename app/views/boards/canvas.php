@@ -21,6 +21,7 @@ $editable = bd_level_at_least($level, 'edit') && (!$b['is_locked'] || bd_level_a
             <?= view('boards/partials/toolbar.php', ['editable' => $editable]) ?>
             <?= view('boards/partials/bottombar.php', ['editable' => $editable]) ?>
             <div class="board-banner d-none" id="board-banner" role="status"></div>
+            <?= view('boards/partials/live-banner.php') ?>
             <div class="board-toasts" id="board-toasts" aria-live="polite"></div>
         </div>
         <?= view('boards/partials/rail.php', ['b' => $b, 'level' => $level]) ?>

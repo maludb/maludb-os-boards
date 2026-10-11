@@ -28,6 +28,9 @@ else
   PW_RW=$PW; PW_REC=$PW; PW_ACT=$PW
   for r in boards_rw boards_records_ro boards_activity_ro; do $PSQL -c "ALTER ROLE $r WITH LOGIN PASSWORD '$PW'"; done
 fi
+# live updates: the relay runs only in slice 3's proofs (and later ones that set BD_LIVE=1); every other suite proves the canvas as it polls —
+# without a relay the page would carry a ticket and the browser would log its failed WebSocket handshake
+[ "${BD_LIVE:-0}" = "1" ] || $PSQL -d "$DB" -c "UPDATE bd_settings SET live_enabled = false" >/dev/null
 STORE=${BD_DEV_STORAGE:-/tmp/${DB}-storage}          # the attachment store: a scratch one, emptied
 rm -rf "$STORE"; mkdir -p "$STORE"/{files,thumbs,tmp}
 umask 077

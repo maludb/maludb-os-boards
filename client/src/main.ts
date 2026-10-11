@@ -12,7 +12,7 @@ import { Renderer } from './render/layers';
 import { Committer } from './sync/commit';
 import { Catchup } from './sync/catchup';
 import { Poller } from './sync/poll';
-import { connectLive } from './sync/socket';
+import { connectLive, type LiveConnection } from './sync/socket';
 import { UndoStack } from './sync/undo';
 import { Selection, SelectTool } from './tools/select';
 import { HandTool } from './tools/hand';
@@ -28,6 +28,7 @@ import { RailBridge, type CommandDetail } from './ui/rail';
 import { Clipboard } from './ui/clipboard';
 import { Thumbnails } from './ui/thumbnail';
 import { installTestHook } from './ui/testhook';
+import { Presence } from './ui/presence';
 
 declare global { interface Window { __boardsIsland?: { destroy(): void } } }
 
@@ -112,12 +113,17 @@ function boot(mount: HTMLElement): { destroy(): void } {
   const catchup = new Catchup({ opsUrl: d.opsUrl ?? '', stateUrl: d.stateUrl ?? '', clientId }, store, committer, {
     onApplied: (batch) => {
       rail.changed({ seq: batch.seq, source: batch.source, member_id: batch.member_id, counts: batch.summary?.counts });
+      presence.batch(batch.member_id, batch.source, batch.summary?.bbox,
+        batch.ops.flatMap((o) => (o.op === 'create' ? [o.item.id] : o.op === 'update' ? [o.id] : [])));
       if (selectionTouched(batch.ops)) rail.select(b.selection.list());
     },
     onResync: (state) => { people = state.people; b.people = people; },
   }, Number(d.lastSeq ?? 0));
 
   const selection = new Selection(b);
+  const presence = new Presence(b);
+  b.presence = presence;
+  b.live = null;
   b.selection = selection;
   const editor = new TextEditor(b);
   const clipboard = new Clipboard(b);
@@ -249,16 +255,46 @@ function boot(mount: HTMLElement): { destroy(): void } {
   thumbs = new Thumbnails(b, d.thumbnailUrl ?? '', csrf, background, d.thumbnailAge ? Number(d.thumbnailAge) : null);
   const poller = new Poller(catchup, Math.max(1, Number(d.pollSeconds ?? 3)), (ok) => rail.fire('boards:live', { state: ok ? 'polling' : 'offline', peers: 0 }));
 
-  // the live relay is slice 3's; until then the poll carries everyone's changes (canvas.md divergence 1)
-  const live = connectLive({ liveUrl: d.liveUrl ?? '/live', ticket: d.ticket ?? null, ticketUrl: d.ticketUrl ?? '', csrf }, {
-    onBatch: (batch) => catchup.applyRemote(batch),
-    onState: (state, peers) => {
-      if (state === 'live') poller.stop(); else poller.start();
-      rail.fire('boards:live', { state: state === 'unavailable' ? 'polling' : state, peers });
-    },
-    onResync: () => { void catchup.reload(); },
-    onLevel: (lvl) => rail.fire('boards:level', { level: lvl }),
-  });
+  // the live socket (live.md): opened once the state is loaded (a batch must never land on a store the load then replaces), it carries
+  // everyone's committed batches, presence and cursors; while it is down the poll does, and the banner says so
+  const liveBanner = document.getElementById('board-live-banner');
+  const levelChanged = (lvl: string) => {
+    rail.fire('boards:level', { level: lvl });
+    const r = LEVEL_RANK[lvl] ?? 0;
+    if ((r >= 3 && (d.locked !== '1' || r >= 4)) !== editable) {               // the tools on this page no longer fit: the wall decides anew
+      toasts.show('Your access to this board changed — reloading…', { kind: 'warning', id: 'board-toast-level' });
+      window.setTimeout(() => window.location.reload(), 1500);
+    }
+  };
+  const startLive = (): LiveConnection => connectLive(
+    { liveUrl: d.liveUrl ?? '/live', ticket: d.ticket || null, ticketUrl: d.ticketUrl ?? '', csrf, clientId, canEdit: editable }, {
+      onBatch: (batch) => catchup.applyRemote(batch),
+      onGap: () => { void catchup.pull().catch(() => undefined); },
+      onState: (state, peers) => {
+        mount.dataset.live = state;
+        if (state === 'live') {
+          poller.stop();
+          liveBanner?.classList.add('d-none');
+          void catchup.pull().catch(() => undefined);          // a batch committed while the socket was not there
+          b.live?.select(selection.list());
+        } else if (state !== 'connecting') {
+          presence.clear();
+          poller.start();
+          liveBanner?.classList.remove('d-none');
+        }
+        rail.fire('boards:live', { state: state === 'unavailable' ? 'polling' : state, peers });
+      },
+      // the relay lost notifications: ops?after= is exact (per board seq order is commit order); a compaction meanwhile makes it a reload
+      onResync: () => { void catchup.pull().catch(() => catchup.reload()); },
+      onLevel: levelChanged,
+      onWelcome: (you, peers) => presence.welcome(you, peers),
+      onJoin: (p) => presence.join(p),
+      onLeave: (m, c) => presence.leave(m, c),
+      onPeer: (k, m, c, dd) => presence.peer(k, m, c, dd),
+      onPresence: (p) => presence.presence(p),
+    });
+  selection.onChange(() => b.live?.select(selection.list()));
+  view.onChange(() => b.live?.view(view.camera.x, view.camera.y, view.camera.zoom));
 
   const ro = new ResizeObserver(() => view.resize(container.clientWidth, container.clientHeight));
   ro.observe(container);
@@ -294,6 +330,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
     mount.classList.add('ready');
     if (editable && state.items.length > 0 && (d.thumbnailAge === '' || Number(d.thumbnailAge) > 300)) thumbs.changed();
     void catchup.pull().catch(() => undefined);
+    b.live = startLive();
   })();
 
   if (d.test === '1') installTestHook(b, catchup, { thumbnail: () => thumbs.post(), ready });
@@ -301,7 +338,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
   return {
     destroy() {
       poller.stop();
-      live.close();
+      b.live?.close();
       input.detach();
       editor.close(true);
       ro.disconnect();

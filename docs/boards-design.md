@@ -903,4 +903,14 @@ The open questions:
   Found: an agent's batch id needed the action and its parameters, not the run's request id alone; `style`/`data` must reach the database as
   objects; a Konva node an item cannot hold 5,000 items — the batches can; the kernel's actions server splits a repeated parameter on commas.
 
-  **NEXT:** slice 3, live — THE SECOND EXEMPLAR (`docs/build-specs/live.md`, `live-relay.md`, db/014) → slices 4–5 → Sonnet for 6–10 and Phase 4.
+- **2026-10-11: SLICE 3 — LIVE, THE SECOND EXEMPLAR — BUILT AND PROVEN** (`docs/build-specs/live.md` "Built and proven"): the relay
+  (`live/relay.py`, asyncpg + websockets from `mcp/venv`, the records role, writing nothing) — rooms, single-use tickets (with a nonce), presence named
+  by the database (db/014 `bd_live_member()`), cursors, selections, drag ghosts and the soft lock relayed, committed batches fanned out from LISTEN
+  in commit order, the minute check closing a signed-out or unshared socket, LISTEN re-made with `resync`; the ticket door; the island's socket
+  (reconnect, "Live updates paused" and the poll, back to live without a reload) and presence (avatars, cursors with names, selections, ghosts,
+  "… is editing", an agent's avatar flying to its batch). `tests/phase3/slice3/run.sh` through a user-level Apache carrying the vhost's own `/live`
+  line: commit → the other tab p95 1.4 ms; 18,000 of 18,000 cursor messages at p95 ~15 ms with the relay at a quarter of a core and 31 MB; LISTEN
+  killed → resync in 0.55 s. Found: two tickets minted in one second were one string (the nonce); a socket opened before the first load could lose
+  a batch (it opens after).
+
+  **NEXT:** slices 4 (connectors and frames) and 5 (pen, images and files) — the planning model's — → Sonnet for 6–10 and Phase 4.

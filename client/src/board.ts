@@ -8,6 +8,8 @@ import type { Committer, Pending, BatchKind } from './sync/commit';
 import type { UndoStack } from './sync/undo';
 import type { Selection } from './tools/select';
 import type { Toasts } from './ui/toast';
+import type { LiveConnection } from './sync/socket';
+import type { Presence } from './ui/presence';
 
 export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text';
 
@@ -21,6 +23,9 @@ export interface Board {
   undo: UndoStack;
   selection: Selection;
   toasts: Toasts;
+  /** the live socket (slice 3) — sends what this tab is doing; null until it is made */
+  live: LiveConnection | null;
+  presence: Presence | null;
   level: Level;
   /** edit, and full on a locked board */
   editable: boolean;

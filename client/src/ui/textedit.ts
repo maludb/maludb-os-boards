@@ -25,6 +25,11 @@ export class TextEditor {
     if (this.active) this.close(true);
     const item = this.b.store.get(id);
     if (!item || !['sticky_note', 'shape', 'text'].includes(item.type)) return;
+    const other = this.b.presence?.editingBy(id);
+    if (other) {
+      this.b.toasts.show(`${other.name.replace(/^SMOKE\s+/, '')} is editing this — what you type may replace their words`, { kind: 'warning', id: 'board-toast-soft-lock' });
+    }
+    this.b.live?.editing(id);
     const ta = document.createElement('textarea');
     ta.className = 'board-text-editor';
     ta.id = 'board-text-editor';
@@ -95,6 +100,7 @@ export class TextEditor {
     const a = this.active;
     if (!a) return;
     this.active = null;
+    this.b.live?.editing(null);
     const text = a.ta.value.replace(/\r\n/g, '\n');
     a.ta.remove();
     this.b.renderer.hide(a.id, false);
