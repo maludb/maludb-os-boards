@@ -106,3 +106,21 @@ label.btn-touch { display: flex; }
 .empty-state { display: flex; align-items: center; gap: 1rem; }
 .empty-state .avatar-text { flex: 0 0 auto; }
 .coming-card { border-style: dashed; }
+
+/* ==========================================================================
+   Slice 1 — boards, folders and sharing (docs/build-specs/boards-folders.md): a board's card shows its thumbnail (slice 2) or its initial on
+   the board's background colour; the star is a 44 px target; the background's eight colours as swatches (a radio each); the share page's
+   pickers take the row's width on a phone.
+   ========================================================================== */
+.board-card-thumb { width: 64px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;
+    border: 1px solid rgba(0,0,0,.1); text-decoration: none; }
+.board-star .btn { min-width: 44px; min-height: 44px; font-size: 1.1rem; line-height: 1; }
+.board-swatch { position: relative; cursor: pointer; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.board-swatch .board-swatch-chip { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); }
+.board-swatch input:checked + .board-swatch-chip { box-shadow: 0 0 0 3px var(--bs-primary, #3454d1); }
+.board-swatch input:focus-visible + .board-swatch-chip { outline: 2px solid var(--bs-primary, #3454d1); outline-offset: 2px; }
+.folder-chip { font-size: 12px; padding: .35rem .5rem; }
+.share-picker { min-width: 14rem; flex: 1 1 14rem; }
+@media (max-width: 575.98px) { #share-owner-transfer-form, #share-owner-transfer-form .share-picker { width: 100%; } }
+fieldset[disabled] .board-swatch { cursor: default; opacity: .7; }
+.form-select.share-level { min-width: 10rem; }

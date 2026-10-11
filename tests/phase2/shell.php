@@ -70,36 +70,43 @@ ok(str_contains($b, 'id="header-trail-link"') && str_contains($b, 'id="header-to
 pg("INSERT INTO notifications (member_id, kind, title, body) VALUES (26, 'share', 'SMOKE shared with you', 'SMOKE'), (26, 'mention', 'SMOKE mentioned you', 'SMOKE')");
 ok(preg_match('/id="bell-count">2</', page($jars[26], '/')['body']) === 1 && !str_contains(page($jars[27], '/')['body'], 'id="bell-count"'), 'the bell counts my unread notices (2 for Priya) and hides at 0 (Marco)');
 
-echo "3. The placeholders\n";
+echo "3. The placeholders — those whose slice has not shipped (the suite follows the slices as they ship)\n";
+// [url, screen, slice, its controller under html/] — a controller that no longer calls render_nav_stub() is its slice's screen now
 $ph = [
-    ['/', 'home', 10], ['/boards', 'boards-list', 1], ['/boards/new', 'board-add', 1], ["/boards/$board", 'board-view', 2], ["/boards/$board/settings", 'board-settings', 1],
-    ["/boards/$board/share", 'board-share', 1], ["/boards/$board/outline", 'board-outline', 2], ["/boards/$board/comments", 'board-comments', 6],
-    ["/boards/$board/history", 'board-history', 7], ['/folders', 'folders', 1], ['/folders/12', 'folder-view', 1], ['/folders/new', 'folder-add', 1],
-    ['/folders/12/edit', 'folder-edit', 1], ['/trash', 'trash', 1], ['/templates', 'templates', 8], ["/templates/$board", 'template-view', 8],
-    ['/notifications', 'notifications', 6], ['/settings/', 'settings', 6], ['/search', 'search', 9], ['/admin', 'admin', 10], ['/admin/usage', 'admin-usage', 10],
-    ['/admin/settings', 'admin-settings', 10], ['/admin/agents', 'admin-agents', 9], ['/admin/dispatches', 'admin-dispatches', 9],
+    ['/', 'home', 10, 'index.php'], ['/boards', 'boards-list', 1, 'boards/index.php'], ['/boards/new', 'board-add', 1, 'boards/form.php'], ["/boards/$board", 'board-view', 2, 'boards/view.php'],
+    ["/boards/$board/settings", 'board-settings', 1, 'boards/settings.php'], ["/boards/$board/share", 'board-share', 1, 'boards/share.php'], ["/boards/$board/outline", 'board-outline', 2, 'boards/outline.php'],
+    ["/boards/$board/comments", 'board-comments', 6, 'boards/comments.php'], ["/boards/$board/history", 'board-history', 7, 'boards/history.php'], ['/folders', 'folders', 1, 'folders/index.php'],
+    ['/folders/12', 'folder-view', 1, 'folders/view.php'], ['/folders/new', 'folder-add', 1, 'folders/form.php'], ['/folders/12/edit', 'folder-edit', 1, 'folders/form.php'], ['/trash', 'trash', 1, 'trash.php'],
+    ['/templates', 'templates', 8, 'templates/index.php'], ["/templates/$board", 'template-view', 8, 'templates/view.php'], ['/notifications', 'notifications', 6, 'notifications.php'],
+    ['/settings/', 'settings', 6, 'settings/index.php'], ['/search', 'search', 9, 'search.php'], ['/admin', 'admin', 10, 'admin/index.php'], ['/admin/usage', 'admin-usage', 10, 'admin/usage.php'],
+    ['/admin/settings', 'admin-settings', 10, 'admin/settings.php'], ['/admin/agents', 'admin-agents', 9, 'admin/agents.php'], ['/admin/dispatches', 'admin-dispatches', 9, 'admin/dispatches.php'],
 ];
+$html = dirname(__DIR__, 2) . '/html/';
+$isStub = static fn (string $f): bool => is_file($html . $f) && str_contains((string) file_get_contents($html . $f), 'render_nav_stub(');
+$left = array_values(array_filter($ph, static fn (array $p): bool => $isStub($p[3])));
 $bad = [];
 $badJson = [];
-foreach ($ph as [$u, $screen, $slice]) {
+foreach ($left as [$u, $screen, $slice]) {
     $who = str_starts_with($u, '/admin') ? $jars[27] : $jars[26];
     $r = page($who, $u);
     if (!($r['code'] === 200 && str_contains($r['body'], 'id="nav-stub"') && str_contains($r['body'], 'id="nav-stub-line">Built by slice ' . $slice . ' — ') && str_contains($r['body'], 'data-screen="' . $screen . '"'))) { $bad[] = "$u ({$r['code']})"; }
     $r = page($who, $u, $json);
     if (!($r['code'] === 501 && (body_json($r)['error']['code'] ?? '') === 'not_built' && str_contains(body_json($r)['error']['message'] ?? '', 'Built by slice ' . $slice))) { $badJson[] = "$u ({$r['code']})"; }
 }
-ok($bad === [], 'all ' . count($ph) . ' placeholders answer 200 to a person: the shell, one card "Built by slice N — what it will do", the screen stamped' . ($bad ? ' — wrong: ' . implode(', ', $bad) : ''));
+ok($bad === [], 'the ' . count($left) . ' placeholders still owed answer 200 to a person: the shell, one card "Built by slice N — what it will do", the screen stamped' . ($bad ? ' — wrong: ' . implode(', ', $bad) : ''));
 ok($badJson === [], '…and 501 not_built to JSON, naming the slice' . ($badJson ? ' — wrong: ' . implode(', ', $badJson) : ''));
-$r = req('POST', '/boards', ['jar' => $jars[26], 'form' => ['csrf_token' => page_csrf($jars[26])]]);
-ok($r['code'] === 501 && str_contains($r['body'], 'Built by slice 1'), 'a POST to a placeholder: 501, in words');
-$r = page($jars[26], '/boards', ['headers' => ['HX-Request: true']]);
-ok($r['code'] === 200 && str_contains($r['body'], 'id="nav-stub"') && !str_contains($r['body'], '<html') && preg_match('/^HX-Title: Boards/mi', $r['headers']) === 1 && preg_match('/^X-Screen: boards-list\r?$/mi', $r['headers']) === 1,
+$plain = array_values(array_filter($left, static fn (array $p): bool => !str_contains($p[0], $board) && $p[0] !== '/'));
+[$pu, , $ps] = $plain[0] ?? ['/templates', '', 8];
+$r = req('POST', $pu, ['jar' => str_starts_with($pu, '/admin') ? $jars[27] : $jars[26], 'form' => ['csrf_token' => page_csrf($jars[26])]]);
+ok($r['code'] === 501 && str_contains($r['body'], 'Built by slice ' . $ps), "a POST to a placeholder ($pu): 501, in words");
+$r = page($jars[26], '/templates', ['headers' => ['HX-Request: true']]);
+ok(!$isStub('templates/index.php') || ($r['code'] === 200 && str_contains($r['body'], 'id="nav-stub"') && !str_contains($r['body'], '<html') && preg_match('/^HX-Title: Templates/mi', $r['headers']) === 1 && preg_match('/^X-Screen: templates\r?$/mi', $r['headers']) === 1),
     'over HTMX a placeholder is the partial with HX-Title and X-Screen, so the highlight and the command bar follow');
 $r = page($jars[26], '/');
-ok(str_contains($r['body'], 'id="home-boards-link"') && str_contains($r['body'], 'href="/boards"'), 'the home\'s placeholder keeps one live link: Boards');
+ok(!$isStub('index.php') || (str_contains($r['body'], 'id="home-boards-link"') && str_contains($r['body'], 'href="/boards"')), 'the home\'s placeholder keeps one live link: Boards');
 $v = (int) one("SELECT count(*) FROM activity_log WHERE action = 'screen.view' AND screen = 'board-history' AND board_id = :b", ['b' => $board]);
 page($jars[26], "/boards/$board/history");
-ok((int) one("SELECT count(*) FROM activity_log WHERE action = 'screen.view' AND screen = 'board-history' AND board_id = :b", ['b' => $board]) === $v + 1, 'opening a board\'s placeholder logs screen.view with the screen id and the board');
+ok((int) one("SELECT count(*) FROM activity_log WHERE action = 'screen.view' AND screen = 'board-history' AND board_id = :b", ['b' => $board]) === $v + 1, 'opening a board\'s page logs screen.view with the screen id and the board');
 echo "   the board's wall stands in front of a board's page\n";
 $r = page($jars[28], "/boards/$board");
 ok($r['code'] === 404 && str_contains($r['body'], 'There is no such board.'), 'Bea, a stranger to the private board: 404 "There is no such board." — never "forbidden"');
@@ -118,16 +125,17 @@ ok($wrong === [], 'the admin pages to a Boards admin only, New board to a Member
 $r = page($jars[30], '/boards/new');
 ok($r['code'] === 403 && str_contains($r['body'], 'You may not create a board.'), 'a Viewer on New board: 403 in words ("You may not create a board.")');
 $stubs = (int) trim((string) shell_exec('grep -rl "render_nav_stub(" ' . escapeshellarg(dirname(__DIR__, 2) . '/html') . ' | wc -l'));
-ok($stubs === 23, "23 controllers call render_nav_stub — the 24 placeholders (folders/form.php answers two): $stubs");
+$files = count(array_unique(array_column($left, 3)));
+ok($stubs === $files, "the controllers calling render_nav_stub are exactly the placeholders still owed ($stubs files, " . count($left) . ' screens)');
 $reg = json_decode((string) file_get_contents(dirname(__DIR__, 2) . '/mcp/action_registry.json'), true);          // run.sh's last step checks it is current
 $stubScreens = array_keys(array_filter($reg['screens'] ?? [], static fn ($s) => !empty($s['stub'])));
 sort($stubScreens);
-$phScreens = array_column($ph, 1);
+$phScreens = array_column($left, 1);
 sort($phScreens);
-ok($stubScreens === $phScreens, 'the registry counts exactly those 24 screens as stub (' . count($stubScreens) . ')');
+ok($stubScreens === $phScreens, 'the registry counts exactly those ' . count($phScreens) . ' screens as stub (' . count($stubScreens) . ')');
 $built = array_keys(array_filter($reg['screens'] ?? [], static fn ($s) => !empty($s['built'])));
-sort($built);
-ok($built === ['activity', 'settings-tokens'], 'and builds exactly the shell\'s two: ' . implode(', ', $built));
+ok(count($built) + count($stubScreens) === count($reg['screens'] ?? []) && in_array('activity', $built, true) && in_array('settings-tokens', $built, true),
+    'every other screen is built — the shell\'s two and the slices\' shipped: ' . count($built));
 
 echo "6. The command bar\n";
 @unlink(need('FAKE_KERNEL_STATE') . '.chat');

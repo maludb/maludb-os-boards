@@ -36,6 +36,6 @@ foreach ($source['params'] as $name => $values) {
     }
 }
 echo view('shared/picker-rows.php', [
-    'source' => $key, 'q' => $q, 'params' => $params, 'selected' => request_integer('selected'), 'noun' => $source['noun'],
+    'source' => $key, 'q' => $q, 'params' => $params, 'selected' => ($sel = request_string('selected')) !== '' && preg_match('/^[0-9a-f-]{1,36}$/', $sel) ? $sel : null, 'noun' => $source['noun'],
     'result' => ($source['search'])(db(), $q, $params, $page),
 ]);

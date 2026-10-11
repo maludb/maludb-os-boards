@@ -64,12 +64,13 @@ function default_activity_source(): string
     return PHP_SAPI === 'cli' ? 'cron' : 'web';
 }
 
-function log_screen_view(PDO $pdo, string $screen): void
+/** A screen opened (never for a JSON read unless it asks with X-Screen-View: 1). A board's page names the board (the board's trail). */
+function log_screen_view(PDO $pdo, string $screen, ?string $boardId = null): void
 {
     if (wants_json() && ($_SERVER['HTTP_X_SCREEN_VIEW'] ?? '') !== '1') {
         return;
     }
-    log_activity($pdo, 'screen.view', null, null, ['screen' => $screen]);
+    log_activity($pdo, 'screen.view', null, null, ['screen' => $screen, 'board_id' => $boardId]);
 }
 
 /**

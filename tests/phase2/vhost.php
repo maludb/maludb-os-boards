@@ -23,7 +23,8 @@ foreach (['/trash', '/search', '/notifications', '/activity', '/admin/usage', '/
     ok(page($j, $u)['code'] === 200, "$u resolves to its own file");
 }
 ok(str_contains(page($j, '/boards/new')['body'], 'data-screen="board-add"') && str_contains(page($j, '/folders/new')['body'], 'data-screen="folder-add"'), '/x/new → x/form.php (New board, New folder)');
-ok(str_contains(page($j, '/folders/7')['body'], 'data-screen="folder-view"') && str_contains(page($j, '/folders/7/edit')['body'], 'data-screen="folder-edit"'), '/folders/{id} → view.php, /folders/{id}/edit → form.php?id=');
+$folder = (int) (pg("INSERT INTO board_folders (name, owner_member_id) VALUES ('SMOKE vhost', 27) RETURNING id")[0] ?? 0);
+ok(str_contains(page($j, "/folders/$folder")['body'], 'data-screen="folder-view"') && str_contains(page($j, "/folders/$folder/edit")['body'], 'data-screen="folder-edit"'), '/folders/{id} → view.php, /folders/{id}/edit → form.php?id=');
 [$jp, ] = sign_on(26);
 foreach (['' => 'board-view', '/settings' => 'board-settings', '/share' => 'board-share', '/outline' => 'board-outline', '/comments' => 'board-comments', '/history' => 'board-history'] as $suffix => $screen) {
     $r = page($jp, "/boards/$board$suffix");
@@ -33,7 +34,7 @@ ok(str_contains(page($jp, "/templates/$board")['body'], 'data-screen="template-v
 foreach (['/state', '/ops', '/live-ticket', '/thumbnail', '/export', '/rail'] as $door) {
     ok(page($jp, "/boards/$board$door")['code'] === 404, "the door /boards/{board}$door is rewritten to its file, which a later slice builds: 404 until then");
 }
-ok(req('POST', '/items/create.php', ['jar' => $jp])['code'] === 404 && req('POST', '/boards/save.php', ['jar' => $jp])['code'] === 404, 'the actions\' handlers: 404 until their slice');
+ok(req('POST', '/items/create.php', ['jar' => $jp])['code'] === 404 && req('POST', '/comments/create.php', ['jar' => $jp])['code'] === 404, 'the later slices\' handlers: 404 until their slice (items 2, comments 6)');
 ok(req('GET', '/nosuchscreen', ['jar' => $j])['code'] === 404, 'an unknown path: 404');
 $h = req('GET', '/api/v1/health');
 ok($h['code'] === 200 && (body_json($h)['application'] ?? '') === 'boards' && (body_json($h)['storage'] ?? '') === 'ok', '/api/v1/health answers, its store ok');

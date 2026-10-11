@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-10T23:43:51+00:00",
+    "generated_at": "2026-10-11T00:02:50+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -33,8 +33,8 @@
                 "favorites",
                 "updated"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-add": {
             "screen": "board-add",
@@ -45,8 +45,8 @@
                 "folder",
                 "title"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-settings": {
             "screen": "board-settings",
@@ -54,8 +54,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "a board's settings: title, description, folder, background, the start view, the lock, duplicate, delete",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-share": {
             "screen": "board-share",
@@ -63,8 +63,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "who can open a board and at what level: everyone in the business, people, agents, departments, the owner, transfer",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "folders": {
             "screen": "folders",
@@ -72,8 +72,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "my folders and the team folders",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "folder-view": {
             "screen": "folder-view",
@@ -81,8 +81,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "one folder's boards, as cards",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "folder-add": {
             "screen": "folder-add",
@@ -92,8 +92,8 @@
             "params": [
                 "name"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "folder-edit": {
             "screen": "folder-edit",
@@ -101,8 +101,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "to rename a folder or make it a team folder",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "trash": {
             "screen": "trash",
@@ -110,8 +110,8 @@
             "section": "Boards, folders and sharing (slice 1 — the CRUD exemplar)",
             "when": "my deleted boards (an admin: everyone's), with when each is purged, to bring one back",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-view": {
             "screen": "board-view",
@@ -356,7 +356,7 @@
             "who": "boards.create",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_update": {
             "action": "board_update",
@@ -401,7 +401,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_lock": {
             "action": "board_lock",
@@ -428,7 +428,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_delete": {
             "action": "board_delete",
@@ -449,7 +449,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_restore": {
             "action": "board_restore",
@@ -470,7 +470,7 @@
             "who": "owner or boards.admin",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_share": {
             "action": "board_share",
@@ -509,7 +509,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_unshare": {
             "action": "board_unshare",
@@ -542,7 +542,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_access_set": {
             "action": "board_access_set",
@@ -569,7 +569,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_transfer": {
             "action": "board_transfer",
@@ -596,7 +596,7 @@
             "who": "level full",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_favorite": {
             "action": "board_favorite",
@@ -617,7 +617,7 @@
             "who": "level view",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "board_unfavorite": {
             "action": "board_unfavorite",
@@ -638,7 +638,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the board",
-            "built": false
+            "built": true
         },
         "folder_create": {
             "action": "folder_create",
@@ -665,7 +665,7 @@
             "who": "boards.view",
             "agent": true,
             "record_id": "the folder",
-            "built": false
+            "built": true
         },
         "folder_update": {
             "action": "folder_update",
@@ -698,7 +698,7 @@
             "who": "own or boards.admin",
             "agent": true,
             "record_id": "the folder",
-            "built": false
+            "built": true
         },
         "folder_delete": {
             "action": "folder_delete",
@@ -719,7 +719,7 @@
             "who": "own or boards.admin",
             "agent": true,
             "record_id": "the folder",
-            "built": false
+            "built": true
         },
         "folder_add_board": {
             "action": "folder_add_board",
@@ -746,7 +746,7 @@
             "who": "own or boards.admin",
             "agent": true,
             "record_id": "the folder",
-            "built": false
+            "built": true
         },
         "folder_remove_board": {
             "action": "folder_remove_board",
@@ -773,7 +773,7 @@
             "who": "own or boards.admin",
             "agent": true,
             "record_id": "the folder",
-            "built": false
+            "built": true
         },
         "ops_commit": {
             "action": "ops_commit",

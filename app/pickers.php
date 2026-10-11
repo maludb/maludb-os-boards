@@ -68,6 +68,9 @@ function departments_for_pick(PDO $pdo, string $q, int $page): array
     return $r;
 }
 
+require_once __DIR__ . '/features/boards/queries.php';      // slice 1: boards_for_pick (and board_uuid)
+require_once __DIR__ . '/features/folders/queries.php';     // slice 1: folders_for_pick
+
 return [
     'member' => [
         'title' => 'People and agents', 'noun' => 'person', 'roles' => ['boards.view'], 'params' => ['kind' => ['human', 'agent']],
@@ -78,5 +81,17 @@ return [
         'title' => 'Departments', 'noun' => 'department', 'roles' => ['boards.view'], 'params' => [],
         'search' => static fn (PDO $pdo, string $q, array $params, int $page): array => departments_for_pick($pdo, $q, $page),
         'label' => static fn (PDO $pdo, int $id): ?string => ($v = one_value($pdo, 'SELECT name FROM mcp_departments WHERE department_id = :id AND archived_at IS NULL', ['id' => $id])) === null ? null : (string) $v,
+    ],
+    // slice 1 — boards and folders
+    'board' => [
+        'title' => 'Boards', 'noun' => 'board', 'roles' => ['boards.view'], 'params' => ['min_level' => ['view', 'edit', 'full']],
+        'search' => static fn (PDO $pdo, string $q, array $params, int $page): array => boards_for_pick($pdo, $q, $params, $page),
+        'label' => static fn (PDO $pdo, int|string $id): ?string => ($b = board_uuid((string) $id)) === null ? null
+            : (($v = one_value($pdo, 'SELECT title FROM mcp_boards WHERE board_id = CAST(:id AS uuid)', ['id' => $b])) === null ? null : (string) $v),
+    ],
+    'folder' => [
+        'title' => 'Folders', 'noun' => 'folder', 'roles' => ['boards.view'], 'params' => ['own'],
+        'search' => static fn (PDO $pdo, string $q, array $params, int $page): array => folders_for_pick($pdo, $q, $params, $page),
+        'label' => static fn (PDO $pdo, int|string $id): ?string => ($v = one_value($pdo, 'SELECT name FROM mcp_folders WHERE folder_id = :id', ['id' => (int) $id])) === null ? null : (string) $v,
     ],
 ];

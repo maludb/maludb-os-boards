@@ -24,7 +24,10 @@ Research complete; tech-stack decision accepted 2026-10-10. On the dev server th
 record picker, My tokens, My trail, the board gate, and a placeholder for every later screen naming its slice — `tests/phase2/run.sh`
 (258 checks under php -S, 266 under a real Apache; `BD_APP=apache tests/phase2/run.sh`).
 
-Next: slice 1, boards, folders and sharing.
+**Slice 1, boards, folders and sharing (the CRUD exemplar), is built and proven** (2026-10-10): `tests/phase3/slice1/run.sh`, 188 checks
+under php -S and under a real Apache.
+
+Next: slice 2, the canvas.
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

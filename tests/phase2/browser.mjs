@@ -83,10 +83,10 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   await page.click('#tab-boards');
   await page.waitForURL(BASE + '/boards');
   await page.waitForSelector('#boards-list-content');
-  ok((await page.title()).startsWith('Boards') && (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 1'), 'the Boards tab opens its placeholder (slice 1), title "' + (await page.title()) + '"');
+  ok((await page.title()).startsWith('Boards'), 'the Boards tab opens Boards over HTMX (slice 1\'s list since it shipped), title "' + (await page.title()) + '"');
   ok(await page.evaluate(() => document.querySelector('#tab-boards').classList.contains('active') && !document.querySelector('#tab-home').classList.contains('active') && document.getElementById('page-content').dataset.screen === 'boards-list'),
     'the tab is highlighted and the screen stamped boards-list for the command bar');
-  ok((await overflow(page)).sw === 375, 'no sideways scroll on the placeholder');
+  ok((await overflow(page)).sw === 375, 'no sideways scroll on Boards');
   await page.goto(BASE + '/boards/' + board, { waitUntil: 'networkidle' });
   ok((await page.locator('#nav-stub-line').innerText()).includes('Built by slice 2') && (await page.locator('.page-header-title').innerText()).includes('SMOKE Q4 retro') && (await page.locator('.level-badge').innerText()) === 'Owner',
     'a board\'s page names the board, her level (Owner) and the slice that builds the canvas');
@@ -166,19 +166,23 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   await ctx.close();
 }
 
-// ---- JavaScript off: every placeholder renders ----
+// ---- JavaScript off: every placeholder still owed renders (the slices' shipped screens are their own suites') ----
 {
   const { ctx, page } = await session(urls.admin, { width: 375, height: 740 }, { javaScriptEnabled: false });
   console.log('JavaScript off');
-  const pages = ['/', '/boards', '/boards/new', `/boards/${board}`, `/boards/${board}/settings`, `/boards/${board}/share`, `/boards/${board}/outline`, `/boards/${board}/comments`,
-    `/boards/${board}/history`, '/folders', '/folders/3', '/folders/new', '/folders/3/edit', '/trash', '/templates', `/templates/${board}`, '/notifications', '/settings/', '/search',
-    '/admin', '/admin/usage', '/admin/settings', '/admin/agents', '/admin/dispatches'];
+  const html = new URL('../../html/', import.meta.url).pathname;
+  const stub = (f) => fs.existsSync(html + f) && fs.readFileSync(html + f, 'utf8').includes('render_nav_stub(');
+  const all = [['/', 'index.php'], [`/boards/${board}`, 'boards/view.php'], [`/boards/${board}/outline`, 'boards/outline.php'], [`/boards/${board}/comments`, 'boards/comments.php'],
+    [`/boards/${board}/history`, 'boards/history.php'], ['/templates', 'templates/index.php'], [`/templates/${board}`, 'templates/view.php'], ['/notifications', 'notifications.php'],
+    ['/settings/', 'settings/index.php'], ['/search', 'search.php'], ['/admin', 'admin/index.php'], ['/admin/usage', 'admin/usage.php'], ['/admin/settings', 'admin/settings.php'],
+    ['/admin/agents', 'admin/agents.php'], ['/admin/dispatches', 'admin/dispatches.php']];
+  const pages = all.filter(([, f]) => stub(f)).map(([u]) => u);
   const bad = [];
   for (const p of pages) {
     const r = await page.goto(BASE + p, { waitUntil: 'load' });
     if (!(r.status() === 200 && (await page.locator('#nav-stub-line').count()) === 1 && (await page.locator('#tab-bar').count()) === 1)) { bad.push(p + ' ' + r.status()); }
   }
-  ok(bad.length === 0, `all ${pages.length} placeholders render whole without JavaScript` + (bad.length ? ': ' + bad.join(', ') : ''));
+  ok(bad.length === 0, `all ${pages.length} placeholders still owed render whole without JavaScript` + (bad.length ? ': ' + bad.join(', ') : ''));
   await page.goto(BASE + '/', { waitUntil: 'load' });
   ok((await page.locator('#tab-boards').getAttribute('href')) === '/boards' && (await page.locator('#tab-me').getAttribute('href')) === '/activity', 'the tabs are plain links (Me opens My trail)');
   ok((await page.locator('#header-search-form').getAttribute('action')) === '/search' && (await page.locator('#home-boards-link').getAttribute('href')) === '/boards', 'the search box is a plain GET form; the home\'s link is a plain link');

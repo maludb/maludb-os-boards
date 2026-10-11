@@ -885,4 +885,12 @@ The open questions:
   - Reconciled in the build: the level badge follows walls-and-sharing's vocabulary (full `dark`, edit `success`); the gate's file is where
     walls-and-sharing places it.
 
-  **NEXT:** slice 1 (boards, folders and sharing — the CRUD exemplar) → the exemplars, slices 2 and 3 → slices 4–5 → Sonnet for 6–10 and Phase 4.
+- **2026-10-10: SLICE 1 — BOARDS, FOLDERS AND SHARING, THE CRUD EXEMPLAR — BUILT AND PROVEN** (`docs/build-specs/boards-folders.md` "Built and
+  proven"): the list as cards with chips, folder, search and the star; New board; settings with the background's eight colours and the start
+  view; the share page (everyone's level asking first when it widens, people, agents and departments through the record picker, transfer, a
+  principal with no Boards grant flagged, a person shared by name told once); folders (team folders, a folder showing only what its viewer may
+  open); the trash and restore. `tests/phase3/slice1/run.sh`: **188 checks under php -S and under a real Apache**; Phase 2's suite now follows
+  the placeholders still owed. The registry: 11 screens and 18 actions built.
+
+  **NEXT:** slice 2, the canvas — THE FIRST EXEMPLAR (`docs/build-specs/canvas.md`, `canvas-core.md`) → slice 3, live (the second) → slices 4–5 →
+  Sonnet for 6–10 and Phase 4.

@@ -131,3 +131,43 @@ the admin's usage (10); emptying the trash (`trash_purge`, slice 10).
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-10)
+Boards, folders and sharing stand — the CRUD exemplar every later record screen copies. **The list**: every board I can open as RecordCards
+(the initial on the board's background colour until slice 2's thumbnails, the title linking with `?back=`, the owner — "You" for mine —, the
+level badge, Locked, items, open threads, "updated …", the star toggling inline over HTMX) with the chips All · Mine · Shared with me ·
+Favourites, the search by title and owner, the folder (the `folder` picker), "updated within" 7 / 30 / 90 days; paged 24; an empty state with
+one button. **New board**: the page-header form (title, description, a folder of mine), private by default, landing on `/boards/{board}`.
+**Settings**: title, description, the background (dots, grid or plain, and the theme's eight colours as swatches), the start view (x, y, zoom
+— or none), the folders I keep it in (add with the picker, remove), Lock / Unlock and Delete for its owners, Duplicate shown disabled (slice
+8); read-only below edit. **Share**: the owner and Transfer (people only, ✔), everyone in the business (none / view / comment / edit — a
+widening asks first, in the page, with and without JavaScript), people, agents and departments with their level and Remove, Add with the
+`member` and `department` pickers; Agent, External and Department chips, a Viewer's cap said, a principal with no Boards grant flagged; read-only
+below full. **Folders**: mine and the team folders as cards, a folder's boards as the list's cards (only those the viewer may open), New,
+Rename, Delete (the boards stay), Remove from folder. **The trash**: my deleted boards (a Boards admin's: everyone's) with who deleted them and
+the purge date, Restore. A person shared by name gets one `share` notice and its email by their preferences; a department, an agent, an
+unshare tell nobody. Every handler keeps the exemplar's order — `bd_handler_begin()` → the right or the board gate → the fields →
+`bd_guard()` around the database's function → `log_activity()` with `board_id` → `bd_done()` — and answers JSON with the manifest's
+`record_id`. The registry reads **11 screens and 18 actions built, 15 stubs**.
+
+**Proven** by `tests/phase3/slice1/run.sh` (scratch `bd_dev1`): **188 checks under php -S and the same under a real Apache** — boards 44,
+sharing 41, folders 31, trash 17, walls 9, JSON 8, browser 36 (375 and 1280, the pickers through the modal, the widening question, the star,
+every control ≥ 44 px, no console error; with JavaScript off every form saves, a folder pre-selected by the query string), the registry 2 —
+then Phase 2's suite, which now follows the placeholders still owed (258 under php -S, 266 under Apache). The kit (87), the schema (167) and
+Phase 1's checks (66) green.
+
+**Decisions taken in the build:**
+1. **Six actions of this slice pause for an agent, not five**: `board_delete` and `folder_delete` (deletion), `board_share`, `board_unshare`,
+   `board_access_set`, `board_transfer` (other) — the manifest and `maludb-os.json` already said so; this spec's "5 approvals" was a miscount.
+2. **A Boards admin reaches any folder by its id** (the manifest's "own or boards.admin"), although `mcp_folders` lists a person's own folder
+   only to them: `find_folder()` falls back to the table for an admin, and a folder's page lists its boards through `board_folder_entries` once
+   the folder is found — still only the boards the viewer may open. The list's folder filter keeps `mcp_folder_entries`.
+3. **board_create checks no right in PHP**: `bd_board_create()` refuses a Viewer in its own words (403), as the Who table says; the form itself
+   is behind `boards.create`.
+4. **The widening question lives in the share page** (`board_access_set` without `confirm=1` from a browser renders the page with the question at
+   its top) — no extra partial; a JSON caller's ✔ or pause comes before the call.
+5. **An unshare of someone with no row is 404**; a share naming both a person and a department, or neither, is refused on `member`.
+6. **The pickers carry a board's uuid**: `picker_label()` and the picker's `selected` accept a uuid as well as an integer id; `board` takes
+   `min_level` (view | edit | full), `folder` takes `own` (1).
+7. **The start view** is taken as the form's three numbers or an agent's "x y zoom" / none; zoom 0.05 to 8 (the island's range).
+8. **When the business has no name**, the share page says "Everyone in the business".

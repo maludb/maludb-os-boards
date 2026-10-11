@@ -187,8 +187,12 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 11. **Found in Phase 2:** the shell spec and walls-and-sharing named different colours for the level badge, and different files for the
     board gate. walls-and-sharing wins both (full `dark`, edit `success`; `app/features/boards/wall.php`); sso-shell.md is corrected.
 
+12. **Found in slice 1:** boards-folders.md counted five approvals for its actions; there are six (`folder_delete` pauses too) — the manifest
+    and `maludb-os.json` were right. And a Boards admin's "own or boards.admin" on a folder needed a path past `mcp_folders`, which lists a
+    person's own folder only to them (boards-folders.md "Built and proven" 2).
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
-approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 is built and proven** (2026-10-10). Next: slice 1, then (the shell), then slice 1, then the exemplars, slices 2 and 3. All of these, and slices 4 and 5, are the
-planning model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).
+approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10). Next: the exemplars, slices 2 and 3, then slices 4 and 5 — all the planning
+model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).

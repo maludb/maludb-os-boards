@@ -33,10 +33,14 @@ function picker_source(string $key): ?array
 function picker_label(PDO $pdo, string $source, int|string|null $id): ?string
 {
     $spec = picker_source($source);
-    if ($spec === null || $id === null || $id === '' || !ctype_digit((string) $id)) {
+    if ($spec === null || $id === null || $id === '') {
         return null;
     }
-    return ($spec['label'])($pdo, (int) $id);
+    if (ctype_digit((string) $id)) {
+        return ($spec['label'])($pdo, (int) $id);
+    }
+    $uuid = strtolower((string) $id);                                   // a board is named by its uuid
+    return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) ? ($spec['label'])($pdo, $uuid) : null;
 }
 
 /**
