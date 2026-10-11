@@ -34,6 +34,11 @@ import { FrameTool } from './tools/frame';
 import { InlineEditor } from './ui/inline';
 import { Navigator } from './ui/navigator';
 import { Minimap } from './ui/minimap';
+import { PenTool } from './tools/pen';
+import { HighlighterTool } from './tools/highlighter';
+import { EraserTool } from './tools/eraser';
+import { Uploader } from './tools/image';
+import { configureImages } from './render/items/image';
 import { frameTopLeft, round2 } from './model/geometry';
 
 declare global { interface Window { __boardsIsland?: { destroy(): void } } }
@@ -87,7 +92,9 @@ function boot(mount: HTMLElement): { destroy(): void } {
 
   // the shared context: built in two steps (the committer and the selection need it)
   const b = { boardId: d.board ?? '', mount, store, view, renderer, toasts, level, editable, memberId: Number(d.member ?? 0), people,
-    batchMax: Number(d.batchMax ?? 500), shapeKind: 'rectangle', pointer: null } as unknown as Board;
+    batchMax: Number(d.batchMax ?? 500), shapeKind: 'rectangle', pointer: null, pen: { color: '#1a1a1a', width: 4 }, highlighterColor: '#ffd43b',
+    drawingMaxPoints: Math.max(2, Number(d.drawingMaxPoints ?? 2000)) } as unknown as Board;
+  configureImages(d.fileUrl ?? '/files/', () => renderer.request());
 
   let rail: RailBridge;
   let thumbs: Thumbnails;
@@ -134,7 +141,10 @@ function boot(mount: HTMLElement): { destroy(): void } {
   const editor = new TextEditor(b);
   const clipboard = new Clipboard(b);
   const tools: Record<ToolName, Tool> = { select: new SelectTool(b), hand: new HandTool(b), sticky: new StickyTool(b), shape: new ShapeTool(b), text: new TextTool(b),
-    connector: new ConnectorTool(b), frame: new FrameTool(b) };
+    connector: new ConnectorTool(b), frame: new FrameTool(b), pen: new PenTool(b), highlighter: new HighlighterTool(b), eraser: new EraserTool(b) };
+  const uploader = new Uploader(b, d.uploadUrl ?? '/files/upload.php', csrf, Math.max(1, Number(d.maxUploadMb ?? 25)));
+  b.pickFile = () => uploader.pick();
+  b.upload = (files: File[], at: { x: number; y: number } | null) => uploader.upload(files, at);
   const inline = new InlineEditor(b);
   const navigator = new Navigator(b);
   new Minimap(b);
@@ -230,7 +240,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
       return false;
     }
     if (!mod && !e.altKey) {
-      const map: Record<string, ToolName> = { v: 'select', h: 'hand', n: 'sticky', s: 'shape', t: 'text', c: 'connector', f: 'frame' };
+      const map: Record<string, ToolName> = { v: 'select', h: 'hand', n: 'sticky', s: 'shape', t: 'text', c: 'connector', f: 'frame', p: 'pen', e: 'eraser' };
       if (map[k]) { b.setTool(map[k]); return true; }
     }
     return false;
@@ -254,6 +264,19 @@ function boot(mount: HTMLElement): { destroy(): void } {
         case 'style': {
           if (!c.key) return;
           const value: unknown = c.key === 'fontSize' || c.key === 'strokeWidth' ? Number(c.value) : c.value;
+          if (c.key === 'strokeWidth' && ids.some((id) => store.get(id)?.type === 'drawing')) {
+            // a drawing's stroke width: its box grows or shrinks by the difference and its points move by half of it, so the stroke stays
+            // inside its box (slice 5); anything else selected with it takes the width as it is — one batch
+            const d1 = Number(c.value);
+            const ops: Op[] = ids.map((id) => store.get(id)!).filter((i) => !i.locked && (!c.types || c.types.includes(i.type))).map((i): Op => {
+              if (i.type !== 'drawing') return { op: 'update', id: i.id, fields: { style: { strokeWidth: d1 } } };
+              const d0 = Number(i.style.strokeWidth) || 4;
+              const pts = (Array.isArray(i.data.points) ? i.data.points as number[] : []).map((v) => Math.round((v + (d1 - d0) / 2) * 10) / 10);
+              return { op: 'update', id: i.id, fields: { width: round2(i.width + d1 - d0), height: round2(i.height + d1 - d0), style: { strokeWidth: d1 }, data: { points: pts } } };
+            });
+            if (ops.length) b.commit(ops);
+            break;
+          }
           const ops: Op[] = ids.map((id) => store.get(id)!).filter((i) => !i.locked && (!c.types || c.types.includes(i.type)))
             .map((i) => ({ op: 'update', id: i.id, fields: { style: { [c.key!]: value } } }));
           if (ops.length) b.commit(ops);

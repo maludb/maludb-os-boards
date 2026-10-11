@@ -313,3 +313,16 @@ What the exemplar became, where it differs from the text above or adds to it. ca
 - **A frame is drawn by `render/items/frame.ts`** (its title above the top-left at a constant 13 px, `titleBox()` its hit area); the frames group
   stays below the items group. `ui/navigator.ts` (reading order, `fit(id)`, `step(±1)`) and `ui/minimap.ts` are the rail's and the bottom bar's.
 - `ui/toast.ts` gained `ask(message, answers, id)` — a question that stays until answered (deleting a frame), never a modal.
+
+## Built in slice 5 — what drawings, images and files added to the island (2026-10-11)
+- **Three draw functions of slice 2's shape**: `drawDrawing` (the tension curve computed here — Konva's control points — so a batch, a node
+  and the pen's preview agree; scaled when resized; a plain polyline below the low zoom), `drawImageItem` and `drawDocument`. Below the low
+  zoom only stickies, shapes and text are flat (`isFlat()` in `render/layers.ts`); frames, drawings, images and files are drawn, rotated.
+- **Bitmaps load outside the frame**: `render/items/image.ts` keeps one `<img>` per attachment and size, asks the door for the size the item's
+  width on screen deserves, draws the best size already loaded meanwhile, and calls `renderer.request()` when one arrives
+  (`configureImages()` in `main.ts`). `window.__boards.imageSizes()` is what each item last asked for.
+- **A drawing is hit on its line** (`drawingDistanceAt()`, rotation undone) in the select tool's `hitTest` and the eraser.
+- **Uploads** are `tools/image.ts`'s `Uploader` (the toolbar's Image button, a drop on the stage, files in a paste — `ui/clipboard.ts` hands them
+  over first); the door mints the item's id and the island commits the create with it.
+- **The status notices on the canvas take no presses** (`pointer-events: none`), and a click without a drag on one of several selected items
+  selects that one alone (`tools/select.ts`).

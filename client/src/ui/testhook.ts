@@ -6,6 +6,7 @@ import type { Board } from '../board';
 import type { Op } from '../model/types';
 import type { Catchup } from '../sync/catchup';
 import { polyline, routeOf } from '../render/items/connector';
+import { asked } from '../render/items/image';
 
 export function installTestHook(b: Board, catchup: Catchup, extra: { thumbnail(): Promise<number>; ready: Promise<void> }): void {
   const page = (sx: number, sy: number) => {
@@ -49,5 +50,9 @@ export function installTestHook(b: Board, catchup: Catchup, extra: { thumbnail()
     commit: (ops: Op[]) => b.commit(ops)?.answer ?? Promise.resolve(null),
     thumbnail: () => extra.thumbnail(),
     pending: () => b.committer.busy(),
+    /** item id → the size its last draw asked the file door for (0 = the original, an SVG) */
+    imageSizes: () => Object.fromEntries(asked),
+    hidden: (id: string) => !b.store.has(id),
+    drawingMaxPoints: () => b.drawingMaxPoints,
   };
 }

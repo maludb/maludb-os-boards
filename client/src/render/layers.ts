@@ -23,6 +23,9 @@ import { drawText } from './items/text';
 import { drawPlaceholder } from './items/placeholder';
 import { drawFrame } from './items/frame';
 import { drawConnector } from './items/connector';
+import { drawDrawing } from './items/drawing';
+import { drawImageItem } from './items/image';
+import { drawDocument } from './items/document';
 import type { Box } from '../model/types';
 
 Konva.autoDrawEnabled = false;
@@ -32,14 +35,23 @@ export interface FrameStats { frames: number; median: number; p95: number; max: 
 type Native = CanvasRenderingContext2D;
 const native = (ctx: Konva.Context): Native => (ctx as unknown as { _context: Native })._context;
 
+/** Below the low zoom these are flat rectangles; a frame, a drawing (a plain polyline), an image and a file (their small bitmap) are drawn. */
+export function isFlat(item: Item): boolean {
+  return item.type === 'sticky_note' || item.type === 'shape' || item.type === 'text';
+}
+
 /** An item in its own box [0, w] × [0, h], by its type (flat below the low zoom). A connector is not drawn here: it has no box of its own. */
 export function drawItem(c: Native, item: Item, zoom: number): void {
-  if (lodActive(zoom) && item.type !== 'frame') { drawFlatLocal(c, item, zoom); return; }
+  const lod = lodActive(zoom);
+  if (lod && isFlat(item)) { drawFlatLocal(c, item, zoom); return; }
   switch (item.type) {
     case 'sticky_note': drawSticky(c, item, zoom); break;
     case 'shape': drawShape(c, item, zoom); break;
     case 'text': drawText(c, item, zoom); break;
     case 'frame': drawFrame(c, item, zoom); break;
+    case 'drawing': drawDrawing(c, item, zoom, lod); break;
+    case 'image': drawImageItem(c, item, zoom); break;
+    case 'document': drawDocument(c, item, zoom); break;
     default: drawPlaceholder(c, item, zoom);
   }
 }
@@ -183,10 +195,11 @@ export class Renderer {
       const list = (shape.getAttr('list') as Item[]) ?? [];
       const zoom = this.view.camera.zoom;
       if (lodActive(zoom)) {
-        drawFlats(c, list.filter((i) => i.type !== 'connector' && i.type !== 'frame'), (i) => this.drawnCentre(i), zoom, this.hiddenIds);
+        drawFlats(c, list.filter(isFlat), (i) => this.drawnCentre(i), zoom, this.hiddenIds);
         for (const it of list) {
+          if (isFlat(it) || this.hiddenIds.has(it.id)) continue;
           if (it.type === 'connector') drawConnector(c, it, zoom, this.boxOf, true);
-          else if (it.type === 'frame') this.drawLocal(c, it, zoom);
+          else this.drawLocal(c, it, zoom);
         }
         return;
       }
@@ -205,11 +218,14 @@ export class Renderer {
     } });
   }
 
-  /** One item in its own box at where it is drawn (the low zoom's frames). */
+  /** One item in its own box at where it is drawn, rotated (the low zoom's frames, drawings, images and files). */
   private drawLocal(c: Native, it: Item, zoom: number): void {
     const p = this.drawnCentre(it);
+    const rot = it.type === 'frame' ? 0 : it.rotation;
     c.save();
-    c.translate(p.x - it.width / 2, p.y - it.height / 2);
+    c.translate(p.x, p.y);
+    if (rot) c.rotate((rot * Math.PI) / 180);
+    c.translate(-it.width / 2, -it.height / 2);
     drawItem(c, it, zoom);
     c.restore();
   }

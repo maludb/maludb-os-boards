@@ -211,9 +211,15 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     Slice 2's 375 proof counted tools hidden behind More; after its synthetic CDP pinch no Playwright `tap()` becomes a click, so it opens
     More with a click.
 
+17. **Found in slice 5:** pen-files.md and history-versions.md both purged items deleted past op_retention_days with their files — slice 5's
+    `thumbnails` pass does it (`purge_deleted_items()`), slice 7's `compaction_pass` keeps `bd_compact_ops()` only, slice 10's trash purge uses
+    slice 5's `unlink_paths()`. An SVG has two URLs (`/files/{id}` always an attachment, `?inline=1` the canvas's `<img>`): a browser's cached
+    inline copy answered a person who opened the file. The item's `data` carries `mime_type`, `byte_size` and `preview` beside `attachment_id`
+    and `title`.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
-first exemplar —, slice 3, live — the second —, and slice 4, connectors and frames, are built and proven** (2026-10-11). Next: slice 5 —
-the planning model's; slices 6–10 and Phase 4 go to Sonnet 5.5 workers (D16).
+first exemplar —, slice 3, live — the second —, slice 4, connectors and frames, and slice 5, pen, images and files, are built and proven**
+(2026-10-11) — the planning model's slices are done. Next: slices 6–10 and Phase 4, Sonnet 5.5 workers (D16).

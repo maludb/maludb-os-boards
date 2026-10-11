@@ -1,13 +1,13 @@
 <?php
 /**
  * The left toolbar (canvas.md; canvas-core.md "375 px and touch" — at 375 px it is the bottom bar with 44 px targets): Select · Hand · Sticky
- * · Shape (Miro's ten) · Text · Connector · Frame (slice 4) for an editor; Select and Hand alone for a viewer or a commenter (the database refuses their writes anyway).
- * The tools of later slices show disabled with their slice; at 375 px the connector, frame and later tools sit behind "More". The island binds [data-tool]. Data: editable
+ * · Shape (Miro's ten) · Text · Connector · Frame (slice 4) · Pen (its menu: three widths, the colours) · Highlighter · Eraser · Image or file (slice 5)
+ * for an editor; Select and Hand alone for a viewer or a commenter (the database refuses their writes anyway). The tools of later slices show
+ * disabled with their slice; at 375 px the connector, frame, pen and later tools sit behind "More". The island binds [data-tool]. Data: editable
  */
 $shapes = ['rectangle' => 'Rectangle', 'round_rectangle' => 'Rounded rectangle', 'ellipse' => 'Ellipse', 'triangle' => 'Triangle', 'diamond' => 'Diamond',
            'parallelogram' => 'Parallelogram', 'hexagon' => 'Hexagon', 'star' => 'Star', 'right_arrow' => 'Arrow', 'wedge_round_rectangle_callout' => 'Callout'];
-$later = [['pen', 'feather-edit-2', 'Pen', 5],
-          ['image', 'feather-image', 'Image or file', 5], ['comment', 'feather-message-square', 'Comment', 6]];
+$later = [['comment', 'feather-message-square', 'Comment', 6]];
 ?>
 <div class="board-toolbar" id="board-toolbar" role="toolbar" aria-label="Tools">
     <button type="button" class="board-tool active" data-tool="select" id="board-tool-select" title="Select (V)" aria-pressed="true"><i class="feather-mouse-pointer"></i><span class="visually-hidden">Select</span></button>
@@ -27,6 +27,24 @@ $later = [['pen', 'feather-edit-2', 'Pen', 5],
         <div class="board-tool-later" id="board-tool-later">
             <button type="button" class="board-tool" data-tool="connector" id="board-tool-connector" title="Connector (C)" aria-pressed="false"><i class="feather-arrow-up-right"></i><span class="visually-hidden">Connector</span></button>
             <button type="button" class="board-tool" data-tool="frame" id="board-tool-frame" title="Frame (F)" aria-pressed="false"><i class="feather-maximize"></i><span class="visually-hidden">Frame</span></button>
+            <div class="board-tool-group">
+                <button type="button" class="board-tool" data-tool="pen" id="board-tool-pen" title="Pen (P)" aria-pressed="false" aria-haspopup="true"><i class="feather-edit-2"></i><span class="visually-hidden">Pen</span></button>
+                <div class="board-pen-menu d-none" id="board-pen-menu" role="menu" aria-label="The pen">
+                    <div class="board-pen-row">
+                        <?php foreach (['2' => 'Thin', '4' => 'Medium', '8' => 'Thick'] as $wd => $label): ?>
+                            <button type="button" class="board-pen-width<?= $wd === '4' ? ' active' : '' ?>" data-pen-width="<?= e((string) $wd) ?>" id="board-pen-width-<?= e((string) $wd) ?>" title="<?= e($label) ?>" role="menuitem"><span style="width:<?= (int) $wd + 2 ?>px;height:<?= (int) $wd + 2 ?>px"></span><span class="visually-hidden"><?= e($label) ?></span></button>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="board-pen-row">
+                        <?php foreach (PEN_COLORS as $hex => $label): ?>
+                            <button type="button" class="board-pen-color<?= $hex === '#1a1a1a' ? ' active' : '' ?>" data-pen-color="<?= e($hex) ?>" id="board-pen-color-<?= e(ltrim($hex, '#')) ?>" title="<?= e($label) ?>" role="menuitem"><span style="background:<?= e($hex) ?>"></span><span class="visually-hidden"><?= e($label) ?></span></button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="board-tool" data-tool="highlighter" id="board-tool-highlighter" title="Highlighter" aria-pressed="false" aria-haspopup="true"><i class="feather-pen-tool"></i><span class="visually-hidden">Highlighter</span></button>
+            <button type="button" class="board-tool" data-tool="eraser" id="board-tool-eraser" title="Eraser (E)" aria-pressed="false"><i class="feather-delete"></i><span class="visually-hidden">Eraser</span></button>
+            <button type="button" class="board-tool" id="board-tool-image" title="Image or file — or drop one on the board"><i class="feather-image"></i><span class="visually-hidden">Image or file</span></button>
             <?php foreach ($later as [$k, $icon, $label, $slice]): ?>
                 <button type="button" class="board-tool" disabled data-later="<?= e($k) ?>" id="board-tool-<?= e($k) ?>" title="<?= e($label) ?> — built by slice <?= (int) $slice ?>"><i class="<?= e($icon) ?>"></i><span class="visually-hidden"><?= e($label) ?> (slice <?= (int) $slice ?>)</span></button>
             <?php endforeach; ?>

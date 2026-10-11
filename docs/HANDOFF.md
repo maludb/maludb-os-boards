@@ -21,7 +21,8 @@ documents, before doing anything else.
   **Slice 1 (boards, folders and sharing — the CRUD exemplar) is built and proven** (`tests/phase3/slice1/run.sh`). **Slice 2 (the canvas — the
   first exemplar) is built and proven** (`tests/phase3/slice2/run.sh`, 2026-10-11). **Slice 3 (live — the second exemplar, the relay) is built
   and proven** (`tests/phase3/slice3/run.sh`, 2026-10-11). **Slice 4 (connectors and frames) is built and proven** (`tests/phase3/slice4/run.sh`,
-  2026-10-11). Next: slice 5.
+  2026-10-11). **Slice 5 (pen, images and files) is built and proven** (`tests/phase3/slice5/run.sh`, 2026-10-11) — the planning model's
+  slices are done. Next: slices 6–10 and Phase 4 by Sonnet 5.5 workers (D16).
 
 ## Where things stand
 

@@ -920,4 +920,11 @@ The open questions:
   and `frame_create`. `tests/phase3/slice4/run.sh` 58 checks under php -S, 28 under Apache, every earlier suite after it. Found: an agent's
   frame with no place goes below the board (the spec had said right of it); `frames.php` lacked the items helpers.
 
-  **NEXT:** slice 5 (pen, images and files) — the planning model's — → Sonnet for 6–10 and Phase 4.
+- **2026-10-11: SLICE 5 — PEN, IMAGES AND FILES — BUILT AND PROVEN** (`docs/build-specs/pen-files.md` "Built and proven"): the pen, the
+  highlighter (multiplied at 40 %, its pixels read back by the proof) and the stroke eraser; uploads by picker, drop and paste through
+  `POST /files/upload` (finfo, GD thumbnails 256 / 1024 / 2048, a PDF's first page by pdftoppm, an SVG sized by its viewBox), the canvas asking
+  the door for the size on screen, file cards, `GET /files/{id}` behind the wall with an SVG always sandboxed, the worker's thumbnails pass with
+  the purges. `tests/phase3/slice5/run.sh` 77 checks under php -S, 51 under Apache, every earlier suite after it. Found: an SVG needs two URLs
+  (a cached inline copy answered a person opening it); the canvas's notices took presses; a click in a multi-selection kept all of it.
+
+  **NEXT:** the planning model's slices (1–5) are done → Sonnet 5.5 workers for slices 6–10 and Phase 4 (D16), each verified by the planning model.

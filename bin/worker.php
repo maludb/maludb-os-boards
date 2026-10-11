@@ -14,7 +14,8 @@ declare(strict_types=1);
  * a pass selects by; honoured only when APP_ENV is not prod. Exits 1 when a pass failed.
  *
  * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
- * (design §10): `thumbnails` slice 5's; `outbox` slice 6's; `versions`, `compaction` slice 7's; `dispatches`,
+ * (design §10): `thumbnails` slice 5's (REAL since slice 5 — with the purge of uploads never committed and of items deleted past
+ * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's; `versions`, `compaction` slice 7's; `dispatches`,
  * `search_catch_up` slice 9's; `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
@@ -84,8 +85,36 @@ function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array
 function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 9']; }
 /** SLICE 9 — search_index catch-up: every board, item and comment whose index row is older than its change. */
 function worker_pass_search_catch_up(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['indexed' => 0, 'stub' => 'slice 9']; }
-/** SLICE 5 — attachments without their three thumbnail sizes (GD) or a PDF's first page (pdftoppm): made, width/height recorded. */
-function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['made' => 0, 'stub' => 'slice 5']; }
+/**
+ * SLICE 5 (pen-files.md) — the files' housekeeping: an item attachment never thumbnailed (an upload makes its own at once; this catches one
+ * that arrived another way) gets its three sizes (GD) or a PDF's first page (pdftoppm), or {"none": why}; an upload never committed as an item
+ * goes after 24 hours with its files (`file.purge` a board); items deleted longer than op_retention_days go through bd_purge_deleted_items(),
+ * which answers their files' paths — unlinked only where they resolve inside the store.
+ */
+function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/files/write.php';
+    $st = $pdo->prepare("SELECT id, storage_path, mime_type FROM attachments
+                          WHERE record_type = 'item' AND thumbnails = '{}'::jsonb AND storage_path <> '' AND mime_type = ANY (CAST(:m AS text[]))
+                          ORDER BY id LIMIT " . max(1, $limit));
+    $st->execute(['m' => '{' . implode(',', array_merge(RASTER_TYPES, ['application/pdf'])) . '}']);
+    $made = 0;
+    foreach ($st->fetchAll() as $a) {
+        $abs = file_abs($pdo, (string) $a['storage_path']);
+        $t = $abs === null ? ['width' => null, 'height' => null, 'thumbnails' => [], 'none' => 'the original is missing'] : make_thumbnails($abs, (string) $a['mime_type']);
+        if (record_thumbnails($pdo, (int) $a['id'], $t) !== []) {
+            $made++;
+        }
+    }
+    $byBoard = [];
+    $orphans = purge_orphans($pdo, $now, $byBoard);
+    foreach ($byBoard as $board => $n) {
+        log_activity($pdo, 'file.purge', 'board', (string) $board, ['source' => 'cron', 'actor_member_id' => null, 'board_id' => (string) $board,
+            'after' => ['orphans' => $n]]);
+    }
+    $gone = purge_deleted_items($pdo);
+    return ['made' => $made, 'orphans' => $orphans, 'purged_items' => $gone['purged_items'], 'files_removed' => $gone['files_removed']];
+}
 /** SLICE 10 — boards in the trash longer than trash_days: purged with their items, ops, versions, comments and files. */
 function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['purged' => 0, 'stub' => 'slice 10']; }
 /** SLICE 7 — board_ops older than op_retention_days: a `compaction` version at the cut, then the rows go (design §6.3, D6). */

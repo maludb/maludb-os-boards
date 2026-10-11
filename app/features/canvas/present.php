@@ -10,6 +10,7 @@ require_once dirname(__DIR__) . '/items/write.php';
 require_once dirname(__DIR__, 2) . '/live.php';
 require_once dirname(__DIR__) . '/boards/queries.php';          // BOARD_COLORS — a frame's fills are the theme's eight
 require_once dirname(__DIR__) . '/items/connectors.php';
+require_once dirname(__DIR__) . '/files/queries.php';             // bytes_words() for a file's facts
 
 /** The committed bundle (client/build.mjs): ['js' => '/assets/boards/boards.<hash>.js', 'css' => …] or null when it was never built. */
 function canvas_bundle(): ?array
@@ -37,7 +38,7 @@ function canvas_query_view(): ?array
 function canvas_mount(array $b, string $level, array $me): array
 {
     $id = (string) $b['board_id'];
-    $s = one_row(db(), 'SELECT poll_seconds, item_soft_budget, item_hard_cap, batch_max_ops, live_enabled FROM bd_settings WHERE id = 1') ?? [];
+    $s = one_row(db(), 'SELECT poll_seconds, item_soft_budget, item_hard_cap, batch_max_ops, live_enabled, drawing_max_points, max_upload_mb FROM bd_settings WHERE id = 1') ?? [];
     $item = isset($_GET['item']) && preg_match('/^[0-9a-f-]{36}$/', (string) $_GET['item']) ? (string) $_GET['item'] : '';
     $comment = isset($_GET['comment']) && preg_match('/^[0-9a-f-]{36}$/', (string) $_GET['comment']) ? (string) $_GET['comment'] : '';
     $view = canvas_query_view();
@@ -51,6 +52,7 @@ function canvas_mount(array $b, string $level, array $me): array
         'data-upload-url' => '/files/upload.php', 'data-file-url' => '/files/', 'data-rail-url' => '/boards/' . $id . '/rail',
         'data-poll-seconds' => (string) (int) ($s['poll_seconds'] ?? 3), 'data-soft-budget' => (string) (int) ($s['item_soft_budget'] ?? 4000),
         'data-hard-cap' => (string) (int) ($s['item_hard_cap'] ?? 10000), 'data-batch-max' => (string) (int) ($s['batch_max_ops'] ?? 500),
+        'data-drawing-max-points' => (string) (int) ($s['drawing_max_points'] ?? 2000), 'data-max-upload-mb' => (string) (int) ($s['max_upload_mb'] ?? 25),
         'data-start-view' => $b['start_view'] === null ? '' : json_encode($b['start_view']),
         'data-view' => $view === null ? '' : $view['x'] . ' ' . $view['y'] . ' ' . $view['zoom'],
         'data-focus-item' => $item, 'data-focus-comment' => $comment,
@@ -117,6 +119,17 @@ function rail_summary(array $rows): array
             'start' => $shared($k, static fn ($r) => $r['style']['startStrokeCap'] ?? 'none'),
             'end' => $shared($k, static fn ($r) => $r['style']['endStrokeCap'] ?? 'arrow'),
         ],
+        'drawing' => ($dw = array_values(array_filter($rows, static fn ($r): bool => $r['type'] === 'drawing'))) === [] ? null : [
+            'color' => $shared($dw, static fn ($r) => strtolower((string) ($r['style']['strokeColor'] ?? '#1a1a1a'))),
+            'width' => $shared($dw, static fn ($r) => (string) (int) ($r['style']['strokeWidth'] ?? 4)),
+            'pens' => count(array_filter($dw, static fn ($r): bool => ($r['data']['tool'] ?? 'pen') !== 'highlighter')) === count($dw),
+        ],
+        'file' => count($rows) === 1 && in_array($rows[0]['type'], ['image', 'document'], true) ? [
+            'title' => (string) ($rows[0]['data']['title'] ?? ''),
+            'attachment_id' => (int) ($rows[0]['data']['attachment_id'] ?? 0),
+            'facts' => implode(' · ', array_filter([isset($rows[0]['data']['byte_size']) ? bytes_words((int) $rows[0]['data']['byte_size']) : '',
+                                                    (string) ($rows[0]['data']['mime_type'] ?? '')])),
+        ] : null,
         'frame' => ($f = array_values(array_filter($rows, static fn ($r): bool => $r['type'] === 'frame'))) === [] ? null : [
             'fill' => $shared($f, static fn ($r) => $r['style']['fillColor'] ?? '#ffffff'),
             'title' => count($f) === 1 ? (string) ($f[0]['data']['title'] ?? '') : null,
@@ -132,6 +145,8 @@ function item_type_words(array $r): string
         'shape' => 'Shape: ' . str_replace('_', ' ', (string) ($r['data']['shape'] ?? 'rectangle')),
         'text' => 'Text',
         'document' => 'File',
+        'image' => 'Image',
+        'drawing' => ($r['data']['tool'] ?? 'pen') === 'highlighter' ? 'Highlight' : 'Drawing',
         default => ucfirst((string) $r['type']),
     };
 }

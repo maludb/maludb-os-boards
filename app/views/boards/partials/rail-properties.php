@@ -3,7 +3,8 @@
  * The rail's Item panel — the selection's Properties (canvas.md "The rail partials"): the sticky colour (Miro's palette), a shape's fill, a
  * text's colour, the text size (S M L XL = 14 18 24 36), the alignment, Lock, Bring to front / Send to back, Delete; for ONE item its type,
  * size and "Set as the start view"; a connector's line (straight / elbowed / curved, style, width, colour, arrowheads) and a frame's title, fill and
- * "Fit to contents" (slice 4). Every control is a button carrying data-board-command: the island turns it into ONE batch (optimistic
+ * "Fit to contents" (slice 4); a drawing's colour and width, an image's or a file's title, "Open original" and "Download" (slice 5 — the
+ * links for anyone who sees the board: the door behind the wall decides). Every control is a button carrying data-board-command: the island turns it into ONE batch (optimistic
  * and undoable like any edit) — never a form post. Refreshed on `boards:select`. Data: board, rows (rail_selection), sum (rail_summary or
  * null), may (I can change items here), mayStart (I can set the start view — board_update, level edit)
  */
@@ -74,6 +75,24 @@ $swatch = static fn (string $cmd, string $key, string $value, string $hex, strin
                 </div>
                 <button type="button" class="btn btn-light btn-touch mt-2" data-board-command="fit-frame" id="rail-frame-fit"><i class="feather-minimize-2 me-1"></i>Fit to contents</button>
             <?php endif; ?>
+            <?php if ($sum['drawing'] !== null): $dw = $sum['drawing']; ?>
+                <div class="rail-label">Stroke colour</div>
+                <div class="rail-swatches" id="rail-drawing-colors">
+                    <?php foreach (PEN_COLORS as $hex => $label): ?><?= $swatch('style', 'strokeColor', $hex, $hex, $label, 'drawing', $dw['color'] === $hex) ?><?php endforeach; ?>
+                </div>
+                <?php if ($dw['pens']): ?>
+                    <div class="rail-label">Stroke width</div>
+                    <div class="btn-group mb-2" role="group" id="rail-drawing-width">
+                        <?php foreach (['2' => 'Thin', '4' => 'Medium', '8' => 'Thick'] as $wd => $lab): ?>
+                            <button type="button" class="btn btn-outline-secondary btn-touch<?= $dw['width'] === (string) $wd ? ' active' : '' ?>" data-board-command="style" data-key="strokeWidth" data-value="<?= e((string) $wd) ?>" data-types="drawing" id="rail-drawing-width-<?= e((string) $wd) ?>"><?= e($lab) ?></button>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($sum['file'] !== null): ?>
+                <div class="rail-label">Title</div>
+                <input type="text" class="form-control mb-2" maxlength="200" value="<?= e($sum['file']['title']) ?>" data-board-input="data" data-key="title" data-types="image,document" id="rail-file-title" aria-label="The file's title">
+            <?php endif; ?>
             <?php if ($sum['has_text']): ?>
                 <div class="rail-label">Text size</div>
                 <div class="btn-group mb-2" role="group" id="rail-text-size">
@@ -96,6 +115,13 @@ $swatch = static fn (string $cmd, string $key, string $value, string $hex, strin
             </div>
         <?php elseif ($may): ?>
             <button type="button" class="btn btn-light btn-touch mt-1" data-board-command="lock" data-value="0" id="rail-unlock"><i class="feather-unlock me-1"></i>Unlock</button>
+        <?php endif; ?>
+        <?php if ($sum['file'] !== null && $sum['file']['attachment_id'] > 0): $fl = $sum['file']; ?>
+            <div class="d-flex flex-wrap gap-2 mt-3" id="rail-file-links">
+                <a class="btn btn-light btn-touch" href="/files/<?= (int) $fl['attachment_id'] ?>" target="_blank" rel="noopener" id="rail-file-open"><i class="feather-external-link me-1"></i>Open original</a>
+                <a class="btn btn-light btn-touch" href="/files/<?= (int) $fl['attachment_id'] ?>?download=1" id="rail-file-download"><i class="feather-download me-1"></i>Download</a>
+            </div>
+            <?php if ($fl['facts'] !== ''): ?><p class="fs-12 text-muted mt-2 mb-0" id="rail-file-facts"><?= e($fl['facts']) ?></p><?php endif; ?>
         <?php endif; ?>
         <?php if (count($rows) === 1): $r = $rows[0]; ?>
             <dl class="rail-facts mt-3 mb-0 fs-12">

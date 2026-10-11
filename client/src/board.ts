@@ -11,7 +11,7 @@ import type { Toasts } from './ui/toast';
 import type { LiveConnection } from './sync/socket';
 import type { Presence } from './ui/presence';
 
-export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text' | 'connector' | 'frame';
+export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text' | 'connector' | 'frame' | 'pen' | 'highlighter' | 'eraser';
 
 export interface Board {
   boardId: string;
@@ -41,6 +41,15 @@ export interface Board {
   editText(id: string, created?: boolean): void;
   /** a frame's title or a connector's caption, in place (slice 4) */
   editInline(id: string): void;
+  /** the pen's colour and width, the highlighter's colour (slice 5: the pen menu) */
+  pen: { color: string; width: number };
+  highlighterColor: string;
+  /** bd_settings.drawing_max_points — a stroke is simplified to at most this many points */
+  drawingMaxPoints: number;
+  /** the toolbar's Image button: the file picker (slice 5) */
+  pickFile(): void;
+  /** upload files and place them (a drop point, else the pointer or the view's centre) — the items placed */
+  upload(files: File[], at: { x: number; y: number } | null): Promise<string[]>;
   /** the last pointer position on the canvas (paste goes there) */
   pointer: { x: number; y: number } | null;
   fire(name: string, detail: unknown): void;

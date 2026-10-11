@@ -10,10 +10,14 @@ import { boxFromPoints, containsBox, frameTopLeft, hitsRotated, normaliseRotatio
 import { textFontSize, textHeightFor } from '../render/items/text';
 import { distanceTo, routeOf, sideHandles, snapOn, type Side } from '../render/items/connector';
 import { titleBox } from '../render/items/frame';
+import { drawingDistanceAt, drawingReach } from '../render/items/drawing';
 import type { Gesture, PointerInfo, Tool } from './input';
 import { connectorGesture, endpointGesture } from './connector';
 
 const DRAG_THRESHOLD = 4;
+
+/** An image, or a file shown by its first page: resized by its corners, its proportions kept (slice 5). */
+const pictured = (i: Item): boolean => i.type === 'image' || (i.type === 'document' && i.data.preview === true);
 
 export class Selection {
   readonly ids = new Set<string>();
@@ -75,8 +79,8 @@ export class Selection {
       const anyFrame = movable.some((i) => i.type === 'frame');
       this.tr.setAttrs({
         rotateEnabled: !anyFrame,
-        keepRatio: one ? one.type === 'sticky_note' : true,
-        enabledAnchors: one?.type === 'sticky_note' ? ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+        keepRatio: one ? one.type === 'sticky_note' || pictured(one) : true,
+        enabledAnchors: one?.type === 'sticky_note' || (one && pictured(one)) ? ['top-left', 'top-right', 'bottom-left', 'bottom-right']
           : one?.type === 'text' ? ['middle-left', 'middle-right', 'top-left', 'top-right', 'bottom-left', 'bottom-right']
           : one ? ['top-left', 'top-center', 'top-right', 'middle-right', 'middle-left', 'bottom-left', 'bottom-center', 'bottom-right']
           : ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
@@ -209,6 +213,13 @@ export function hitTest(b: Board, x: number, y: number): Item | null {
     }
     const box = b.store.box(it.id);
     if (!box) continue;
+    if (it.type === 'drawing') {
+      // a stroke is hit on its line, not its box (an empty loop does not cover what is inside it)
+      const reach = drawingReach(it) + 6 / z;
+      if (x < box.x1 - reach || x > box.x2 + reach || y < box.y1 - reach || y > box.y2 + reach) continue;
+      if (drawingDistanceAt(it, b.store.absCentre(it), x, y) <= reach && (!best || it.z > best.z)) best = it;
+      continue;
+    }
     if (it.type === 'frame') {
       const tb = titleBox(it, { x: box.x1, y: box.y1 }, z);
       if (x >= tb.x1 && x <= tb.x2 && y >= tb.y1 && y <= tb.y2) { if (!bestFrame || it.z > bestFrame.z) bestFrame = it; continue; }
@@ -325,6 +336,8 @@ export class SelectTool implements Tool {
         if (moved && (dx !== 0 || dy !== 0)) {
           const ops = dropOps(b, ids, dx, dy);
           if (ops.length) b.commit(ops);
+        } else if (!moved && !p.touch && b.selection.list().length > 1 && b.selection.has(hit.id)) {
+          b.selection.set([hit.id]);                 // a click (no drag) on one of several selected: that one alone (Miro's, Figma's)
         }
         b.renderer.markDirty(touched);
       },

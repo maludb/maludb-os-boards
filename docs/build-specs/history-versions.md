@@ -52,8 +52,8 @@ which versions are thinned, which ops are compacted, which items are purged.
 - `version_save(PDO, string $board, int $by, string $label): int` (→ `bd_save_version(board, by, 'manual', label)`, the version number) ·
   `version_restore(PDO, string $board, int $by, int $no, ?string $clientBatchId): array` (→ `bd_restore_version()`'s answer: `seq`, `restored_version`, or `noop`)
 - `versions_pass(PDO, DateTimeImmutable $now): array{saved, thinned}` (`bd_interval_versions()`, then `bd_prune_versions()`) ·
-  `compaction_pass(PDO, DateTimeImmutable $now, string $storageDir): array{compacted, purged_items, files_removed}` (`bd_compact_ops()`; then
-  `bd_purge_deleted_items()` and an `unlink()` of every returned path that `realpath()`s inside `$storageDir` — a path outside is logged and left)
+  `compaction_pass(PDO, DateTimeImmutable $now): array{compacted}` (`bd_compact_ops()` only — items deleted past op_retention_days and their
+  files are purged by slice 5's `thumbnails` pass through `purge_deleted_items()`, built 2026-10-11: `docs/phase1-consistency.md` 17)
 
 ## Handlers
 - `version-save.php` (`version_save`): `require_right('boards.edit')`; `bd_require_level($board, 'edit')`; `label` 1–120 characters (`bd_text`, required);
@@ -70,7 +70,7 @@ which versions are thinned, which ops are compacted, which items are purged.
 - `worker_pass_versions` → `versions_pass()`: `{saved, thinned}`. Runs every pass; `bd_interval_versions()` decides what is due (a board that
   changed since its last version, at most hourly). Never a version of a shipped template (they never change).
 - `worker_pass_compaction` → `compaction_pass($pdo, $now, storage_dir())`: only when the local hour is 03 (the business's time zone,
-  `bd_settings.timezone`) and no `worker_passes` row of today carries `compaction` — once a night; `{compacted, purged_items, files_removed}`.
+  `bd_settings.timezone`) and no `worker_passes` row of today carries `compaction` — once a night; `{compacted}`.
 - Both log through the worker's `worker.pass` row; neither logs an item's text.
 
 ## MCP tools this slice makes real

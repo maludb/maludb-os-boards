@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T12:58:19+00:00",
+    "generated_at": "2026-10-11T13:43:57+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -1181,7 +1181,7 @@
             "who": "level edit",
             "agent": false,
             "record_id": "the attachment",
-            "built": false
+            "built": true
         },
         "comment_create": {
             "action": "comment_create",

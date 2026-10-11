@@ -59,6 +59,8 @@ export class Clipboard {
   private onPaste(e: ClipboardEvent): void {
     if (isField(e.target) || !this.b.editable) return;
     if (this.pasteTimer !== null) { window.clearTimeout(this.pasteTimer); this.pasteTimer = null; }
+    const files = [...(e.clipboardData?.files ?? [])];
+    if (files.length) { e.preventDefault(); void this.b.upload(files, this.b.pointer); return; }      // an image or a file: uploaded (slice 5)
     const text = e.clipboardData?.getData('text/plain') ?? '';
     e.preventDefault();
     if (this.items.length && (text === this.text || text === '')) this.pasteItems();

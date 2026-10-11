@@ -1,6 +1,6 @@
 // Level of detail (canvas-core.md "Rendering and performance"): below zoom 0.4 stickies and shapes are flat rectangles without text, a
-// layer's run of them painted in one pass (drawFlats); text is drawn only when its on-screen size is at least 6 px. Slice 5 adds the image sizes
-// by on-screen width and cached bitmaps for drawings.
+// layer's run of them painted in one pass (drawFlats); text is drawn only when its on-screen size is at least 6 px. Slice 5's drawings are a
+// plain polyline there, and its images and files their 256 thumbnail (render/items/image.ts chooses the size by the item's width on screen).
 import type { Item } from '../model/types';
 import { fillOf } from './items/sticky';
 

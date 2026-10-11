@@ -161,8 +161,12 @@ exec('cd ' . escapeshellarg(dirname(__DIR__, 2)) . ' && php bin/worker.php 2>&1'
 $rep = json_decode((string) end($wout), true) ?: [];
 ok($wrc === 0 && count($rep['ran'] ?? []) === 8 && isset($rep['ran']['key_usage_prune']['pruned']), 'the worker runs one pass of eight steps and exits 0');
 $stubs = array_filter($rep['ran'] ?? [], static fn ($x) => isset($x['stub']));
-ok(count($stubs) === 7 && ($rep['ran']['trash']['stub'] ?? '') === 'slice 10' && ($rep['ran']['thumbnails']['stub'] ?? '') === 'slice 5' && ($rep['ran']['versions']['stub'] ?? '') === 'slice 7',
-    'seven of them are stubs naming their slice (trash 10, thumbnails 5, versions 7, …)');
+// the passes still stubs are those bin/worker.php still marks so (it follows what is built: slice 5 made `thumbnails` real)
+$owed = substr_count((string) file_get_contents(dirname(__DIR__, 2) . '/bin/worker.php'), "'stub' => 'slice ");
+ok(count($stubs) === $owed && $owed >= 1 && array_filter($stubs, static fn ($x) => !preg_match('/^slice \d+$/', (string) $x['stub'])) === []
+   && ($rep['ran']['trash']['stub'] ?? '') === 'slice 10' && ($rep['ran']['versions']['stub'] ?? '') === 'slice 7'
+   && (($rep['ran']['thumbnails']['stub'] ?? '') === 'slice 5' || isset($rep['ran']['thumbnails']['made'])),
+    "the passes not built yet are stubs naming their slice ($owed: trash 10, versions 7, …; thumbnails real since slice 5)");
 ok(count(activity('worker.pass', $before)) === 1 && (int) one('SELECT count(*) FROM worker_passes') >= 1, 'the pass is logged as worker.pass and kept in worker_passes');
 $h = req('GET', '/api/v1/health');
 $hb = body_json($h);

@@ -17,6 +17,9 @@ const STICKY_COLORS = [
 ];
 /** The fills and text colours the Properties panel offers for shapes and text (any #rrggbb is accepted). */
 const ITEM_PALETTE = ['#ffffff', '#1a1a1a', '#e6e6e6', '#fef445', '#fac710', '#f24726', '#da0063', '#9510ac', '#652cb3', '#2d9bf0', '#0ca789', '#8fd14f'];
+/** The pen's colours (slice 5: the pen menu, a drawing's Properties) — hex => words. */
+const PEN_COLORS = ['#1a1a1a' => 'Black', '#e03131' => 'Red', '#f08c00' => 'Orange', '#ffd43b' => 'Yellow', '#2f9e44' => 'Green', '#1971c2' => 'Blue',
+                    '#7048e8' => 'Violet', '#e64980' => 'Pink'];
 /** Miro's ten basic shapes, by its names. */
 const SHAPE_KINDS = ['rectangle', 'round_rectangle', 'ellipse', 'triangle', 'diamond', 'parallelogram', 'hexagon', 'star', 'right_arrow', 'wedge_round_rectangle_callout'];
 /** The text sizes the Properties panel offers: S M L XL. */

@@ -36,6 +36,16 @@ body.board-canvas-page .app-panes { min-height: 0; }
 .board-shape-pick { width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: #283c50; display: inline-flex; align-items: center; justify-content: center; }
 .board-shape-pick svg { width: 34px; height: 24px; }
 .board-shape-pick:hover, .board-shape-pick.active { background: #e7ecfb; color: #3454d1; }
+/* the pen menu (slice 5): three widths and the colours */
+.board-pen-menu { position: absolute; left: 52px; top: 0; z-index: 6; display: flex; flex-direction: column; gap: 4px; padding: 6px; width: 196px;
+  background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(15, 23, 42, .2); }
+.board-pen-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.board-pen-width, .board-pen-color { width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; display: inline-flex; align-items: center; justify-content: center; }
+.board-pen-width span:first-child { display: block; border-radius: 50%; background: #283c50; }
+.board-pen-color span:first-child { display: block; width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .18); }
+.board-pen-width:hover, .board-pen-width.active, .board-pen-color:hover, .board-pen-color.active { background: #e7ecfb; }
+.board-pen-width[hidden] { display: none; }
+.board-drop-target { outline: 3px dashed #3454d1; outline-offset: -6px; }
 
 /* the bottom bar: zoom and undo, at the bottom right */
 .board-bottombar { position: absolute; right: 12px; bottom: 12px; z-index: 5; display: flex; gap: 8px; }
@@ -52,7 +62,7 @@ body.board-canvas-page .app-panes { min-height: 0; }
 .board-toast-text { flex: 1 1 auto; min-width: 0; }
 .board-toast-action { border: 0; background: transparent; color: #9fb4ff; font-weight: 700; min-height: 44px; padding: 0 8px; }
 .board-toast-close { border: 0; background: transparent; color: rgba(255, 255, 255, .7); font-size: 20px; line-height: 1; min-width: 32px; min-height: 44px; }
-.board-banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 7; padding: 8px 14px; border-radius: 8px; background: #fff3cd;
+.board-banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 7; pointer-events: none; padding: 8px 14px; border-radius: 8px; background: #fff3cd;
   color: #664d03; font-size: 13px; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); max-width: 92%; }
 
 /* the text editor laid over an item */
@@ -90,6 +100,7 @@ body.board-canvas-page .app-panes { min-height: 0; }
   .board-tool-later { display: none; flex-direction: row; border-top: 0; padding-top: 0; margin-top: 0; width: 100%; justify-content: space-around; }
   .board-toolbar.show-later .board-tool-later { display: flex; }
   .board-shape-menu { left: auto; right: 0; top: auto; bottom: 52px; grid-template-columns: repeat(5, 44px); }
+  .board-pen-menu { position: fixed; left: 8px; right: 8px; top: auto; bottom: 120px; width: auto; flex-direction: row; flex-wrap: wrap; }
   .board-bottombar { right: 8px; bottom: 68px; }
   .board-toolbar.show-later ~ .board-bottombar { bottom: 120px; }
   .board-toasts { bottom: 128px; }
@@ -102,7 +113,7 @@ body.board-canvas-page .app-panes { min-height: 0; }
 }
 
 html.app-skin-dark .board-topbar, html.app-skin-dark .board-rail { background: #0f172a; border-color: #1b2436; }
-html.app-skin-dark .board-toolbar, html.app-skin-dark .board-bar-group, html.app-skin-dark .board-shape-menu { background: #1b2431; }
+html.app-skin-dark .board-toolbar, html.app-skin-dark .board-bar-group, html.app-skin-dark .board-shape-menu, html.app-skin-dark .board-pen-menu { background: #1b2431; }
 html.app-skin-dark .board-tool, html.app-skin-dark .board-shape-pick { color: #dbe2ea; }
 
 /* who is here (slice 3): the top bar's avatars — two and "+N" at 375 px; an agent with an "AI" mark; a peer typing ringed */
@@ -114,7 +125,7 @@ html.app-skin-dark .board-tool, html.app-skin-dark .board-shape-pick { color: #d
 .board-avatar.agent::after { content: 'AI'; position: absolute; right: -6px; bottom: -4px; font-size: 8px; line-height: 1; padding: 2px 3px; border-radius: 4px;
   background: #1f2937; color: #fff; }
 /* "Live updates paused": the socket is down, the canvas polls */
-.board-live-banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 7; padding: 6px 12px; border-radius: 8px; background: #fff3cd;
+.board-live-banner { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 7; pointer-events: none; padding: 6px 12px; border-radius: 8px; background: #fff3cd;
   color: #664d03; font-size: 13px; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); max-width: 92%; text-align: center; }
 @media (max-width: 991.98px) { .board-avatar { width: 28px; height: 28px; font-size: 11px; } .board-live-banner { font-size: 12px; } }
 .board-presence { flex: 0 0 auto; }

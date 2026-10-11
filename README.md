@@ -40,7 +40,11 @@ poll when it is down — `tests/phase3/slice3/run.sh` through a user-level Apach
 captions), frames that hold their children, the navigator and the minimap, the agents' `connector_create` and `frame_create` —
 `tests/phase3/slice4/run.sh`.
 
-Next: slice 5.
+**Slice 5, pen, images and files, is built and proven** (2026-10-11): the pen, the highlighter and the eraser; images and files by picker,
+drop or paste, with thumbnails sized to the screen and an SVG always sandboxed; `GET /files/{id}` behind the board's wall —
+`tests/phase3/slice5/run.sh` (needs `pdftoppm`, poppler-utils).
+
+Next: slices 6–10 and Phase 4 (Sonnet 5.5 workers, design D16).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

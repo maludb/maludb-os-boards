@@ -72,7 +72,8 @@ A left-out field stays as it was (`bd_int(name, $keep, …)`); a database refusa
   the caller sees) · `trash_all(PDO): array` (`mcp_trash`) · `failed_dispatches(PDO): array{failed, waiting}` (`mcp_agent_dispatches`)
 - `settings_read(PDO): array` · `settings_save(PDO, array $fields): array` (the changed fields' old and new values) ·
   `trash_purge(PDO, string $board, string $storageDir): array{title, items, files_removed, files_left}` (`bd_board_purge()`, then `unlink()` of every
-  returned path that `realpath()`s inside `$storageDir`; any other path counted in `files_left` and logged)
+  returned path that `realpath()`s inside `$storageDir`; any other path counted in `files_left` and logged — slice 5's `unlink_paths()` in
+  `app/features/files/store.php` is that rule, built: use it)
 
 ## Handlers
 - `settings-save.php` (`settings_save`): `bd_handler_begin()`; `require_right('settings.manage')`; the fields as above (`bd_int`, `bd_choice`, `bd_yes`,
