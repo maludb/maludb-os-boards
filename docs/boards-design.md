@@ -940,7 +940,7 @@ The open questions:
   (who, what in words, when, **Show** flying to the batch's centre, an undo's "undid #n", filters by person, source and date, "Since your last visit", HTMX paging), the versions (a named one bold; Preview as the
   version's outline; Restore for an owner with a confirm; Save this moment for an editor) and the visits (edit and above); a restore is ONE `bd_commit_ops()` batch with its inverse after a `before_restore` version, so
   an open canvas receives it like any batch; the worker's `versions` (interval versions at most hourly, thinning) and `compaction` (03:xx in the business's zone, once a night) passes real. `tests/phase3/slice7/run.sh`
-  **158 checks under php -S, 156 under Apache**, then every earlier suite; **db/015** (no interval version of a shipped template). Found: the batch summary cannot tell a move from an update ("changed"); PDO reads `?` in jsonb's
+  **160 checks under php -S, 158 under Apache**, then every earlier suite; **db/015** (no interval version of a shipped template). Found: the batch summary cannot tell a move from an update ("changed"); PDO reads `?` in jsonb's
   `?` operator; `BD_WORKER_NOW` does not move `worker_passes.started_at`.
 
   **NEXT:** slices 1–7 are built → Sonnet 5.5 workers for slices 8–10 and Phase 4 (D16), each verified by the planning model.

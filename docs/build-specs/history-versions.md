@@ -134,7 +134,7 @@ the last 30 days from `mcp_activity_log`. The two handlers (`html/boards/version
 one batch; the board as it was is version M" or "Nothing to restore — the board already matches version N". **The worker**: `versions` (`versions_pass()` — `bd_interval_versions()` then
 `bd_prune_versions()`) and `compaction` (`compaction_pass()` — `bd_compact_ops()`, only at 03:xx in the business's zone, once a night) are real.
 
-**Proven** by `tests/phase3/slice7/run.sh` — **158 checks under php -S** (history 54, restore 30, worker 19, json 23, browser 32) and **156 under a real Apache** (the browser proof has no test hook there: it
+**Proven** by `tests/phase3/slice7/run.sh` — **160 checks under php -S** (history 56 — two for the rail's History panel added at review —, restore 30, worker 19, json 23, browser 32) and **158 under a real Apache** (the browser proof has no test hook there: it
 judges the open canvas by the catch-up it fetches — 30), then every earlier suite (slice 6's and within it 5's, 4's, 3's, 2's, 1's and Phase 2's): the changes — four batches (three people's, one agent's through
 `bd_commit_ops()`) newest first with their words, chips and Show at the batch's centre, `member=` / `source=` / `since=` and the ignoring of a value that is not one, the divider between what is newer and older than
 my last visit (none with a filter, none without a visit), an undo's "undid #n", 59 batches paged 50 and 9 (the HTMX partial the next 9 rows alone, without HTMX a whole page); a named version by an editor and the
