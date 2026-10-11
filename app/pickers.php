@@ -12,7 +12,7 @@ declare(strict_types=1);
  * background, a kind) stays a <select>.
  *
  * Phase 2 (the shell) registers `member` and `department`. The slices add theirs (docs/build-specs/*.md):
- *   board, folder, board_principals, board_new_owners — slice 1 · template — slice 8
+ *   board, folder, board_principals, board_new_owners — slice 1 · template — not needed (the gallery chooses templates)
  */
 
 const PICKER_PAGE = 20;

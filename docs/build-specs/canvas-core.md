@@ -346,3 +346,7 @@ What the exemplar became, where it differs from the text above or adds to it. ca
   mount's `data-focus-comment`, the THREAD's root: `canvas_mount()` resolves a reply's id) flies to the pin (reading the resolved ones too if need be) and opens it.
 - **Events**: the island now listens for `commentChanged` (the handlers' trigger) and fires `boards:open-comment`; `Board.comments` is the controller's
   `{startThread, openThread}`.
+
+## Built in slice 8 — what export added to the island (2026-10-11)
+- **`ui/export.ts`** (`Exports`, made in `main.ts` beside the navigator): the board menu's PNG entries (`#export-png-view`, `-selection`, `-frame`, buttons with `data-export`) draw into a canvas of their own — the store's items in z order with `drawItem` and `drawConnector` at full detail, the board's colour first — and download it through a temporary `<a download>` named `{board} — {view|selection|frame title}.png`, then `POST /boards/{board}/export` (`format=png&scope=…&items=n`) for the log. It never reads the stage (culled, flat below 40 %).
+- The menu is server-rendered (`topbar.php`); `Exports.refresh()` greys the selection entry with nothing selected and the frame entries (and points `#export-svg-frame`'s link) when there is no selected frame nor one under the view's centre. The SVG entries are plain links to the server's door.

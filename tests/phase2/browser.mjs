@@ -138,7 +138,9 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   await page.click('#nav-templates .nxl-link');
   await page.waitForURL(BASE + '/templates');
   await page.waitForSelector('#templates-content');
-  ok((await page.title()).startsWith('Templates') && (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 8'), 'HTMX navigation: /templates pushed, the title set, the placeholder names slice 8');
+  const tplStub = fs.readFileSync(new URL('../../html/templates/index.php', import.meta.url), 'utf8').includes('render_nav_stub(');   // slice 8 built it: the gallery stands in for the placeholder
+  ok((await page.title()).startsWith('Templates') && (tplStub ? (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 8') : (await page.locator('#templates-grid, #templates-empty').count()) === 1),
+    'HTMX navigation: /templates pushed, the title set, ' + (tplStub ? 'the placeholder names slice 8' : 'the gallery (slice 8) is there'));
   ok(await page.evaluate(() => document.querySelector('#nav-templates .nxl-link').classList.contains('active') && !document.querySelector('#nav-boards .nxl-link').classList.contains('active') && document.getElementById('page-content').dataset.screen === 'templates'),
     'the sidebar highlights Templates and the screen is stamped');
   await page.click('#nav-admin .nxl-link');

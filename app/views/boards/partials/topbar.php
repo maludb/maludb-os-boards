@@ -2,7 +2,7 @@
 /**
  * The canvas's top bar (canvas-core.md "#board-header"): back to the boards, the title, the level badge (refreshed when the relay says the
  * level changed), who is here (the presence strip, filled by the island from the relay), Share for `full`, Outline (always — the 375 px reader), the rail's toggle, and the board's
- * menu: Settings, History, Outline, Export, Duplicate, Save as template (the last three are slice 8's). Data: b, level, back
+ * menu: Settings, History, Outline, Export (slice 8: the PNGs from the island, the SVG from the server), Duplicate, Save as template (slice 8: links to the settings page's forms). Data: b, level, back
  */
 $id = (string) $b['board_id'];
 $isOwner = (int) ($b['owner_member_id'] ?? 0) === (int) current_member_id();
@@ -29,9 +29,22 @@ $isOwner = (int) ($b['owner_member_id'] ?? 0) === (int) current_member_id();
             <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/outline" id="board-menu-outline"><i class="feather-list me-2"></i>Outline</a></li>
             <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/comments" id="board-menu-comments"><i class="feather-message-circle me-2"></i>Comments</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><span class="dropdown-item disabled" id="board-menu-export"><i class="feather-download me-2"></i>Export <small class="text-muted">(slice 8)</small></span></li>
-            <li><span class="dropdown-item disabled" id="board-menu-duplicate"><i class="feather-copy me-2"></i>Duplicate <small class="text-muted">(slice 8)</small></span></li>
-            <li><span class="dropdown-item disabled" id="board-menu-template"><i class="feather-layout me-2"></i>Save as template <small class="text-muted">(slice 8)</small></span></li>
+            <?php if (has_right('boards.export')): ?>
+            <li id="export-menu">
+                <h6 class="dropdown-header">Export</h6>
+                <ul class="list-unstyled mb-0">
+                    <li><button type="button" class="dropdown-item" id="export-png-view" data-export="png-view"><i class="feather-image me-2"></i>PNG of the view</button></li>
+                    <li><button type="button" class="dropdown-item disabled" id="export-png-selection" data-export="png-selection" aria-disabled="true"><i class="feather-image me-2"></i>PNG of the selection</button></li>
+                    <li><button type="button" class="dropdown-item disabled" id="export-png-frame" data-export="png-frame" aria-disabled="true"><i class="feather-image me-2"></i>PNG of a frame</button></li>
+                    <li><a class="dropdown-item" id="export-svg-board" hx-boost="false" data-export="svg-board" href="/boards/<?= e($id) ?>/export?format=svg" download><i class="feather-code me-2"></i>SVG (structure) of the board</a></li>
+                    <li><a class="dropdown-item disabled" id="export-svg-frame" hx-boost="false" data-export="svg-frame" href="#" aria-disabled="true" download><i class="feather-code me-2"></i>SVG (structure) of a frame</a></li>
+                </ul>
+            </li>
+            <?php endif; ?>
+            <?php if (has_right('boards.create')): ?>
+            <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/settings#board-actions" id="board-menu-duplicate"><i class="feather-copy me-2"></i>Duplicate</a></li>
+            <li><a class="dropdown-item" href="/boards/<?= e($id) ?>/settings#board-template-form" id="board-menu-template"><i class="feather-layout me-2"></i>Save as template</a></li>
+            <?php endif; ?>
         </ul>
     </div>
 </div>

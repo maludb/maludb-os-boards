@@ -2,12 +2,13 @@
 declare(strict_types=1);
 /**
  * /boards/{board}/settings (screen `board-settings`; level view — an editor changes it, an owner locks and deletes): title, description, the
- * folders I keep it in (add and remove), background, the start view; Lock / Unlock and Delete (full); Duplicate (slice 8). A viewer reads the
+ * folders I keep it in (add and remove), background, the start view; Lock / Unlock and Delete (full); Copies and templates (slice 8). A viewer reads the
  * values. JSON: present_board().
  */
 require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 require_once dirname(__DIR__, 2) . '/app/features/boards/queries.php';
 require_once dirname(__DIR__, 2) . '/app/features/boards/present.php';
+require_once dirname(__DIR__, 2) . '/app/features/templates/queries.php';
 require_login();
 $pdo = db();
 $gate = bd_board_or_404($pdo, isset($_GET['board']) ? (string) $_GET['board'] : null, 'view');

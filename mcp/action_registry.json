@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T20:44:23+00:00",
+    "generated_at": "2026-10-11T21:58:38+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -190,8 +190,8 @@
                 "category",
                 "scope"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "template-view": {
             "screen": "template-view",
@@ -199,8 +199,8 @@
             "section": "Templates, duplicate and export (slice 8)",
             "when": "a template's preview, and Use",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "search": {
             "screen": "search",
@@ -1523,7 +1523,7 @@
             "who": "boards.create and level view",
             "agent": true,
             "record_id": "the new board",
-            "built": false
+            "built": true
         },
         "template_use": {
             "action": "template_use",
@@ -1556,7 +1556,7 @@
             "who": "boards.create",
             "agent": true,
             "record_id": "the new board",
-            "built": false
+            "built": true
         },
         "template_save": {
             "action": "template_save",
@@ -1589,7 +1589,7 @@
             "who": "boards.create and level view",
             "agent": true,
             "record_id": "the template",
-            "built": false
+            "built": true
         },
         "template_publish": {
             "action": "template_publish",
@@ -1622,7 +1622,7 @@
             "who": "templates.publish",
             "agent": true,
             "record_id": "the template",
-            "built": false
+            "built": true
         },
         "items_arrange": {
             "action": "items_arrange",

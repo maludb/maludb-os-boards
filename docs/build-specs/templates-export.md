@@ -9,7 +9,7 @@ Exemplar to replicate: **slice 1 (boards-folders)** for the pages, the cards and
 `bd_require_level()` → `bd_guard()` → `log_activity()` → `emit_action_status()` → `bd_done()`); **slice 2 (canvas)** for the island's export menu
 (`canvas-core.md` "Exports").
 
-Schema and functions used (db/006–013 and this slice's `db/015_seed_templates.sql` — the only migration this slice writes): `boards`
+Schema and functions used (db/006–013 and this slice's `db/016_seed_templates.sql` — the only migration this slice writes): `boards`
 (`is_template`, `template_scope`, `template_category`, `duplicated_from`), `bd_board_duplicate()`, `bd_folder_add()`, `bd_board_level()`,
 `bd_region_svg()`, `bd_board_overview()` (`extent`), `bd_board_outline()`, `mcp_boards`, `mcp_folders`. **The database is the referee**: who may use a
 template (`view` on it + `boards.create`), who may publish (`templates.publish`), the copy's ids and mapping, the copy being private, the cap.
@@ -47,7 +47,7 @@ the business** (title, category, `hx-confirm` "Every Member will see it"). **On 
 the one under the view's centre) · SVG of the board · SVG of the frame.
 
 ## Files (exactly these)
-- `db/015_seed_templates.sql` (below)
+- `db/016_seed_templates.sql` (below)
 - `html/templates/{index,view,use,save,publish}.php`, `html/boards/{duplicate,export}.php`
 - `app/features/templates/{queries,present,write}.php`
 - `app/views/templates/{index,view}.php`, `app/views/templates/partials/{card,use-form,board-actions,category-tile}.php`
@@ -76,7 +76,7 @@ the one under the view's centre) · SVG of the board · SVG of the frame.
   `Content-Type: image/svg+xml; charset=utf-8`, `Content-Disposition: attachment; filename="{title}.svg"`, `Content-Security-Policy: sandbox`;
   logs `board.export` (`after`: format, scope, items, truncated). POST (CSRF) `format=png&scope=` → logs `board.export` and answers 204.
 
-## The seed — `db/015_seed_templates.sql` (shipped, `owner_member_id` NULL, `created_by` NULL; idempotent: every INSERT `ON CONFLICT (id) DO NOTHING`)
+## The seed — `db/016_seed_templates.sql` (shipped, `owner_member_id` NULL, `created_by` NULL; idempotent: every INSERT `ON CONFLICT (id) DO NOTHING`)
 Board ids `7e000000-0000-4000-8000-00000000000N` (N = 1…6); an item `7e00000N-0000-4000-8000-0000000000KK` (KK = two hex digits, the row's number
 below). Per template **three INSERT statements in this order**: its frames; its other non-connector items; its connectors (each needs what it stands
 on). `z` = `a0`, `a1`, … `a9`, `aA`, `aB` in the item order below. A child's x/y are relative to its frame's top-left (Miro's convention). Stickies are
@@ -119,7 +119,7 @@ board; template sharing beyond the three scopes; duplicating a frame (slice 2's 
 
 ## Proof (`tests/phase3/slice8/run.sh`: scratch database `bd_dev8`; php -S on 9101, the fake kernel on 9102, the fake MaluDB/MaluMail on 9103; Playwright from `/var/www/web/node_modules` at 375 × 740 and 1280 × 800; the registry `--check`)
 1. The seed: six shipped templates, owner NULL, the item counts (7, 7, 9, 12, 12, 11), every child inside its frame's box, the flowchart's six
-   connectors attached with their captions; re-applying `db/015` changes nothing.
+   connectors attached with their captions; re-applying `db/016` changes nothing.
 2. The gallery as a Member (six shipped), filtered by category and scope; an external sees none; a Viewer sees them but has no **Use**.
 3. Use the retrospective into a folder: a private board owned by the Member with 7 items and the frames' children mapped; Duplicate a board ("(copy)"
    title); Save as template (personal — another Member cannot see it); Publish as an admin (every insider sees it, an external does not); a Member's
@@ -139,3 +139,24 @@ board; template sharing beyond the three scopes; duplicating a frame (slice 2's 
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-11)
+
+**Built** (a Sonnet 5.5 worker): the gallery (`html/templates/index.php`, category and whose chips as plain links keeping each other, cards in slice 1's look with the scope chip and the category's tile or the board's preview, **Use** opening the title-and-folder form in place in a `<details>` — no JavaScript needed — and a Viewer shown a Preview only), a template's page (header, chips, the outline through `outline_html()`, the Use card, Open on the canvas, Delete for the maker of a personal or business template and never for a shipped one), the four actions each one `bd_board_duplicate()` (+ `bd_folder_add()` when a folder is given) — `board_duplicate`, `template_use`, `template_save`, `template_publish` — with `app/features/templates/{queries,present,write}.php`, **Copies and templates** on the settings page (`board-actions.php`: Duplicate, Save as template, Publish for an admin with its `hx-confirm`), the board menu's Export group (`#export-menu`), the export door (`html/boards/export.php`: GET the SVG, POST the PNG's log → 204) and the island's `ui/export.ts`; **`db/016_seed_templates.sql`** (generated, idempotent) seeds the six shipped templates. The registry reads 2 screens and 4 actions built, `template_publish` the approval.
+
+**Proven** by `tests/phase3/slice8/run.sh` — **235 checks under php -S and 235 under a real Apache** (templates 51 — two added at review for db/017 —, duplicate 66, export 41, json 35, browser 42), then every earlier suite on both: the seed (six shipped templates, no owner, 7/7/9/12/12/11 items, all 23 children inside their frames' boxes, the flowchart's six attached connectors with "yes" and "no", re-applying changes nothing, no search rows); the gallery (shipped first then by title, `category=`/`scope=`, an external sees none, a Viewer sees six and has no Use, a stranger's personal template is neither listed nor opened); the page (outline, Open, no Delete for a shipped one); Use into a folder (a private board of the Member's, 7 items, the frames' children mapped to the new frames, the template untouched); Duplicate ("(copy)", the connector's ends mapped to the copies, nothing shared with the source, a viewer's copy hers); Save as template (personal, category or `other`); Publish (a Member refused 403 — and the database says the same in its words —, an admin's seen by every insider and not by an external; an agent holds no right); the registry (`template_publish` pauses `other`, the other three do not); the export door (image/svg+xml, attachment, `Content-Security-Policy: sandbox`, a frame's export frame-relative, 404 without access, 403 without the right, an empty board an empty `<svg>`, 450 items refused 422 with the sentence and the crowd's frame exported whole, exactly 400 allowed, the PNG log 204, each logged as `board.export`); JSON mode on everything and the log vocabulary; the browser — real downloads read back as PNGs (the view at twice the stage's pixels, the selection 3496 × 1296, a frame 1600 × 1200, pixels sampled), the SVGs, the greyed entries, the gallery and the forms at 375 and 1280, a folder chosen through the record picker, Publish's confirm dismissed then accepted, no console error.
+
+**Found and fixed:** the spec named `db/015`; slice 7 had taken it, so the seed is **`db/016_seed_templates.sql`** (this spec, the consistency record and the design now say so). db/010 keeps a shipped template's *board* out of the search index but its items' words were indexed — the seed deletes them (the db/010 trigger stays as it is: a lookup on every item write was not worth it for a template that never changes). **Open for the planning model:** the spec says a shipped template's level is `view` for everyone, but db/006's wall gives a Boards admin `full` on every board, so an admin can edit a shipped template on its canvas and save versions of it; nothing here changes the level (a level is the schema's meaning) — the page offers an admin no Delete for one.
+
+**Decisions taken here (within the spec):**
+1. **The PNG is drawn by the island into a canvas of its own** from the store with the canvas's draw functions (`drawItem`, `drawConnector`), not `stage.toDataURL`: the stage draws what the camera shows (culled, flat below 40 %), so a box outside the view or below 40 % could not be had from it. A selection or a frame is 2 px to a canvas unit whatever the zoom (at most 4096 px a side); the view is twice what the screen shows. A selection holds the selected items, a selected frame's children and the connectors between them, 24 around; the background is the board's colour. An image not yet loaded is its placeholder.
+2. **The gallery lists no one else's personal template, even to a Boards admin** (who can open one by its address): it is for choosing what to use. `scope=mine` means `personal`.
+3. **The rights are asked before the board** (slice 7's rule), so a Member's publish is refused 403 "You may not publish a business template."; the database's own sentence is proven by calling the function directly.
+4. **A card's picture is the board's own preview** (`/boards/{id}/thumbnail`, slice 2's door) when it has one, else the category's tile — not `/files/{id}/256`, which does not serve a board's preview.
+5. **Ids with several forms on a page** take the template's id as a suffix (`template-form-field-title-{id}`); the page with one form uses the bare name. The settings page's three forms use `-save` and `-publish`.
+6. **A frame's SVG is named `{board} — {frame}.svg`**, the board's `{board}.svg` (names made safe: an ASCII fallback and `filename*`). The canvas menu's Duplicate and Save as template are links to the settings page's forms.
+7. **A deleted template lands on `/boards`** with slice 1's notice (the delete handler is slice 1's and unchanged).
+8. **A shipped template is `view` for everyone, a Boards admin included** — decided by the planning model at review (the worker found db/006's wall giving
+   an admin `full` on every board, shipped templates too, against "its level is `view` for everyone" above): **`db/017_shipped_templates_view_only.sql`**
+   adds one term to the `LEAST()` of `bd_board_level()` and `bd_member_board_levels()`; an admin's edit of a shipped template is refused and writes no op,
+   and both functions agree (three checks in `templates.php`). Only a copy is ever edited.

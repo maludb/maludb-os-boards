@@ -22,7 +22,7 @@ documents, before doing anything else.
   first exemplar) is built and proven** (`tests/phase3/slice2/run.sh`, 2026-10-11). **Slice 3 (live — the second exemplar, the relay) is built
   and proven** (`tests/phase3/slice3/run.sh`, 2026-10-11). **Slice 4 (connectors and frames) is built and proven** (`tests/phase3/slice4/run.sh`,
   2026-10-11). **Slice 5 (pen, images and files) is built and proven** (`tests/phase3/slice5/run.sh`, 2026-10-11) — the planning model's
-  slices are done. **Slice 6 (comments, mentions and notifications) is built and proven** (`tests/phase3/slice6/run.sh`, 2026-10-11, a Sonnet 5.5 worker). **Slice 7 (history, versions and restore) is built and proven** (`tests/phase3/slice7/run.sh`, 2026-10-11, a Sonnet 5.5 worker). Next: slices 8–10 and Phase 4 by Sonnet 5.5 workers (D16).
+  slices are done. **Slice 6 (comments, mentions and notifications) is built and proven** (`tests/phase3/slice6/run.sh`, 2026-10-11, a Sonnet 5.5 worker). **Slice 7 (history, versions and restore) is built and proven** (`tests/phase3/slice7/run.sh`, 2026-10-11, a Sonnet 5.5 worker). **Slice 8 (templates, duplicate and export) is built and proven** (`tests/phase3/slice8/run.sh`, 2026-10-11, a Sonnet 5.5 worker). Next: slices 9–10 and Phase 4 by Sonnet 5.5 workers (D16).
 
 ## Where things stand
 

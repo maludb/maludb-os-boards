@@ -27,6 +27,7 @@ import { ZoomBar } from './ui/zoom';
 import { RailBridge, type CommandDetail } from './ui/rail';
 import { Clipboard } from './ui/clipboard';
 import { Thumbnails } from './ui/thumbnail';
+import { Exports } from './ui/export';
 import { installTestHook } from './ui/testhook';
 import { Presence } from './ui/presence';
 import { ConnectorTool } from './tools/connector';
@@ -150,6 +151,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
   b.upload = (files: File[], at: { x: number; y: number } | null) => uploader.upload(files, at);
   const inline = new InlineEditor(b);
   const navigator = new Navigator(b);
+  new Exports(b, csrf, background);
   new Minimap(b);
   const toolbar = new Toolbar(b, document.getElementById('board-toolbar'));
 

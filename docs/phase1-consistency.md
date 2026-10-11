@@ -147,7 +147,7 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 - **When the worker runs it:** interval versions every pass; compaction and the item purge nightly at 03:xx in the business's time zone.
 
 ### Templates and export (slice 8)
-- **The six shipped templates** are fixed item by item (ids `7e…`), seeded by `db/015_seed_templates.sql`.
+- **The six shipped templates** are fixed item by item (ids `7e…`), seeded by `db/016_seed_templates.sql`.
 - **A template's page** is its outline.
 - **PNG export** is made by the client.
 
@@ -157,7 +157,7 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 - **`items_arrange`:** `cluster` groups by fill colour.
 - **Search** leaves templates out.
 - **The shares' SQL** is fixed and proven as the consumer's agent.
-- **The functions:** `db/016_dispatch_loop.sql`.
+- **The functions:** `db/018_dispatch_loop.sql`.
 
 ### Home and admin (slice 10)
 - **Purge** lives on the admin's page.
@@ -180,8 +180,8 @@ decided where the design was silent, what it changed in Phase 0's files, and how
    `trash_purge`.
 8. **A person shared by name is notified** (`share`) by slice 1's `board_share` handler. Slice 6 had assumed it, and slice 1 had not
    written it.
-9. **Migrations are numbered in build order:** db/014 `live` (slice 3), db/015 `seed_templates` (slice 8), db/016 `dispatch_loop`
-   (slice 9). Two drafts both claimed 014.
+9. **Migrations are numbered in build order:** db/014 `live` (slice 3), db/015 `interval_versions_not_templates` (slice 7), db/016 `seed_templates` and db/017
+   `shipped_templates_view_only` (slice 8), db/018 `dispatch_loop` (slice 9). Two drafts both claimed 014.
 10. **The manifest's doors** gained the rail and the file door's `?size=`, and its log events `item.restore`.
 
 11. **Found in Phase 2:** the shell spec and walls-and-sharing named different colours for the level badge, and different files for the
@@ -232,5 +232,5 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
 first exemplar —, slice 3, live — the second —, slice 4, connectors and frames, and slice 5, pen, images and files, are built and proven**
-(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model); **slice 7, history, versions and restore, is built and proven** (2026-10-11, a Sonnet 5.5 worker).
-Next: slices 8–10 and Phase 4, Sonnet 5.5 workers (D16).
+(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model); **slice 7, history, versions and restore, is built and proven** (2026-10-11, a Sonnet 5.5 worker); **slice 8, templates, duplicate and export, is built and proven** (2026-10-11, a Sonnet 5.5 worker, db/016).
+Next: slices 9–10 and Phase 4, Sonnet 5.5 workers (D16).

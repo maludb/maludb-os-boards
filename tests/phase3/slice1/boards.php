@@ -70,7 +70,7 @@ ok(!str_contains(page($jp, '/boards?updated=30')['body'], 'board-card-' . $id3) 
 echo "5. Settings\n";
 $st = page($jp, "/boards/$id/settings");
 ok($st['code'] === 200 && str_contains($st['body'], 'id="board-form-field-title"') && str_contains($st['body'], 'id="board-settings-lock"') && str_contains($st['body'], 'id="board-settings-delete"')
-    && str_contains($st['body'], 'id="board-settings-duplicate" disabled'), 'the owner\'s settings: the form, Lock, Delete, Duplicate shown disabled (slice 8)');
+    && str_contains($st['body'], 'id="board-duplicate-form"') && str_contains($st['body'], 'id="board-template-form"'), 'the owner\'s settings: the form, Lock, Delete, and slice 8\'s Duplicate and Save as template');
 $before = last_activity_id();
 $r = post_as($jp, '/boards/save.php', ['board' => $id, 'title' => 'SMOKE Q4 retro (final)', 'background' => 'grid', 'background_color' => '#e7f5ff', 'start_view_x' => '120', 'start_view_y' => '-40', 'start_view_zoom' => '1.5']);
 ok($r['code'] === 200 && body_json($r)['record_id'] === $id && body_json($r)['changed'] === ['title', 'background', 'start_view'], 'an update saves the title, the background and the start view (changed named)');

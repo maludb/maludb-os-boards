@@ -943,4 +943,6 @@ The open questions:
   **160 checks under php -S, 158 under Apache**, then every earlier suite; **db/015** (no interval version of a shipped template). Found: the batch summary cannot tell a move from an update ("changed"); PDO reads `?` in jsonb's
   `?` operator; `BD_WORKER_NOW` does not move `worker_passes.started_at`.
 
-  **NEXT:** slices 1–7 are built → Sonnet 5.5 workers for slices 8–10 and Phase 4 (D16), each verified by the planning model.
+- **2026-10-11: SLICE 8 — TEMPLATES, DUPLICATE AND EXPORT — BUILT AND PROVEN** (Sonnet 5.5 worker; `docs/build-specs/templates-export.md` "Built and proven"): the gallery and a template's page, the six shipped templates (**db/016**, db/015 being slice 7's), Use / Duplicate / Save as template / Publish (one `bd_board_duplicate()` each), Copies and templates on the settings page, the PNG export from the island and the SVG door; `tests/phase3/slice8/run.sh` **235 checks under php -S and under Apache (two added at review: db/017, a shipped template view for everyone, an admin included)**, then every earlier suite. Found: a shipped template's items were in the search index (the seed removes them); a Boards admin has `full` on a shipped template (the spec says `view` for everyone — open).
+
+  **NEXT:** slices 1–8 are built → Sonnet 5.5 workers for slices 9–10 and Phase 4 (D16), each verified by the planning model.

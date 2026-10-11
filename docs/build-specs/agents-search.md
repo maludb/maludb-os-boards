@@ -12,7 +12,7 @@ the board's level, one `bd_commit_ops()` batch, `record_id` = the seq, `canvas-c
 (`/srv/apps/spaces/app/features/agents/dispatch.php` and `docs/build-specs/agents-in-spaces.md` — port it: `sp_` → `bd_`, messages → comments,
 channels → boards).
 
-Schema and functions used (db/006–013, never modified, and this slice's **`db/016_dispatch_loop.sql`** — additive functions only, below):
+Schema and functions used (db/006–013, never modified, and this slice's **`db/018_dispatch_loop.sql`** — additive functions only, below):
 `agent_dispatches`, `comments`, `comment_mentions`, `bd_notify()`, `bd_comment_create()` (slice 6 already makes the dispatches), `search_index`,
 `bd_search_put()`, `mcp_search`, `mcp_boards`, `mcp_members`, `mcp_agent_dispatches`, `mcp_activity_log`, `mcp_folders`, `mcp_folder_entries`,
 `bd_member_board_levels()`, `bd_commit_ops()`, `bd_board_outline()`. **The database is the referee**: which agent is dispatched (slice 6 did that),
@@ -63,7 +63,7 @@ frame being a frame) — PHP never decides whether an agent should answer.
    `board_id`; never the words.
 **K8** (the kernel waking an agent) is owed: when it lands, step 3's call becomes the wake call; nothing else changes.
 
-## `db/016_dispatch_loop.sql` (additive; `SECURITY DEFINER`, `search_path = public`; `REVOKE … FROM PUBLIC`, `GRANT EXECUTE … TO boards_rw`)
+## `db/018_dispatch_loop.sql` (additive; `SECURITY DEFINER`, `search_path = public`; `REVOKE … FROM PUBLIC`, `GRANT EXECUTE … TO boards_rw`)
 - `bd_thread_text(p_root uuid, p_before timestamptz, p_n integer) RETURNS text` — the root and its live replies created before `p_before`, the last
   `p_n` (12), oldest first, one line each: `{display_name}: {plain_text ≤ 300}`.
 - `bd_dispatches_due(p_limit integer, p_now timestamptz)` RETURNS TABLE (`dispatch_id bigint, agent_member_id bigint, agent_name text,
@@ -94,7 +94,7 @@ frame being a frame) — PHP never decides whether an agent should answer.
   - anything else → `22023`.
 
 ## Files (exactly these)
-- `db/016_dispatch_loop.sql`
+- `db/018_dispatch_loop.sql`
 - `html/items/arrange.php`, `html/search.php`, `html/admin/{agents,dispatches,dispatch-retry}.php`
 - `app/features/agents/{dispatch,queries,present}.php` (`dispatches_pass()`, `dispatch_agent()`, `dispatch_finish()`, `dispatch_fail()`, `poll_running()`,
   `poll_waiting()`, `dispatch_context()`; the pages' queries), `app/features/search/{queries,present,write}.php` (the search and the catch-up),
@@ -179,7 +179,7 @@ or files; the agents' skills and job descriptions (Phase 0's).
 - The backoff 2, 4, 8, 16 minutes, five attempts; a run polled every 20 s for 10 minutes; an approval wait polled every minute.
 - `items_arrange`'s padding 40 and default gap 40; `cluster` groups by fill colour; without a frame the items must share one parent.
 - Search leaves out templates' boards and items.
-- The slice writes `db/016_dispatch_loop.sql` (functions only; numbered by the planning model: db/014 is slice 3's, db/015 slice 8's).
+- The slice writes `db/018_dispatch_loop.sql` (functions only; numbered by the planning model: db/014 is slice 3's, db/015 slice 7's, db/016–017 slice 8's).
 - (Reconciled by the planning model:) the centres come from canvas-core's `bd_layout()`; `items_layout()` is slice 2's create-ops wrapper over it.
 
 ## Open questions

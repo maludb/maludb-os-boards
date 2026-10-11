@@ -2,7 +2,7 @@
 /**
  * A board's settings (screen `board-settings`): the header (crumbs Boards › title, the level badge, Share), the form — title, description,
  * background (dots / grid / plain and one of the theme's eight colours), the start view (x, y, zoom — or none) — for an editor; the folders I
- * keep it in (add with the `folder` picker, remove); Lock / Unlock and Delete for its owners; Duplicate (slice 8). Below `edit` the values
+ * keep it in (add with the `folder` picker, remove); Lock / Unlock and Delete for its owners; slice 8's Copies and templates (Duplicate, Save as template, Publish). Below `edit` the values
  * are read-only. Data: b (find_board), may [edit, full], errors, notice
  */
 $id = (string) $b['board_id'];
@@ -91,6 +91,7 @@ $share = hx_link('/boards/' . $id . '/share', '<i class="feather-users me-1"></i
                     <button type="submit" class="btn btn-light btn-touch mt-2" id="board-settings-folder-add-btn">Add to folder</button>
                 </form>
             </div></div>
+            <?= view('templates/partials/board-actions.php', ['board' => $b, 'level' => (string) $b['my_level']]) ?>
             <div class="card mb-0" id="board-settings-actions"><div class="card-header"><h5 class="card-title mb-0">The board as a whole</h5></div><div class="card-body d-grid gap-2">
                 <?php if ($may['full']): ?>
                     <form method="post" action="/boards/lock.php" hx-post="/boards/lock.php" hx-target="#page-content" hx-swap="innerHTML">
@@ -98,7 +99,6 @@ $share = hx_link('/boards/' . $id . '/share', '<i class="feather-users me-1"></i
                         <button type="submit" class="btn btn-light btn-touch w-100" id="board-settings-lock"><i class="feather-<?= $b['is_locked'] ? 'unlock' : 'lock' ?> me-1"></i><?= $b['is_locked'] ? 'Unlock' : 'Lock' ?></button>
                     </form>
                 <?php endif; ?>
-                <button type="button" class="btn btn-light btn-touch w-100" id="board-settings-duplicate" disabled title="Built by slice 8"><i class="feather-copy me-1"></i>Duplicate <span class="fs-11 text-muted ms-1">(built by slice 8)</span></button>
                 <?php if ($may['full']): ?>
                     <form method="post" action="/boards/delete.php" hx-post="/boards/delete.php" hx-target="#page-content" hx-swap="innerHTML" hx-confirm="Delete <?= e($b['title']) ?>? It moves to the trash for 30 days.">
                         <?= csrf_field() ?><input type="hidden" name="board" value="<?= e($id) ?>">

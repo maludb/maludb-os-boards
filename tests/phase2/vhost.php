@@ -30,7 +30,7 @@ foreach (['' => 'board-view', '/settings' => 'board-settings', '/share' => 'boar
     $r = page($jp, "/boards/$board$suffix");
     ok($r['code'] === 200 && str_contains($r['body'], 'data-screen="' . $screen . '"'), "/boards/{board}$suffix → boards/" . ($suffix === '' ? 'view' : ltrim($suffix, '/')) . '.php with the board');
 }
-ok(str_contains(page($jp, "/templates/$board")['body'], 'data-screen="template-view"'), '/templates/{board} → templates/view.php');
+ok(str_contains(page($jp, '/templates/7e000000-0000-4000-8000-000000000001')['body'], 'data-screen="template-view"') && page($jp, "/templates/$board")['code'] === 404, '/templates/{board} → templates/view.php (a shipped template; a board that is not a template is 404 there — slice 8)');
 // the doors: rewritten to their files — answering as themselves once their slice built them (slice 2: state, ops, rail, thumbnail), 404 until then
 $doorOk = ['/state' => static fn ($r) => $r['code'] === 200 && isset(body_json($r)['last_seq']), '/ops' => static fn ($r) => $r['code'] === 200 && isset(body_json($r)['batches']),
            '/rail' => static fn ($r) => $r['code'] === 200 && str_contains($r['body'], 'rail-item'), '/thumbnail' => static fn ($r) => $r['code'] === 404 && str_contains($r['body'], 'no preview yet')];
