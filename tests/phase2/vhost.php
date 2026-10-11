@@ -15,7 +15,7 @@ foreach (['/sso' => 403, '/sso/logout' => 405] as $path => $want) {
     ok(req('GET', $path)['code'] === $want, "GET $path → $want (the receivers answer at their extension-less names)");
 }
 ok(page($j, '/settings/tokens/')['code'] === 200 && page($j, '/settings/tokens')['code'] === 200, '/settings/tokens/ and /settings/tokens both reach settings/tokens/index.php');
-ok(page($j, '/settings/')['code'] === 200 && page($j, '/settings')['code'] === 200, '/settings/ and /settings both reach settings/index.php (slice 6\'s placeholder)');
+ok(page($j, '/settings/')['code'] === 200 && page($j, '/settings')['code'] === 200, '/settings/ and /settings both reach settings/index.php (slice 6\'s screen)');
 foreach (['boards', 'folders', 'templates', 'admin'] as $d) {
     ok(page($j, "/$d")['code'] === 200 && page($j, "/$d/")['code'] === 200, "/$d and /$d/ both reach $d/index.php");
 }

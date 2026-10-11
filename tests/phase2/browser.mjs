@@ -178,7 +178,7 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   const html = new URL('../../html/', import.meta.url).pathname;
   const stub = (f) => fs.existsSync(html + f) && fs.readFileSync(html + f, 'utf8').includes('render_nav_stub(');
   const all = [['/', 'index.php'], [`/boards/${board}`, 'boards/view.php'], [`/boards/${board}/outline`, 'boards/outline.php'], [`/boards/${board}/comments`, 'boards/comments.php'],
-    [`/boards/${board}/history`, 'boards/history.php'], ['/templates', 'templates/index.php'], [`/templates/${board}`, 'templates/view.php'], ['/notifications', 'notifications.php'],
+    [`/boards/${board}/history`, 'boards/history.php'], ['/templates', 'templates/index.php'], [`/templates/${board}`, 'templates/view.php'], ['/notifications', 'notifications/index.php'],
     ['/settings/', 'settings/index.php'], ['/search', 'search.php'], ['/admin', 'admin/index.php'], ['/admin/usage', 'admin/usage.php'], ['/admin/settings', 'admin/settings.php'],
     ['/admin/agents', 'admin/agents.php'], ['/admin/dispatches', 'admin/dispatches.php']];
   const pages = all.filter(([, f]) => stub(f)).map(([u]) => u);

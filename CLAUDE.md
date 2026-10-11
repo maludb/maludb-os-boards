@@ -23,7 +23,7 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
 - Proofs, one after the other (they share ports 9101–9103): `tests/phase0/run.sh` (the kit), `tests/phase0/schema.sh` (the schema),
   `tests/phase1/check_specs.sh` (the specs' claims), `tests/phase2/run.sh` and `BD_APP=apache tests/phase2/run.sh` (the shell, under php -S and
   under a user-level Apache rendering the deploy vhost — no root), `tests/phase3/slice1/run.sh`, `tests/phase3/slice2/run.sh`,
-  `tests/phase3/slice3/run.sh`, `tests/phase3/slice4/run.sh`, `tests/phase3/slice5/run.sh` (each also with `BD_APP=apache`; slice 5 needs `pdftoppm`; slice 3 needs `mcp/venv` — `python3 -m venv mcp/venv && mcp/venv/bin/pip install -r
+  `tests/phase3/slice3/run.sh`, `tests/phase3/slice4/run.sh`, `tests/phase3/slice5/run.sh`, `tests/phase3/slice6/run.sh` (each also with `BD_APP=apache`; slice 5 needs `pdftoppm`; slice 3 needs `mcp/venv` — `python3 -m venv mcp/venv && mcp/venv/bin/pip install -r
   mcp/requirements.txt`, gitignored, the installer makes the real one). A slice's suite re-runs every earlier one (`BD_SKIP_EARLIER=1` skips that
   while working). After a synthetic CDP pinch, Chromium turns no Playwright `tap()` into a click: a proof waits for a tap's effect, and clicks there. Kill a proof's processes by pid
   (`pkill -f` matches the shell that runs it); the boards_* roles are cluster-wide, so only the newest scratch env's password works.
@@ -39,3 +39,7 @@ A Miro-style whiteboard, an application of the MaluDB Business OS (catalog key `
 - Every board page, door and handler starts with `bd_board_or_404($pdo, $board, <level>)` (`app/features/boards/wall.php`): the database
   decides the level and answers 404/403 in its own words through `bd_guard()`. A slice's first step on a screen is removing its
   `render_nav_stub()` call; the Phase 2 suite follows the placeholders still owed.
+- Comments and notifications (slice 6): a comment's text is plain text with `@Full Name` mentions turned into runs by `comment_text_to_rich()` (a name two records share stays text); a mention never grants — the
+  needs-share prompt posts slice 1's `board_share`; the thread is ONE partial (`app/views/comments/partials/thread.php`) for the comments page and the canvas's rail, answered again by every comment handler
+  over HTMX with `HX-Trigger: commentChanged`; pins are a DOM layer read every 15 s (`sync/pins.ts`), never ops; the Comment tool is Shift+C. The worker's `outbox` pass (`app/features/worker/outbox.php`) is
+  Spaces' port: email at most once, K6 texts retried with a backoff, the digest at 07:00 in the member's zone. A suite that dies on a parse error shows only in its exit status: `php -l` every test file you touch.

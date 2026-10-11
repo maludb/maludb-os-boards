@@ -125,3 +125,14 @@ label.btn-touch { display: flex; }
 @media (max-width: 575.98px) { #share-owner-transfer-form, #share-owner-transfer-form .share-picker { width: 100%; } }
 fieldset[disabled] .board-swatch { cursor: default; opacity: .7; }
 .form-select.share-level { min-width: 10rem; }
+
+/* slice 6: the comments page and the thread partial (also inside the canvas's rail), the notifications list, the composer */
+.comment-card .comment-text, .comment-thread .comment-text { overflow-wrap: anywhere; word-break: break-word; }
+.comment-thread .comment-bubble { border-left: 3px solid var(--bs-border-color, #dee2e6); padding-left: .75rem; }
+.comment-thread .comment-bubble.is-agent { border-left-color: #0e7490; }
+.comment-avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #3454d1; color: #fff; font-weight: 700; font-size: 13px; flex: 0 0 auto; }
+.comment-avatar.is-agent { background: #0e7490; }
+.comment-composer textarea { min-height: 72px; }
+.comment-composer .record-picker-field { max-width: 100%; }
+.notification-row.unread { background: var(--bs-primary-bg-subtle, #eef2ff); }
+.notification-row .notification-open { background: none; border: 0; padding: 0; text-align: left; color: inherit; width: 100%; }

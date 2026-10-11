@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T13:43:57+00:00",
+    "generated_at": "2026-10-11T19:08:11+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -146,8 +146,8 @@
                 "open",
                 "mine"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "notifications": {
             "screen": "notifications",
@@ -155,8 +155,8 @@
             "section": "Comments, mentions and notifications (slice 6)",
             "when": "my notices, unread first",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "settings": {
             "screen": "settings",
@@ -164,8 +164,8 @@
             "section": "Comments, mentions and notifications (slice 6)",
             "when": "my preferences: which notices by email and by text, the morning digest",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "board-history": {
             "screen": "board-history",
@@ -1232,7 +1232,7 @@
             "who": "level comment",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "comment_reply": {
             "action": "comment_reply",
@@ -1259,7 +1259,7 @@
             "who": "level comment",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "comment_resolve": {
             "action": "comment_resolve",
@@ -1280,7 +1280,7 @@
             "who": "level comment",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "comment_reopen": {
             "action": "comment_reopen",
@@ -1301,7 +1301,7 @@
             "who": "level comment",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "comment_edit": {
             "action": "comment_edit",
@@ -1328,7 +1328,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "comment_delete": {
             "action": "comment_delete",
@@ -1349,7 +1349,7 @@
             "who": "own or level full",
             "agent": true,
             "record_id": "the comment",
-            "built": false
+            "built": true
         },
         "prefs_save": {
             "action": "prefs_save",
@@ -1394,7 +1394,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the prefs",
-            "built": false
+            "built": true
         },
         "notification_read": {
             "action": "notification_read",
@@ -1415,7 +1415,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the notification",
-            "built": false
+            "built": true
         },
         "notifications_read_all": {
             "action": "notifications_read_all",
@@ -1436,7 +1436,7 @@
             "who": "own",
             "agent": true,
             "record_id": "the count",
-            "built": false
+            "built": true
         },
         "version_save": {
             "action": "version_save",

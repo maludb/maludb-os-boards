@@ -18,7 +18,7 @@ $editable = bd_level_at_least($level, 'edit') && (!$b['is_locked'] || bd_level_a
                     <a class="btn btn-primary btn-touch" href="/boards/<?= e($id) ?>/outline" id="board-noscript-outline"><i class="feather-list me-1"></i>Open the outline</a>
                 </div></noscript>
             </div>
-            <?= view('boards/partials/toolbar.php', ['editable' => $editable]) ?>
+            <?= view('boards/partials/toolbar.php', ['editable' => $editable, 'canComment' => bd_level_at_least($level, 'comment')]) ?>
             <?= view('boards/partials/bottombar.php', ['editable' => $editable]) ?>
             <div class="board-banner d-none" id="board-banner" role="status"></div>
             <?= view('boards/partials/live-banner.php') ?>

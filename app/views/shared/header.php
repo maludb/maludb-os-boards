@@ -44,10 +44,8 @@ $q = ($screen ?? '') === 'search' ? (string) ($_GET['q'] ?? '') : '';
                 <div class="nxl-h-item d-md-none">
                     <a href="/search" class="nxl-head-link me-0" id="header-search-link" aria-label="Search" hx-get="/search" hx-target="#page-content" hx-push-url="/search"><i class="feather-search"></i></a>
                 </div>
-                <div class="nxl-h-item">
-                    <a href="/notifications" class="nxl-head-link me-0 position-relative" id="bell" aria-label="Notifications" hx-get="/notifications" hx-target="#page-content" hx-push-url="/notifications">
-                        <i class="feather-bell"></i><?php if ($unread > 0): ?><span class="badge text-bg-danger nxl-h-badge" id="bell-count"><?= $unread > 99 ? '99+' : (int) $unread ?></span><?php endif; ?>
-                    </a>
+                <div class="nxl-h-item" id="header-bell" hx-get="/notifications/bell" hx-trigger="every 60s, notificationsChanged from:body" hx-swap="innerHTML">
+                    <?= view('notifications/partials/bell.php', ['unread' => $unread]) ?>
                 </div>
                 <?= view('shared/app-switcher.php') ?>
                 <div class="nxl-h-item dark-light-theme">

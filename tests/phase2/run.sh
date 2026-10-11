@@ -9,7 +9,7 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 export BD_DEV_DB=${BD_DEV_DB:-bd_dev_p2} BD_DEV_ENV=${BD_DEV_ENV:-/tmp/bd-dev-p2.env} BD_DEV_STATE=${BD_DEV_STATE:-/tmp/bd-dev-p2-state} SHOTS=${SHOTS:-/tmp/bd-shots}
 [ -e "$ROOT/config/.env" ] && grep -q '^DB_PASSWORD=.' "$ROOT/config/.env" && { echo "ABORT: the application looks installed (config/.env has DB_PASSWORD); the proofs are for a scratch clone"; exit 2; }
-for port in 9101 9102 9103 9107; do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done
+for port in 9101 9102 9103 9107; do for _ in $(seq 30); do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null || break; sleep 0.5; done; (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done  # a port the previous suite just freed gets 15 s
 mkdir -p "$SHOTS"
 rm -rf "$BD_DEV_STATE"
 "$ROOT/tests/setup_dev.sh" >/dev/null || { echo "setup failed"; exit 1; }

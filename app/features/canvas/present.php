@@ -41,6 +41,9 @@ function canvas_mount(array $b, string $level, array $me): array
     $s = one_row(db(), 'SELECT poll_seconds, item_soft_budget, item_hard_cap, batch_max_ops, live_enabled, drawing_max_points, max_upload_mb FROM bd_settings WHERE id = 1') ?? [];
     $item = isset($_GET['item']) && preg_match('/^[0-9a-f-]{36}$/', (string) $_GET['item']) ? (string) $_GET['item'] : '';
     $comment = isset($_GET['comment']) && preg_match('/^[0-9a-f-]{36}$/', (string) $_GET['comment']) ? (string) $_GET['comment'] : '';
+    if ($comment !== '') {                 // ?comment= may name a reply (a notice does): the island flies to the THREAD's pin
+        $comment = (string) (one_value(db(), 'SELECT thread_id::text FROM mcp_comments WHERE comment_id = CAST(:c AS uuid) AND board_id = CAST(:b AS uuid)', ['c' => $comment, 'b' => $id]) ?? '');
+    }
     $view = canvas_query_view();
     $attrs = [
         'id' => 'board-canvas', 'data-board' => $id, 'data-title' => (string) $b['title'], 'data-level' => $level,
@@ -49,7 +52,7 @@ function canvas_mount(array $b, string $level, array $me): array
         'data-csrf' => csrf_token(), 'data-live-url' => '/live',
         'data-state-url' => '/boards/' . $id . '/state', 'data-ops-url' => '/boards/' . $id . '/ops', 'data-ticket-url' => '/boards/' . $id . '/live-ticket',
         'data-thumbnail-url' => '/boards/' . $id . '/thumbnail', 'data-export-url' => '/boards/' . $id . '/export',
-        'data-upload-url' => '/files/upload.php', 'data-file-url' => '/files/', 'data-rail-url' => '/boards/' . $id . '/rail',
+        'data-upload-url' => '/files/upload.php', 'data-file-url' => '/files/', 'data-rail-url' => '/boards/' . $id . '/rail', 'data-comments-url' => '/boards/' . $id . '/comments',
         'data-poll-seconds' => (string) (int) ($s['poll_seconds'] ?? 3), 'data-soft-budget' => (string) (int) ($s['item_soft_budget'] ?? 4000),
         'data-hard-cap' => (string) (int) ($s['item_hard_cap'] ?? 10000), 'data-batch-max' => (string) (int) ($s['batch_max_ops'] ?? 500),
         'data-drawing-max-points' => (string) (int) ($s['drawing_max_points'] ?? 2000), 'data-max-upload-mb' => (string) (int) ($s['max_upload_mb'] ?? 25),

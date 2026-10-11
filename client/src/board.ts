@@ -11,7 +11,7 @@ import type { Toasts } from './ui/toast';
 import type { LiveConnection } from './sync/socket';
 import type { Presence } from './ui/presence';
 
-export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text' | 'connector' | 'frame' | 'pen' | 'highlighter' | 'eraser';
+export type ToolName = 'select' | 'hand' | 'sticky' | 'shape' | 'text' | 'connector' | 'frame' | 'pen' | 'highlighter' | 'eraser' | 'comment';
 
 export interface Board {
   boardId: string;
@@ -52,6 +52,8 @@ export interface Board {
   upload(files: File[], at: { x: number; y: number } | null): Promise<string[]>;
   /** the last pointer position on the canvas (paste goes there) */
   pointer: { x: number; y: number } | null;
+  /** comments (slice 6): start a thread at a canvas point; open one in the rail */
+  comments: { startThread(x: number, y: number): void; openThread(id: string): Promise<void> } | null;
   fire(name: string, detail: unknown): void;
   /** the frame (topmost) whose box holds the canvas point, not one of `except` */
   frameAt(x: number, y: number, except?: Set<string>): Item | null;

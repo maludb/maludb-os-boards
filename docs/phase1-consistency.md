@@ -217,9 +217,16 @@ decided where the design was silent, what it changed in Phase 0's files, and how
     inline copy answered a person who opened the file. The item's `data` carries `mime_type`, `byte_size` and `preview` beside `attachment_id`
     and `title`.
 
+18. **Found in slice 6:** comments-notifications.md said the Comment tool is `C`, which slice 4 gave the connector — Shift+C it is. It said "the pins:
+    `[{id, item_id, x, y, …}]`" without saying what an item's `x, y` are (the item's top-right corner plus the stored offset; `comments.anchor_x/y`
+    are that offset for a thread on an item) and the kit wraps a screen's JSON in `data` (`{data: {board_id, pins}}`). A notice's `record_uuid` is the
+    REPLY's id, so `?comment=` may name any comment of a thread and the island flies to the thread's root. The shell's bell was already `#bell` /
+    `#bell-count` (sso-shell.md) — `#header-bell` wraps it and polls. A mention needs the person's full display name.
+
 ## State
 
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
 first exemplar —, slice 3, live — the second —, slice 4, connectors and frames, and slice 5, pen, images and files, are built and proven**
-(2026-10-11) — the planning model's slices are done. Next: slices 6–10 and Phase 4, Sonnet 5.5 workers (D16).
+(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model).
+Next: slices 7–10 and Phase 4, Sonnet 5.5 workers (D16).

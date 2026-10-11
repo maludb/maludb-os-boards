@@ -44,7 +44,11 @@ captions), frames that hold their children, the navigator and the minimap, the a
 drop or paste, with thumbnails sized to the screen and an SVG always sandboxed; `GET /files/{id}` behind the board's wall —
 `tests/phase3/slice5/run.sh` (needs `pdftoppm`, poppler-utils).
 
-Next: slices 6–10 and Phase 4 (Sonnet 5.5 workers, design D16).
+**Slice 6, comments, mentions and notifications, is built and proven** (2026-10-11): the Comment tool (Shift+C) and pins on the canvas, `@` mentions of
+people, agents and departments (a mention never grants: an agent that cannot see the board is offered "Share it at edit?"), the thread in the rail and on the comments page, the bell,
+my notices and my settings, and the worker's outbox — email through MaluMail, texts through the kernel, the morning digest — `tests/phase3/slice6/run.sh`.
+
+Next: slices 7–10 and Phase 4 (Sonnet 5.5 workers, design D16).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

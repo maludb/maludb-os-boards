@@ -927,4 +927,13 @@ The open questions:
   the purges. `tests/phase3/slice5/run.sh` 77 checks under php -S, 51 under Apache, every earlier suite after it. Found: an SVG needs two URLs
   (a cached inline copy answered a person opening it); the canvas's notices took presses; a click in a multi-selection kept all of it.
 
-  **NEXT:** the planning model's slices (1–5) are done → Sonnet 5.5 workers for slices 6–10 and Phase 4 (D16), each verified by the planning model.
+- **2026-10-11: SLICE 6 — COMMENTS, MENTIONS AND NOTIFICATIONS — BUILT AND PROVEN** (Sonnet 5.5 worker; `docs/build-specs/comments-notifications.md` "Built and proven"; `canvas-core.md`
+  "Built in slice 6"): the Comment tool (Shift+C) and pins — a DOM layer over the stage, an item's following the item, read every 15 s and at once after the writer's own action; the
+  composer with "@" opening the record picker; mentions of people, agents and departments by the longest display name, a shared name never guessed; ONE thread partial for the comments page and the
+  canvas's rail; the needs-share prompt ("Share it at edit?" — a mention never grants) answered by slice 1's `board_share`; the comments page; the bell, `/notifications` and `/settings/`; and
+  the worker's `outbox` pass made real — email through MaluMail at most once, texts through the kernel's K6 with a backoff, the 07:00 digest in the member's own time zone, Spaces' rules
+  verbatim. `tests/phase3/slice6/run.sh` **279 checks under php -S, 278 under Apache**, then every earlier suite; no migration. Found: the Comment tool's `C` is the connector's (Shift+C); a
+  notice's record is the REPLY, so `?comment=` may name any comment of a thread; the scratch directory sync gives every member a default preferences row; a suite that dies on a parse error
+  only shows in its exit status.
+
+  **NEXT:** the planning model's slices (1–5) are done and slice 6 is built → Sonnet 5.5 workers for slices 7–10 and Phase 4 (D16), each verified by the planning model.

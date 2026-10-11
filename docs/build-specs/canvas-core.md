@@ -326,3 +326,23 @@ What the exemplar became, where it differs from the text above or adds to it. ca
   over first); the door mints the item's id and the island commits the create with it.
 - **The status notices on the canvas take no presses** (`pointer-events: none`), and a click without a drag on one of several selected items
   selects that one alone (`tools/select.ts`).
+
+## Built in slice 6 — what comments added to the island (2026-10-11)
+- **Pins are a DOM layer, not Konva nodes** (`render/pins.ts`, `PinLayer`): a `div#board-pins` in the mount, one `button.board-pin#pin-{id}` per thread (the
+  author's initial, a reply badge, `board-pin-agent`, `board-pin-resolved`), placed by `translate()` from `View.toScreen()` on every camera or store change
+  (one rAF). A pin on an item is the item's box's top-right corner plus the stored offset — derived from the live store, so it follows the item; a thread at a
+  point is the point. Pins sharing a spot fan out 12 px. A real button is focusable and tappable at 375 px, and the island's gestures never see it.
+- **Pins are read, not pushed** (`sync/pins.ts`, `PinSync`): comments are not ops, so the relay carries none (live-relay.md is unchanged).
+  `GET /boards/{board}/comments?format=pins` (JSON, `data.pins`) every 15 s while the tab is visible, at once on the `commentChanged` event the comment
+  handlers send over `HX-Trigger`, when the tab comes back, and with `resolved=1` while the rail's "Show resolved" is ticked. The mount's
+  `data-comments-url` is its address.
+- **The Comment tool** (`tools/comment.ts`; Shift+C — C is the connector's — and a toolbar button for anyone at level `comment`): `ToolName` gained
+  `comment`; `b.setTool` admits it for rank ≥ 2. A tap places nothing: `CommentsController.startThread(x, y)` hit-tests the item under the point
+  (`hitTest`), sets the marker (`PinLayer.setPending`), opens the rail's Comments panel (the phone's sheet, tall; the desktop rail un-hidden), waits for
+  `#comment-new`, and fills its form: `item`, the offset from the item's top-right corner (or the point's x and y) and `context[]` (the selection and the item).
+  It writes no item, so it makes no batch and no undo step.
+- **The rail's side of a thread**: `openThread(id)` sets `#board-rail-panel[data-open-comment]`, marks the pin (`board-pin-focused`) and fires `boards:open-comment`
+  `{id}` on the body — the panel's `#comment-rail-thread` has `hx-trigger="boards:open-comment from:body, load"` and `hx-vals` reading that dataset. `?comment=` (the
+  mount's `data-focus-comment`, the THREAD's root: `canvas_mount()` resolves a reply's id) flies to the pin (reading the resolved ones too if need be) and opens it.
+- **Events**: the island now listens for `commentChanged` (the handlers' trigger) and fires `boards:open-comment`; `Board.comments` is the controller's
+  `{startThread, openThread}`.

@@ -8,7 +8,7 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 export BD_DEV_DB=${BD_DEV_DB:-bd_dev2} BD_DEV_ENV=${BD_DEV_ENV:-/tmp/bd-dev2.env} BD_DEV_STATE=${BD_DEV_STATE:-/tmp/bd-dev2-state} SHOTS=${SHOTS:-/tmp/bd-shots-s2}
 [ -e "$ROOT/config/.env" ] && grep -q '^DB_PASSWORD=.' "$ROOT/config/.env" && { echo "ABORT: the application looks installed; the proofs are for a scratch clone"; exit 2; }
-for port in 9101 9102 9103 9107; do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done
+for port in 9101 9102 9103 9107; do for _ in $(seq 30); do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null || break; sleep 0.5; done; (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done  # a port the previous suite just freed gets 15 s
 mkdir -p "$SHOTS"; rm -rf "$BD_DEV_STATE"
 cd "$ROOT"
 status=0
@@ -46,7 +46,7 @@ php bin/build_action_registry.php --check >/dev/null 2>&1 && echo "  ok   the re
 trap - EXIT; "$ROOT/tests/phase2/servers.sh" stop
 echo "== slice 1's suite (and Phase 2's within it — both follow what is built)"
 out=$(BD_DEV_DB=bd_dev1 BD_DEV_ENV=/tmp/bd-dev1.env BD_DEV_STATE=/tmp/bd-dev1-state SHOTS=/tmp/bd-shots-s1 "$ROOT/tests/phase3/slice1/run.sh" 2>&1); rc=$?
-echo "$out" | grep -E 'FAIL|PASSED|FAILED|all [0-9]+ passed' | sed 's/^/  /'
+echo "$out" | grep -E 'FAIL|PASSED|FAILED|ABORT|all [0-9]+ passed' | sed 's/^/  /'
 [ $rc -eq 0 ] || status=1
 [ $status -eq 0 ] && echo "ALL SLICE 2 PROOFS PASSED" || echo "SOME SLICE 2 PROOFS FAILED"
 exit $status

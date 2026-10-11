@@ -147,3 +147,17 @@ html.app-skin-dark .board-tool, html.app-skin-dark .board-shape-pick { color: #d
 .frame-item-title { font-weight: 600; }
 .board-toast-ask { background: #1f2937; }
 @media (max-width: 991.98px) { .board-minimap { display: none !important; } #board-frame-nav { display: none; } }
+
+/* slice 6: comment pins over the stage (a DOM layer: real buttons), and the rail's Comments panel */
+.board-pins { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.board-pin { position: absolute; left: 0; top: 0; width: 32px; height: 32px; padding: 0; border: 0; background: transparent; pointer-events: auto; cursor: pointer; will-change: transform; }
+.board-pin-face { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50% 50% 50% 4px; background: #3454d1; color: #fff;
+  font-size: 13px; font-weight: 700; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(15, 23, 42, .3); }
+.board-pin-agent .board-pin-face { background: #0e7490; }
+.board-pin-resolved .board-pin-face { background: #868e96; opacity: .75; }
+.board-pin-count { position: absolute; right: -6px; top: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #e03131; color: #fff; font-size: 11px; font-weight: 700;
+  line-height: 18px; text-align: center; border: 2px solid #fff; box-sizing: content-box; }
+.board-pin-focused .board-pin-face { box-shadow: 0 0 0 3px #f59f00, 0 2px 6px rgba(15, 23, 42, .3); }
+.board-pin-new { pointer-events: none; }
+.board-pin-new .board-pin-face { background: #f59f00; }
+@media (max-width: 991.98px) { .board-pin, .board-pin-face { width: 36px; height: 36px; } }

@@ -3,15 +3,18 @@
  * The left toolbar (canvas.md; canvas-core.md "375 px and touch" — at 375 px it is the bottom bar with 44 px targets): Select · Hand · Sticky
  * · Shape (Miro's ten) · Text · Connector · Frame (slice 4) · Pen (its menu: three widths, the colours) · Highlighter · Eraser · Image or file (slice 5)
  * for an editor; Select and Hand alone for a viewer or a commenter (the database refuses their writes anyway). The tools of later slices show
- * disabled with their slice; at 375 px the connector, frame, pen and later tools sit behind "More". The island binds [data-tool]. Data: editable
+ * disabled with their slice; the Comment tool (Shift+C, slice 6) is for anyone who may comment; at 375 px the connector, frame, pen and later tools sit behind "More". The island binds [data-tool]. Data: editable, canComment
  */
 $shapes = ['rectangle' => 'Rectangle', 'round_rectangle' => 'Rounded rectangle', 'ellipse' => 'Ellipse', 'triangle' => 'Triangle', 'diamond' => 'Diamond',
            'parallelogram' => 'Parallelogram', 'hexagon' => 'Hexagon', 'star' => 'Star', 'right_arrow' => 'Arrow', 'wedge_round_rectangle_callout' => 'Callout'];
-$later = [['comment', 'feather-message-square', 'Comment', 6]];
+$canComment = $canComment ?? false;
 ?>
 <div class="board-toolbar" id="board-toolbar" role="toolbar" aria-label="Tools">
     <button type="button" class="board-tool active" data-tool="select" id="board-tool-select" title="Select (V)" aria-pressed="true"><i class="feather-mouse-pointer"></i><span class="visually-hidden">Select</span></button>
     <button type="button" class="board-tool" data-tool="hand" id="board-tool-hand" title="Hand — pan (H)" aria-pressed="false"><i class="feather-move"></i><span class="visually-hidden">Hand</span></button>
+    <?php if ($canComment): ?>
+        <button type="button" class="board-tool" data-tool="comment" id="board-tool-comment" title="Comment (Shift+C)" aria-pressed="false"><i class="feather-message-square"></i><span class="visually-hidden">Comment</span></button>
+    <?php endif; ?>
     <?php if ($editable): ?>
         <button type="button" class="board-tool" data-tool="sticky" id="board-tool-sticky" title="Sticky note (N)" aria-pressed="false"><i class="feather-file"></i><span class="visually-hidden">Sticky note</span></button>
         <div class="board-tool-group">
@@ -45,9 +48,6 @@ $later = [['comment', 'feather-message-square', 'Comment', 6]];
             <button type="button" class="board-tool" data-tool="highlighter" id="board-tool-highlighter" title="Highlighter" aria-pressed="false" aria-haspopup="true"><i class="feather-pen-tool"></i><span class="visually-hidden">Highlighter</span></button>
             <button type="button" class="board-tool" data-tool="eraser" id="board-tool-eraser" title="Eraser (E)" aria-pressed="false"><i class="feather-delete"></i><span class="visually-hidden">Eraser</span></button>
             <button type="button" class="board-tool" id="board-tool-image" title="Image or file — or drop one on the board"><i class="feather-image"></i><span class="visually-hidden">Image or file</span></button>
-            <?php foreach ($later as [$k, $icon, $label, $slice]): ?>
-                <button type="button" class="board-tool" disabled data-later="<?= e($k) ?>" id="board-tool-<?= e($k) ?>" title="<?= e($label) ?> — built by slice <?= (int) $slice ?>"><i class="<?= e($icon) ?>"></i><span class="visually-hidden"><?= e($label) ?> (slice <?= (int) $slice ?>)</span></button>
-            <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>

@@ -181,6 +181,7 @@ $first = array_key_first(nav_groups());
     </script>
     <script src="/assets/js/common-init.min.js"></script>
     <script src="/assets/js/record-picker.js"></script>   <!-- the record picker (design-system record-picker.md): after common-init -->
+    <script src="/assets/js/comment-composer.js"></script>   <!-- slice 6: "@" in a comment opens the picker and the pick is inserted as @Name -->
     <script src="/assets/js/theme-customizer-init.min.js"></script>
 </body>
 </html>

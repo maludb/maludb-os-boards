@@ -37,6 +37,9 @@ import { Minimap } from './ui/minimap';
 import { PenTool } from './tools/pen';
 import { HighlighterTool } from './tools/highlighter';
 import { EraserTool } from './tools/eraser';
+import { CommentTool, CommentsController } from './tools/comment';
+import { PinLayer } from './render/pins';
+import { PinSync } from './sync/pins';
 import { Uploader } from './tools/image';
 import { configureImages } from './render/items/image';
 import { frameTopLeft, round2 } from './model/geometry';
@@ -141,7 +144,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
   const editor = new TextEditor(b);
   const clipboard = new Clipboard(b);
   const tools: Record<ToolName, Tool> = { select: new SelectTool(b), hand: new HandTool(b), sticky: new StickyTool(b), shape: new ShapeTool(b), text: new TextTool(b),
-    connector: new ConnectorTool(b), frame: new FrameTool(b), pen: new PenTool(b), highlighter: new HighlighterTool(b), eraser: new EraserTool(b) };
+    connector: new ConnectorTool(b), frame: new FrameTool(b), pen: new PenTool(b), highlighter: new HighlighterTool(b), eraser: new EraserTool(b), comment: new CommentTool(b) };
   const uploader = new Uploader(b, d.uploadUrl ?? '/files/upload.php', csrf, Math.max(1, Number(d.maxUploadMb ?? 25)));
   b.pickFile = () => uploader.pick();
   b.upload = (files: File[], at: { x: number; y: number } | null) => uploader.upload(files, at);
@@ -158,7 +161,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
     return p;
   };
   b.setTool = (t: ToolName) => {
-    if (!editable && t !== 'select' && t !== 'hand') return;
+    if (!editable && t !== 'select' && t !== 'hand' && !(t === 'comment' && rank >= 2)) return;
     input.cancel();
     tool = t;
     container.style.cursor = tools[t].cursor;
@@ -239,6 +242,7 @@ function boot(mount: HTMLElement): { destroy(): void } {
       if (one && ['sticky_note', 'shape', 'text'].includes(one.type) && !one.locked) { b.editText(one.id); return true; }
       return false;
     }
+    if (!mod && !e.altKey && e.shiftKey && k === 'c') { if (rank >= 2) b.setTool('comment'); return true; }
     if (!mod && !e.altKey) {
       const map: Record<string, ToolName> = { v: 'select', h: 'hand', n: 'sticky', s: 'shape', t: 'text', c: 'connector', f: 'frame', p: 'pen', e: 'eraser' };
       if (map[k]) { b.setTool(map[k]); return true; }
@@ -307,6 +311,13 @@ function boot(mount: HTMLElement): { destroy(): void } {
     reload: () => { void catchup.reload().catch(() => toasts.show('The board could not be read again.', { kind: 'danger' })); },
   });
   mount.addEventListener('boards:open-item', () => rail.sheet(true, 'item'));
+
+  // comments (slice 6): the pins over the stage, read every 15 s (comments are not ops), and the rail's side of a thread
+  const comments: { ctl: CommentsController | null } = { ctl: null };
+  const pinLayer = new PinLayer(b, (id) => { void comments.ctl?.openThread(id); });
+  const pinSync = new PinSync(d.commentsUrl ?? `/boards/${b.boardId}/comments`, pinLayer);
+  comments.ctl = new CommentsController(b, pinLayer, pinSync, rail);
+  b.comments = { startThread: (x, y) => comments.ctl?.startThread(x, y), openThread: (id) => comments.ctl?.openThread(id) ?? Promise.resolve() };
   selection.onChange(() => rail.select(selection.list()));
 
   /** "Set as the start view": board_update's start_view (level edit), through the island so the page stays. */
@@ -397,6 +408,8 @@ function boot(mount: HTMLElement): { destroy(): void } {
     if (editable && state.items.length > 0 && (d.thumbnailAge === '' || Number(d.thumbnailAge) > 300)) thumbs.changed();
     void catchup.pull().catch(() => undefined);
     b.live = startLive();
+    pinSync.start();
+    if (d.focusComment) void comments.ctl?.focus(d.focusComment);
   })();
 
   if (d.test === '1') installTestHook(b, catchup, { thumbnail: () => thumbs.post(), ready });
@@ -405,6 +418,9 @@ function boot(mount: HTMLElement): { destroy(): void } {
     destroy() {
       poller.stop();
       b.live?.close();
+      pinSync.stop();
+      comments.ctl?.destroy();
+      pinLayer.destroy();
       input.detach();
       editor.close(true);
       ro.disconnect();

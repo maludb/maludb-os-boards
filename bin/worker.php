@@ -15,7 +15,7 @@ declare(strict_types=1);
  *
  * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
  * (design §10): `thumbnails` slice 5's (REAL since slice 5 — with the purge of uploads never committed and of items deleted past
- * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's; `versions`, `compaction` slice 7's; `dispatches`,
+ * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's (REAL since slice 6 — email through MaluMail, texts through K6, the digest); `versions`, `compaction` slice 7's; `dispatches`,
  * `search_catch_up` slice 9's; `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
@@ -79,8 +79,16 @@ exit($report['errors'] === [] ? 0 : 1);
 
 /** SLICE 7 — a board that changed since its last interval version, at most hourly while active: one `interval` version (board_versions); interval versions past interval_version_days thinned to one a day, those past daily_version_days deleted; named versions never. */
 function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['saved' => 0, 'thinned' => 0, 'stub' => 'slice 7']; }
-/** SLICE 6 — notification_outbox: queued email (MaluMail) and text (K6) rows sent, failed ones retried with backoff; the digest at its hour. */
-function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 6']; }
+/**
+ * SLICE 6 (comments-notifications.md) — notification_outbox: the morning digests that are due (07:00 in the member's own time zone) are queued, then
+ * queued email (MaluMail, at most once) and text (the kernel's K6, retried with backoff) rows are sent. app/features/worker/outbox.php.
+ */
+function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/notifications/queries.php';
+    require_once dirname(__DIR__) . '/app/features/worker/outbox.php';
+    return outbox_pass($pdo, $now, $limit);
+}
 /** SLICE 9 — agent_dispatches: a mention of an agent becomes ONE chat turn of that agent through the kernel (Spaces' route); a long run polled, a refusal shown in the kernel's words, a 5xx backed off. */
 function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 9']; }
 /** SLICE 9 — search_index catch-up: every board, item and comment whose index row is older than its change. */

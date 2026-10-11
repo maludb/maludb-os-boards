@@ -32,5 +32,11 @@ $r = bd_guard($pdo, static function () use ($pdo, $id, $kind, $pid, $name, $leve
     return $r;
 });
 $needs = (bool) ($r['needs_grant'] ?? false);
+if (is_htmx_request() && str_starts_with((string) ($_SERVER['HTTP_HX_TARGET'] ?? ''), 'needs-share-')) {      // slice 6: the comment rail's "Share it at edit?" — answer the prompt itself
+    emit_action_status(true, ['did' => 'Shared ' . $b['title'] . ' with ' . $name . ' (' . $level . ')', 'record_id' => $id, 'refresh' => 'boardChanged']);
+    hx_trigger('boardChanged');
+    echo view('comments/partials/needs-share.php', ['board' => $id, 'level' => 'full', 'agents' => [$pid => $name], 'notShared' => [], 'unresolved' => [], 'shared' => $pid]);
+    exit;
+}
 bd_done('Shared ' . $b['title'] . ' with ' . $name . ' (' . $level . ')', $id, bd_land(return_path('/boards/' . $id . '/share'), $needs ? 'needs_grant' : 'shared'), 'boardChanged',
     ['needs_grant' => $needs, 'principal_kind' => $kind, 'principal_id' => $pid, 'level' => $level]);

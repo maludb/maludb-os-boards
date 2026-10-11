@@ -103,9 +103,9 @@ $rp = page($jb, "/boards/$b/rail?panel=item&ids=" . $shape['item']['id'] . ',' .
 ok(str_contains($rp['body'], 'id="rail-fill-colors"') && str_contains($rp['body'], 'id="rail-sticky-colors"') && str_contains($rp['body'], '2 items selected'), 'Properties for a mixed selection: both palettes');
 $rp = page($jd, "/boards/$b/rail?panel=item&ids=" . $sticky['item']['id']);
 ok($rp['code'] === 200 && !str_contains($rp['body'], 'data-board-command') && str_contains($rp['body'], 'Sticky note'), 'a commenter sees the item but no control');
-ok(str_contains(page($jb, "/boards/$b/rail?panel=outline")['body'], 'id="rail-outline"') && str_contains(page($jb, "/boards/$b/rail?panel=comments")['body'], 'Built by slice 6')
+ok(str_contains(page($jb, "/boards/$b/rail?panel=outline")['body'], 'id="rail-outline"') && str_contains(page($jb, "/boards/$b/rail?panel=comments")['body'], 'id="comment-rail"')
    && str_contains(page($jb, "/boards/$b/rail?panel=history")['body'], 'Built by slice 7') && str_contains(page($jb, "/boards/$b/rail?panel=badge")['body'], 'Can edit'),
-    'the rail\'s other panels: the outline, Comments and History by their slices, my badge');
+    'the rail\'s other panels: the outline, Comments (slice 6\'s) and History (slice 7\'s placeholder), my badge');
 ok(page($jl, "/boards/$b/rail?panel=item")['code'] === 404 && page($jb, "/boards/$b/rail?panel=nope")['code'] === 404, 'the rail is behind the wall; an unknown panel is 404');
 
 echo "6. the thumbnail\n";

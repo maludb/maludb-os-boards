@@ -145,3 +145,69 @@ comments in a version's preview; notifying a share (slice 1's `board_share` hand
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-11)
+Comments, mentions and notifications — built by a Sonnet 5.5 worker on slice 1's patterns (the handler order, the whitelist presenters, HTMX partials) and slice 2's (a tool, a render
+module, the bundle). **Comments**: the Comment tool (Shift+C — C is the connector's since slice 4 — and a toolbar button for anyone at level `comment`); a tap on an item or on the empty
+canvas opens the rail's Comments panel at a new-thread form carrying the anchor (the item and the offset from its top-right corner, or the point) and the selection as `context[]`;
+the composer is a textarea in which "@" opens slice 1's record picker (people and agents; a second picker for departments) and the pick is inserted as `@Name`;
+`comment_text_to_rich()` turns the text into runs (text and mention runs only) — the longest display name at a word boundary, case-insensitive, **never a name two records share** (it stays text
+and the answer lists it in `unresolved_mentions`); `bd_comment_create()` does the rest (who is told, which agent is dispatched, which one needs a share). The thread is ONE partial
+(`comments/partials/thread.php`) for the comments page's inline thread and the canvas's rail: where it is pinned in words, Resolved, every comment (an agent wears the **agent** chip), Edit
+(own), Delete (own or a board's owner, with `hx-confirm`), Resolve / Reopen, the reply form, **Show on the board**; the handlers answer an HTMX request with the thread again (outerHTML of
+`.comment-thread`) and `HX-Trigger: commentChanged`. The prompts the answer carries sit above the thread: *"{Agent} cannot see this board. Share it at edit?"* with **Share** (slice 1's
+`board_share`, which answers the prompt itself when its target is `needs-share-*`) and **Not now** — or *"Ask an owner to share it with {Agent}"* to one who is not `full` —,
+*"{Name} was not told — they cannot open this board."*, and the shared-name sentence. **Pins**: a DOM layer over the stage (`render/pins.ts`), one button per thread, an item's following the
+item, read every 15 s and at once after the person's own comment action (`sync/pins.ts`); `?comment=` (a reply's id too) flies to the thread's pin and opens it. **The comments page**
+(`board-comments`): the threads as cards, open first, All / Open / Resolved and Mine as chips, 30 a page, a card opening its thread inline. **Notifications**: the bell (`#header-bell`, polled
+every 60 s through `/notifications/bell`), `/notifications` (unread first, 30 a page, `?unread=1`, a notice opens its board at the comment and is marked read — by a POST, so a link
+never writes —, Mark all read), `/settings/` (email, the digest, texts with the K6 sentence, the kinds by email and by text, a link to My tokens; `prefs_save` partial, validated, logged by field
+name). **The worker's `outbox` pass is real** (`app/features/worker/outbox.php`, Spaces' rules verbatim): the digests due, then the queue — email through `malumail_send()` at most once
+(marked `sent` before the send, `failed` after an exception and never again, a refused address `skipped` with its code, no key at all `skipped` "no mail key"), texts through the kernel's
+K6 (a 5xx or no answer retried at 2^n minutes, five attempts then `failed`, a K6 refusal `skipped` with its code).
+
+**Proven** by `tests/phase3/slice6/run.sh` — **279 checks under php -S** (comments 60, mentions 42, notifications 45, outbox 46, json 38, browser 48) and **278 under a real Apache** (the browser proof has no test hook there: it clicks an empty point and asserts on the database — 47), then every earlier suite
+(slice 5's and within it 4's, 3's, 2's, 1's and Phase 2's): the threads — a comment on an item (with its offset) and at a point, a root with neither refused in words, half a point, an empty one,
+over 4,000 characters, an item of another board, a board one cannot open 404 (Bea, Lee, Ann), a Viewer at comment level comments, a reply to a reply hangs on the root, resolve / reopen by a
+commenter (a reply cannot be resolved), another person's edit — even an owner's — the database's sentence 403, delete by the author and by an owner and a Boards admin, a Viewer's delete of another's
+403, a deleted comment is not there to edit, the registry (only `comment_delete` pauses — deletion), the pins (open only; `resolved=1` adds the resolved; an item's pin at its corner plus the offset; a
+point's pin the point; the wall), the thread partial and its JSON, Edit and Delete shown by who may, the page and its filters (`open=0|1`, `mine=1`), the trail with no text in any payload; the
+mentions — Bea told (one notice, one queued email), Lee (cannot see) `not_shared` and told nothing, the writer never told, `@Sales` tells Priya and Dana and not Lee, a person named and in the department
+told once, a reply tells the thread's other author and a new thread its owner, an agent not shared `needs_share` (the prompt, the not-an-owner line, **Share** answering the prompt and the agent now at edit,
+a second comment dispatching ONE `agent_dispatches` row with `conversation_id = boards:thread:{root}` acting as the writer, a mention in a reply one more in the same conversation), an agent's own
+comment dispatching nobody, two members named alike staying text with `unresolved_mentions`, resolving again once the names differ, an address and "@SMOKE Beatrix" staying text; the notifications —
+the bell's count and partial and its poll, unread first, 30 a page (30 then 6 of 36), `unread=1`, a notice opens its board at the comment and is read (JSON location, HX-Location, 302), another
+person's notice 404, a notice for a board one cannot open lands on the list in words, Mark all read (34, then 0, never another person's), the settings page and its defaults, `prefs_save`
+(partial, a comma list as an agent sends it, refused kinds, the form's `__sent` markers, "Nothing to change", logged by field name); the outbox — 19 queued emails sent in one pass (from, subject,
+text and HTML with "Open the board" and the link), none twice, a 502 `failed` and never resent, a suppressed address `skipped`, no key `skipped` "no mail key", the digest held back and sent once at
+07:05 (not at 06:55; at 07:00 in New York for a member there; keyed by HER date; none when nothing is unread; a second pass none), a text to the fake K6 (reference `mention:{id}`, at most 480
+characters; none for a kind not opted into), `no_verified_phone` / `opted_out` / `rate_limited` / `not_held` `skipped` with the code, a 5xx retried at 2^1 minutes and `failed` after five, the full
+worker pass running the real outbox; JSON on every handler (401 anonymous, 405, CSRF, the answers' shapes, an agent's run token — the run on the row —, a person's action token as the assistant, an
+agent deleting another's refused) and on the three screens. The browser — the Comment tool, a click on the sticky opening the form "on 'Shipped late'" with the item and the offset, "@" opening the
+picker and the pick inserted over it, the thread in the rail, the pin at once (and Bea's within the 15 s poll), a reply with its badge, `?comment=<a reply>` opening the thread and marking its pin, a pin's
+click, Resolve hiding the pin and "Show resolved" bringing it back dimmed, the share prompt and Share, the comments page and a thread opened and answered inline, the notices page and a notice opening its
+board, Mark all read, my settings saved, a commenter's toolbar (the Comment tool, no Sticky), at 375 the tool on the bar, the sheet, no sideways scroll on any of the three pages, no console error.
+
+**Found and fixed:** the proof found no defect in the schema (no migration); in the build — the shell's bell was already `#bell` / `#bell-count`, which three earlier checks assert, so `#header-bell` wraps
+it; `/notifications` became a directory (`notifications/index.php`) beside `bell.php`, `read.php` and `read-all.php`, the stub `notifications.php` removed and the three earlier proofs that named it (Phase 2's
+shell and browser, slice 2's rail check) made to follow whether it is built; a `notice`'s `record_uuid` is the REPLY, not the thread, so `?comment=` needed the thread's root; the scratch directory sync gives every member a default
+preferences row (the proof deletes Bea's to prove the defaults); the shared fake MaluMail answers no `message_id`; and — a lesson for every proof — a suite that dies on a PHP parse error shows only in its exit status
+(slice 2's `doors.php` after a stray apostrophe in an edited label): `php -l` every test file you touch.
+
+**Decisions taken here (within the spec):**
+1. **`comment_text_to_rich()` answers `['runs' => …, 'unresolved' => […]]`**; the handler's answer carries `unresolved_mentions` (the spec's "the answer's"). A mention needs the person's
+   FULL display name ("@SMOKE Bea"); the picker inserts it so.
+2. **The pins' JSON is `{"data": {"board_id", "pins": [...]}}`** (the kit's `respond_screen()`), and an item's pin has `x, y` = the item's top-right corner plus the offset (`comments.anchor_x/y`
+   are an OFFSET from that corner for a thread on an item, an absolute point otherwise). The island derives the same from the live store, so a pin follows its item; a thread on an item that
+   is gone has no pin.
+3. **The Comment tool is Shift+C** (C is the connector's), shown on the toolbar to anyone at level `comment`, outside "More" at 375 px.
+4. **Files beyond the spec's list**: `comments/partials/{gone,rail,rail-list}.php` (a removed thread's line; the rail's Comments panel; its list), `GET /boards/{board}/rail?panel=comment-list`,
+   `comments/thread.php` with no `id` answering the rail's hint, `html/notifications/index.php` replacing the stub `notifications.php` (the URL is the same), `app/features/notifications/write.php`
+   holding the preferences request's parsing, `html/assets/js/comment-composer.js` (the "@" → picker → `@Name` glue; loaded by the layout).
+5. **`?comment=` may name any comment of a thread** (a notice's `record_uuid` is the reply's): `canvas_mount()` resolves it to the thread's root, which the island flies to.
+6. **The bell polls every 60 s and on `notificationsChanged`**, not at load (the first render is the server's).
+7. **The digest is queued when the member's local time is 07:00 or later and none exists for their date** (so a person who takes the digest at 15:00 gets one then), lists the unread of
+   the last 24 hours, and is the outbox row alone — no `digest` notice on the bell. Its text part ends "and N more in your bell."
+8. **A comment page is 30 threads**; the notices page takes `?unread=1` and `?page=`.
+9. **The settings form marks the fields it carries with `<name>__sent`** (an unchecked box posts nothing); a JSON caller sends only what it changes.
+10. **The shared test fake answers no `message_id`**, so a sent row's `provider_ref` stays empty; the pass keeps it when MaluMail gives one.

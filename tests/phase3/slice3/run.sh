@@ -9,7 +9,7 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 export BD_DEV_DB=${BD_DEV_DB:-bd_dev3} BD_DEV_ENV=${BD_DEV_ENV:-/tmp/bd-dev3.env} BD_DEV_STATE=${BD_DEV_STATE:-/tmp/bd-dev3-state} SHOTS=${SHOTS:-/tmp/bd-shots-s3}
 [ -e "$ROOT/config/.env" ] && grep -q '^DB_PASSWORD=.' "$ROOT/config/.env" && { echo "ABORT: the application looks installed; the proofs are for a scratch clone"; exit 2; }
-for port in 9101 9102 9103 9106 9107; do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done
+for port in 9101 9102 9103 9106 9107; do for _ in $(seq 30); do (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null || break; sleep 0.5; done; (exec 3<>/dev/tcp/127.0.0.1/$port) 2>/dev/null && { echo "ABORT: port $port is taken"; exit 2; }; done  # a port the previous suite just freed gets 15 s
 [ -x "$ROOT/mcp/venv/bin/python" ] || { echo "ABORT: mcp/venv is missing (python3 -m venv mcp/venv && mcp/venv/bin/pip install -r mcp/requirements.txt)"; exit 2; }
 mkdir -p "$SHOTS"; rm -rf "$BD_DEV_STATE"; mkdir -p "$BD_DEV_STATE"
 cd "$ROOT"
@@ -62,7 +62,7 @@ trap - EXIT; stop_all
 if [ "${BD_SKIP_EARLIER:-0}" = "1" ]; then echo "(the earlier slices' suites skipped: BD_SKIP_EARLIER=1)"; exit $status; fi
 echo "== slice 2's suite (and slice 1's and Phase 2's within it)"
 out=$(BD_DEV_DB=bd_dev2 BD_DEV_ENV=/tmp/bd-dev2.env BD_DEV_STATE=/tmp/bd-dev2-state SHOTS=/tmp/bd-shots-s2 "$ROOT/tests/phase3/slice2/run.sh" 2>&1); rc=$?
-echo "$out" | grep -E 'FAIL|PASSED|FAILED|all [0-9]+ passed' | sed 's/^/  /'
+echo "$out" | grep -E 'FAIL|PASSED|FAILED|ABORT|all [0-9]+ passed' | sed 's/^/  /'
 [ $rc -eq 0 ] || status=1
 [ $status -eq 0 ] && echo "ALL SLICE 3 PROOFS PASSED" || echo "SOME SLICE 3 PROOFS FAILED"
 exit $status

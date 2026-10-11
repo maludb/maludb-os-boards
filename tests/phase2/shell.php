@@ -77,7 +77,7 @@ $ph = [
     ["/boards/$board/settings", 'board-settings', 1, 'boards/settings.php'], ["/boards/$board/share", 'board-share', 1, 'boards/share.php'], ["/boards/$board/outline", 'board-outline', 2, 'boards/outline.php'],
     ["/boards/$board/comments", 'board-comments', 6, 'boards/comments.php'], ["/boards/$board/history", 'board-history', 7, 'boards/history.php'], ['/folders', 'folders', 1, 'folders/index.php'],
     ['/folders/12', 'folder-view', 1, 'folders/view.php'], ['/folders/new', 'folder-add', 1, 'folders/form.php'], ['/folders/12/edit', 'folder-edit', 1, 'folders/form.php'], ['/trash', 'trash', 1, 'trash.php'],
-    ['/templates', 'templates', 8, 'templates/index.php'], ["/templates/$board", 'template-view', 8, 'templates/view.php'], ['/notifications', 'notifications', 6, 'notifications.php'],
+    ['/templates', 'templates', 8, 'templates/index.php'], ["/templates/$board", 'template-view', 8, 'templates/view.php'], ['/notifications', 'notifications', 6, 'notifications/index.php'],
     ['/settings/', 'settings', 6, 'settings/index.php'], ['/search', 'search', 9, 'search.php'], ['/admin', 'admin', 10, 'admin/index.php'], ['/admin/usage', 'admin-usage', 10, 'admin/usage.php'],
     ['/admin/settings', 'admin-settings', 10, 'admin/settings.php'], ['/admin/agents', 'admin-agents', 9, 'admin/agents.php'], ['/admin/dispatches', 'admin-dispatches', 9, 'admin/dispatches.php'],
 ];
