@@ -16,7 +16,7 @@ declare(strict_types=1);
  * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
  * (design §10): `thumbnails` slice 5's (REAL since slice 5 — with the purge of uploads never committed and of items deleted past
  * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's (REAL since slice 6 — email through MaluMail, texts through K6, the digest); `versions`, `compaction` slice 7's (REAL since slice 7); `dispatches`,
- * `search_catch_up` slice 9's; `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
+ * `search_catch_up` slice 9's (REAL since slice 9); `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
 require_once dirname(__DIR__) . '/app/bootstrap.php';
@@ -93,10 +93,22 @@ function worker_pass_outbox(PDO $pdo, int $limit, DateTimeImmutable $now): array
     require_once dirname(__DIR__) . '/app/features/worker/outbox.php';
     return outbox_pass($pdo, $now, $limit);
 }
-/** SLICE 9 — agent_dispatches: a mention of an agent becomes ONE chat turn of that agent through the kernel (Spaces' route); a long run polled, a refusal shown in the kernel's words, a 5xx backed off. */
-function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['sent' => 0, 'stub' => 'slice 9']; }
-/** SLICE 9 — search_index catch-up: every board, item and comment whose index row is older than its change. */
-function worker_pass_search_catch_up(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['indexed' => 0, 'stub' => 'slice 9']; }
+/**
+ * SLICE 9 (agents-search.md) — agent_dispatches: a mention of an agent becomes ONE chat turn of that agent through the kernel (Spaces' route), the asker acting; a run still going is polled
+ * every 20 s for ten minutes, an approval wait every minute, a refusal is shown in the kernel's words, a 5xx or a busy agent is backed off (2, 4, 8, 16 minutes, five attempts) and the asker told once.
+ * app/features/agents/dispatch.php.
+ */
+function worker_pass_dispatches(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/agents/dispatch.php';
+    return dispatches_pass($pdo, $now, $limit);
+}
+/** SLICE 9 — search_index catch-up: every live board, item and comment without an index row is indexed, every row whose entity is gone or deleted is removed. app/features/search/write.php. */
+function worker_pass_search_catch_up(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/search/write.php';
+    return search_catch_up($pdo, $limit);
+}
 /**
  * SLICE 5 (pen-files.md) — the files' housekeeping: an item attachment never thumbnailed (an upload makes its own at once; this catches one
  * that arrived another way) gets its three sizes (GD) or a PDF's first page (pdftoppm), or {"none": why}; an upload never committed as an item

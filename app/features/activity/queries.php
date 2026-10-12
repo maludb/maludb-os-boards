@@ -65,7 +65,7 @@ function activity_sentence_parts(array $r): array
         'version.save' => 'saved a version of', 'version.restore' => 'restored a version of', 'template.use' => 'made a board from', 'template.save' => 'saved as a template',
         'template.publish' => 'published as the business\'s template', 'settings.prefs' => 'changed how they are told', 'notification.read' => 'read a notice',
         'notification.read_all' => 'read every notice', 'settings.save' => 'changed Boards\' settings', 'trash.purge' => 'emptied from the trash',
-        'dispatch.retry' => 'retried an agent\'s dispatch',
+        'dispatch.retry' => 'retried an agent\'s dispatch', 'agent.dispatch' => 'asked an agent on', 'agent.reply' => 'replied as an agent on', 'agent.fail' => 'could not answer on',
     ];
     $verb = $words[$r['action']] ?? str_replace(['.', '_'], ' ', (string) $r['action']);
     if ($r['action'] === 'member.sign_on' || $r['action'] === 'member.sign_out') {

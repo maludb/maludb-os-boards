@@ -54,7 +54,9 @@ the visits, and the worker's interval-version and compaction passes — `tests/p
 
 **Slice 8, templates, duplicate and export, is built and proven** (2026-10-11): the templates gallery and a template's page, six shipped templates, Use / Duplicate / Save as template / Publish from the settings page, and the board menu's Export — PNGs made by the canvas, the SVG by the database — `tests/phase3/slice8/run.sh` (db/016).
 
-Next: slices 9–10 and Phase 4 (Sonnet 5.5 workers, design D16).
+**Slice 9, agents, search and the siblings, is built and proven** (2026-10-11): a mention of an agent is answered — the worker turns each dispatch into one turn of the kernel's chat endpoint as that agent, a run still going shown as "… is working…" and polled, an approval pause said in the thread, a refusal shown in the kernel's words, a failure backed off and told once —, `items_arrange` (grid, column, row, cluster), one search across boards, items and comments, the admin's agents and dispatches pages (Retry), the search catch-up and the two K7 shares' SQL — `tests/phase3/slice9/run.sh` (db/018).
+
+Next: slice 10 and Phase 4 (Sonnet 5.5 workers, design D16).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

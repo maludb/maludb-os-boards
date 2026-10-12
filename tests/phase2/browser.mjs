@@ -133,8 +133,11 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   await page.fill('#header-search', 'retro');
   await page.press('#header-search', 'Enter');
   await page.waitForURL(/\/search\?q=retro/);
-  ok((await page.title()).startsWith('Search') && (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 9') && (await page.inputValue('#header-search')) === 'retro',
-    'the header box searches: /search?q=retro — slice 9\'s placeholder, the words kept in the box');
+  // the page is slice 9's placeholder until it ships (the suite follows the slices); built, it is the search itself with the words in both boxes
+  const searchBuilt = !fs.readFileSync(new URL('../../html/search.php', import.meta.url), 'utf8').includes('render_nav_stub(');
+  ok((await page.title()).startsWith('Search') && (await page.inputValue('#header-search')) === 'retro'
+    && (searchBuilt ? (await page.inputValue('#search-form-field-q')) === 'retro' : (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 9')),
+    'the header box searches: /search?q=retro — ' + (searchBuilt ? 'slice 9\'s search, the words kept in both boxes' : 'slice 9\'s placeholder, the words kept in the box'));
   await page.click('#nav-templates .nxl-link');
   await page.waitForURL(BASE + '/templates');
   await page.waitForSelector('#templates-content');

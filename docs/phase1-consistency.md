@@ -232,5 +232,5 @@ decided where the design was silent, what it changed in Phase 0's files, and how
 **Phase 1 is written, the checks are green** (`tests/phase1/check_specs.sh`: 66 ok, 0 FAIL; the schema proof 167), and **the owner
 approved it as written on 2026-10-10**, the ★ decisions with it. **Phase 2 and slice 1 are built and proven** (2026-10-10); **slice 2, the canvas — the
 first exemplar —, slice 3, live — the second —, slice 4, connectors and frames, and slice 5, pen, images and files, are built and proven**
-(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model); **slice 7, history, versions and restore, is built and proven** (2026-10-11, a Sonnet 5.5 worker); **slice 8, templates, duplicate and export, is built and proven** (2026-10-11, a Sonnet 5.5 worker, db/016).
-Next: slices 9–10 and Phase 4, Sonnet 5.5 workers (D16).
+(2026-10-11) — the planning model's slices are done; **slice 6, comments, mentions and notifications, is built and proven** (2026-10-11, a Sonnet 5.5 worker, verified by the planning model); **slice 7, history, versions and restore, is built and proven** (2026-10-11, a Sonnet 5.5 worker); **slice 8, templates, duplicate and export, is built and proven** (2026-10-11, a Sonnet 5.5 worker, db/016); **slice 9, agents, search and the siblings, is built and proven** (2026-10-11, a Sonnet 5.5 worker, db/018).
+Next: slice 10 and Phase 4, Sonnet 5.5 workers (D16).

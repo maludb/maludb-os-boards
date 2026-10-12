@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T21:58:38+00:00",
+    "generated_at": "2026-10-11T23:29:36+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -212,8 +212,8 @@
                 "kind",
                 "board"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "admin-agents": {
             "screen": "admin-agents",
@@ -221,8 +221,8 @@
             "section": "Agents, search and the siblings (slice 9)",
             "when": "the agents on Boards: who they are, which boards they can see, what they did this week",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "admin-dispatches": {
             "screen": "admin-dispatches",
@@ -233,8 +233,8 @@
                 "status",
                 "agent"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "home": {
             "screen": "home",
@@ -1673,7 +1673,7 @@
             "who": "level edit",
             "agent": true,
             "record_id": "the batch's seq",
-            "built": false
+            "built": true
         },
         "dispatch_retry": {
             "action": "dispatch_retry",
@@ -1694,7 +1694,7 @@
             "who": "agents.manage",
             "agent": false,
             "record_id": "the dispatch",
-            "built": false
+            "built": true
         },
         "settings_save": {
             "action": "settings_save",
