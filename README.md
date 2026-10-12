@@ -58,7 +58,7 @@ the visits, and the worker's interval-version and compaction passes — `tests/p
 
 **Slice 10, home, admin and settings, is built and proven** (2026-10-12; the last slice): the home (recent, favourites, shared, team folders, mentions, first run), the admin's page by right, usage against the budget, the settings, Purge now and the worker's trash pass — no placeholder and no worker stub is left, 26/26 screens and 45/45 actions built — `tests/phase3/slice10/run.sh` (no migration).
 
-Next: slice 10 and Phase 4 (Sonnet 5.5 workers, design D16).
+**Phase 4, the two MCP servers, is built and proven** (2026-10-12; a Sonnet 5.5 worker): the records server (27 tools) and the activity server (7) — read-only, every row a view's or a read function's as the caller, a stranger's `not_found` the same words as a missing id, the SVG dialect and the outlines the database's own, the two K7 shares read directly as the consuming application's expert agent (K26), `invalid_argument` as an answer, the run-facts gate failing closed — and the registry composed the way the installer will, loaded and driven by the kernel's own code — `tests/phase4/run.sh` (db/019; the record `docs/build-specs/mcp-servers.md`). Next: Phase 5, the owner's — ROOT_STEPS, `apply` twice, DNS/TLS, the two hires, the end-to-end proof.
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the
 schema).

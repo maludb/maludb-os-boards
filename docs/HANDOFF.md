@@ -17,7 +17,7 @@ documents, before doing anything else.
 - Step 5 (the realtime spike): **done** — decision record §6.1. Every check passed; the code was deleted.
 - After the handoff: the owner took every recommendation (design §15); K40 was applied (kernel db/180); **Phase 0 is
   complete** (design §16). Phase 1 was written and **approved by the owner as written** (2026-10-10); step 1 stays
-  undone at the owner's word (the plugins are read from the clones). **Phase 2, the shell, is built and proven** (`tests/phase2/run.sh`).
+  undone at the owner's word (the plugins are read from the clones). **Phase 2, the shell, is built and proven** (`tests/phase2/run.sh`). Phases 3 (all ten slices) and **4 (the two MCP servers: 27 + 7 tools, `tests/phase4/run.sh`, db/019, `docs/build-specs/mcp-servers.md`) are built and proven** (2026-10-12); the next step is Phase 5, the owner's install and the end-to-end proof.
   **Slice 1 (boards, folders and sharing — the CRUD exemplar) is built and proven** (`tests/phase3/slice1/run.sh`). **Slice 2 (the canvas — the
   first exemplar) is built and proven** (`tests/phase3/slice2/run.sh`, 2026-10-11). **Slice 3 (live — the second exemplar, the relay) is built
   and proven** (`tests/phase3/slice3/run.sh`, 2026-10-11). **Slice 4 (connectors and frames) is built and proven** (`tests/phase3/slice4/run.sh`,

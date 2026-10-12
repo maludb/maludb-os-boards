@@ -957,3 +957,13 @@ The open questions:
   `trash_purge` (`bd_board_purge()`, files unlinked only through `unlink_paths()`) and the worker's `trash` pass — the last stub. No migration.
   `tests/phase3/slice10/run.sh` 220 checks under php -S and under Apache; every earlier suite green. **PHASE 3 COMPLETE: the registry reads 26/26 screens and
   45/45 actions built, no placeholder and no worker stub left.**
+
+- **2026-10-12: PHASE 4 — THE TWO MCP SERVERS — BUILT AND PROVEN** (`docs/build-specs/mcp-servers.md`), by a Sonnet 5.5 worker: the records server (27 tools: the resolvers, a board read search → region with the SVG dialect and the
+  outlines the database's own, the comments, notifications and dispatches, the guarded search by words, the two K7 shares) and the activity server (7 tools), read-only, every row a view's or a read function's as the caller; a stranger's
+  `not_found` the same sentence as a missing id (14 board-taking tools × 4 askers); the shares read the database directly as the consuming application's expert agent named in `X-OS-Consumer-Agent` (K26) and log `share.read` through
+  `bd_log_mcp_read()` — the one write; the run-facts gate fails closed (the fake kernel is stopped for the proof); the registry is composed as the installer will compose it (the kernel's own K55 naming), loaded and driven by the kernel's
+  `application_actions.py`, and the posts it would make are replayed against the real handlers as an agent. **db/019:** the share-read log, `before` appended to `mcp_activity_log`, and the outline's empty ` — on ""` for a comment on a point.
+  `tests/phase4/run.sh` **466 checks under php -S, 474 under Apache** (also through the vhost's own `/mcp/records` and `/mcp/activity`); every one of the 34 tools called, every question Q1–Q18 and A1–A6 answered.
+  Found for the kernel: a repeated parameter is split on commas (`item_create_batch.texts` cannot hold a comma); 19 of Boards' 45 actions take the K55 prefix here. For the owner: `maludb-os.json` grants the Facilitator `item_delete_batch`
+  (paused for a deletion approval) although the brief says it deletes nothing. Next: Phase 5, the owner's.
+

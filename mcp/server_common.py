@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from typing import Any
 
@@ -17,18 +18,22 @@ import httpx
 import uvicorn
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
+from mcp.types import TextContent
+from pydantic import ValidationError
 
 import db
 
 log = logging.getLogger("bd_mcp")
 
-# What the kernel's own token may reach: the roles catalogue (kernel db/145) and the tools shares[] declares (K7). Boards
-# shares TWO tools (design §4, D14; maludb-os.json shares[]: boards_index, board_outline) — Phase 4 adds their names here beside
-# app_roles, reading the consumer from X-OS-Consumer / X-OS-Consumer-Agent (K26). An agent reads what its own member id may open
-# (D11) — the run facts name the member; the views' wall does the rest.
-KERNEL_TOOLS = {"app_roles"}
-# A share that is the KERNEL's alone (a person or an agent never lists or calls it) goes here when one exists.
-KERNEL_ONLY: set[str] = set()
+# What the kernel's own token may reach: the roles catalogue (kernel db/145) and the two tools shares[] declares (K7: boards_index, board_outline) —
+# nothing else. A share runs as the consuming application's expert AGENT, named by the kernel in X-OS-Consumer-Agent (K26), never by an argument
+# (the kernel strips a consumer-supplied as_agent and we drop it again). A person or an agent calling board_outline reads as themselves; boards_index
+# is the kernel's alone (a person finds boards with find_boards). The views' wall does the rest.
+SHARES = {"boards_index", "board_outline"}
+KERNEL_TOOLS = {"app_roles"} | SHARES
+KERNEL_ONLY: set[str] = {"boards_index"}
+# What the kernel strips from a share's arguments (K26); we drop them too, so a stray one can never reach a model that forbids extras.
+CONSUMER_ARGS = {"consumer", "consumer_agent_id", "as_agent", "member", "scope_id"}
 
 # run id -> (facts, fetched_at). A run's grants do not change while it runs; a short TTL bounds a mistake.
 _facts_cache: dict[int, tuple[dict, float]] = {}
@@ -63,6 +68,18 @@ async def run_facts(token: str) -> dict | None:
     return facts
 
 
+def invalid_argument(ex: ValidationError):
+    """A parameter that failed validation is an ANSWER (the surface: errors are answers, `fields` names the parameter), never an exception — and never an echo of what was sent."""
+    fields: list[str] = []
+    for e in ex.errors():
+        loc = ".".join(str(p) for p in e.get("loc", ()) if p != "params")
+        if loc and loc not in fields:
+            fields.append(loc)
+    body = {"ok": False, "error": {"code": "invalid_argument", "message": "A parameter failed validation: " + (", ".join(fields) or "the arguments") + ". Check the tool's schema.", "retry": False, "fields": fields}}
+    text = json.dumps(body)
+    return [TextContent(type="text", text=text)], {"result": text}          # what FastMCP returns for a tool that answers a string: the content and the structured result
+
+
 def install_grants(mcp: FastMCP, endpoint_name: str) -> None:
     """Replace list_tools / call_tool so an agent sees and calls only what the kernel granted here."""
 
@@ -81,6 +98,14 @@ def install_grants(mcp: FastMCP, endpoint_name: str) -> None:
                 return dict(ep.get("tools") or {})
         return {}
 
+    async def invoke(name: str, arguments: dict[str, Any]):
+        try:
+            return await mcp.call_tool(name, arguments)
+        except ToolError as ex:
+            if isinstance(ex.__cause__, ValidationError):
+                return invalid_argument(ex.__cause__)
+            raise
+
     async def list_tools():
         tools = await mcp.list_tools()
         if db.request_is_kernel.get():
@@ -93,15 +118,16 @@ def install_grants(mcp: FastMCP, endpoint_name: str) -> None:
         if db.request_is_kernel.get():
             if name not in KERNEL_TOOLS:
                 raise ToolError(f"The kernel's token reaches {', '.join(sorted(KERNEL_TOOLS))} only.")
-            if name in KERNEL_ONLY and "params" not in arguments:
-                arguments = {"params": arguments}      # the kernel sends a share's arguments flat (from, to, scope_id)
-            return await mcp.call_tool(name, arguments)
+            if name != "app_roles" and "params" not in arguments:
+                # the kernel sends a share's arguments flat (q, limit, board …); the tool takes one `params` object
+                arguments = {"params": {k: v for k, v in arguments.items() if k not in CONSUMER_ARGS}}
+            return await invoke(name, arguments)
         if name in KERNEL_ONLY:
             raise ToolError(f"'{name}' is for the Business OS kernel's own token only.")
         g = await granted()
         if g is not None and name not in g:
             raise ToolError(f"'{name}' is not among the tools this agent was granted on {endpoint_name}.")
-        return await mcp.call_tool(name, arguments)
+        return await invoke(name, arguments)
 
     mcp._mcp_server.list_tools()(list_tools)
     mcp._mcp_server.call_tool(validate_input=False)(call_tool)
@@ -121,14 +147,24 @@ def make_app(mcp: FastMCP, db_user_key: str, db_pw_key: str, endpoint_name: str)
         token = auth[7:].strip() if auth[:7].lower() == "bearer " else ""
         pool = await db.get_pool(user, password)
         if token and db.verify_kernel_token(token):
-            # The kernel itself (kernel db/145): no member, no rows — app_roles only.
+            # The kernel itself (kernel db/145): no member, no rows — app_roles and the two shares only.
             db.request_is_kernel.set(True)
             db.request_member_id.set(None)
             db.request_role.set("anon")
             db.request_token.set(token)
             db.request_run_id.set(None)
+            # K26: the kernel says which application asks (and as which expert agent), in two headers trusted with the token; and the request it is answering.
+            consumer = headers.get("x-os-consumer", "").strip()
+            agent = headers.get("x-os-consumer-agent", "").strip()
+            request_id = headers.get("x-request-id", "").strip()
+            db.request_consumer.set(consumer if re.fullmatch(r"[a-z0-9_]{1,60}", consumer) else None)
+            db.request_consumer_agent.set(int(agent) if re.fullmatch(r"[0-9]{1,18}", agent) else None)
+            db.request_kernel_request_id.set(request_id[:80] if re.fullmatch(r"[A-Za-z0-9._:-]{1,80}", request_id) else None)
             return await inner(scope, receive, send)
         db.request_is_kernel.set(False)
+        db.request_consumer.set(None)
+        db.request_consumer_agent.set(None)
+        db.request_kernel_request_id.set(None)
         ctx = await db.resolve_token(pool, token) if token else None
         if ctx is None and token and db.verify_run_token(token) is not None:
             # An agent's first contact: the mirror has the agent but no admission yet. The kernel's
@@ -157,3 +193,13 @@ def make_app(mcp: FastMCP, db_user_key: str, db_pw_key: str, endpoint_name: str)
 
 def run(mcp: FastMCP, db_user_key: str, db_pw_key: str, port: int, endpoint_name: str) -> None:
     uvicorn.run(make_app(mcp, db_user_key, db_pw_key, endpoint_name), host="127.0.0.1", port=port, log_level="info")
+
+
+async def run_context() -> dict:
+    """What a tool needs to know about the run behind this call (the kernel's run-facts, cached per run): {run_id, request_id, is_eval}. A person's own token has no run."""
+    token = db.request_token.get()
+    verified = db.verify_run_token(token) if token else None
+    if verified is None:
+        return {"run_id": None, "request_id": None, "is_eval": False}
+    facts = await run_facts(token) or {}
+    return {"run_id": verified[1], "request_id": facts.get("request_id"), "is_eval": bool(facts.get("is_eval"))}
