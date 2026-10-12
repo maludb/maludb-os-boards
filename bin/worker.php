@@ -13,10 +13,10 @@ declare(strict_types=1);
  * With --passes the named passes run whether or not they are due; without it every pass runs. BD_WORKER_NOW (ISO 8601) replaces the clock
  * a pass selects by; honoured only when APP_ENV is not prod. Exits 1 when a pass failed.
  *
- * PHASE 0: every pass but `key_usage_prune` is a STUB that changes nothing and answers 0 — the slice whose data it touches fills it in
+ * PHASE 0: every pass but `key_usage_prune` was a STUB that changed nothing and answered 0 — the slice whose data it touches filled it in
  * (design §10): `thumbnails` slice 5's (REAL since slice 5 — with the purge of uploads never committed and of items deleted past
  * op_retention_days, their files unlinked inside the store only); `outbox` slice 6's (REAL since slice 6 — email through MaluMail, texts through K6, the digest); `versions`, `compaction` slice 7's (REAL since slice 7); `dispatches`,
- * `search_catch_up` slice 9's (REAL since slice 9); `trash` slice 10's (beside its trash_purge — Phase 1's reconciliation 7). Each stub names its slice. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
+ * `search_catch_up` slice 9's (REAL since slice 9); `trash` slice 10's (REAL since slice 10 — beside its trash_purge). No stub is left. REAL from the kit: `key_usage_prune` (bd_prune_key_usage, db/005).
  */
 if (PHP_SAPI !== 'cli') { fwrite(STDERR, "CLI only.\n"); exit(1); }
 require_once dirname(__DIR__) . '/app/bootstrap.php';
@@ -75,7 +75,7 @@ echo json_encode($report, JSON_UNESCAPED_SLASHES) . "\n";
 $pdo->query("SELECT pg_advisory_unlock(hashtext('boards_worker'))");
 exit($report['errors'] === [] ? 0 : 1);
 
-// ---- the passes (stubs until their slice) ------------------------------------------------------------------------------------------
+// ---- the passes (all real since slice 10) ------------------------------------------------------------------------------------------
 
 /** SLICE 7 (history-versions.md) — a board that changed since its last interval version, at most hourly while active: one `interval` version (board_versions); interval versions past interval_version_days thinned to one a day, those past daily_version_days deleted; named versions never. app/features/history/write.php. */
 function worker_pass_versions(PDO $pdo, int $limit, DateTimeImmutable $now): array
@@ -139,8 +139,28 @@ function worker_pass_thumbnails(PDO $pdo, int $limit, DateTimeImmutable $now): a
     $gone = purge_deleted_items($pdo);
     return ['made' => $made, 'orphans' => $orphans, 'purged_items' => $gone['purged_items'], 'files_removed' => $gone['files_removed']];
 }
-/** SLICE 10 — boards in the trash longer than trash_days: purged with their items, ops, versions, comments and files. */
-function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array { return ['purged' => 0, 'stub' => 'slice 10']; }
+/**
+ * SLICE 10 (home-admin.md) — boards in the trash longer than trash_days (bd_trash_due()): each purged with its items, ops, versions, comments and files — the worker acts as no member, and
+ * a file leaves the disk only through unlink_paths() (inside the store). One `trash.purge` row (source cron) a board. app/features/admin/write.php.
+ */
+function worker_pass_trash(PDO $pdo, int $limit, DateTimeImmutable $now): array
+{
+    require_once dirname(__DIR__) . '/app/features/canvas/write.php';
+    require_once dirname(__DIR__) . '/app/features/admin/write.php';
+    // bd_trash_due()'s rule at the pass's clock (BD_WORKER_NOW in a proof): deleted longer ago than trash_days
+    $st = $pdo->prepare("SELECT id::text FROM boards WHERE deleted_at < CAST(:now AS timestamptz) - make_interval(days => bd_setting_int('trash_days')::int) ORDER BY deleted_at, id LIMIT " . max(1, $limit));
+    $st->execute(['now' => $now->format('Y-m-d H:i:s.uP')]);
+    $store = bd_storage_dir($pdo);
+    $purged = $removed = $left = 0;
+    foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $board) {
+        $r = trash_purge($pdo, (string) $board, $store);
+        log_activity($pdo, 'trash.purge', 'board', null, ['source' => 'cron', 'actor_member_id' => null, 'board_id' => (string) $board, 'after' => $r]);
+        $purged++;
+        $removed += $r['files_removed'];
+        $left += $r['files_left'];
+    }
+    return ['purged' => $purged, 'files_removed' => $removed, 'files_left' => $left];
+}
 /** SLICE 7 — board_ops older than op_retention_days: a `compaction` version at the cut, then the rows go (design §6.3, D6). Once a night, at 03:xx in the business's time zone. */
 function worker_pass_compaction(PDO $pdo, int $limit, DateTimeImmutable $now): array
 {

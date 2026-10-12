@@ -948,3 +948,12 @@ The open questions:
 - **2026-10-11: SLICE 9 — AGENTS, SEARCH AND THE SIBLINGS — BUILT AND PROVEN** (Sonnet 5.5 worker; `docs/build-specs/agents-search.md` "Built and proven"): **db/018** — the dispatch loop's functions (`bd_thread_text`, `bd_dispatches_due`/`_running`/`_waiting`, `bd_dispatch_record`: the placeholder, the reply as one comment, the backoff 2, 4, 8, 16 minutes over five calls, who is told — all the database's); the worker's `dispatches` pass real (Spaces' loop ported: one chat turn as the agent, the asker acting; a run polled, an approval wait polled, a refusal in the kernel's words, a failure told once); `items_arrange` (grid, column, row, cluster — one `bd_commit_ops()` batch over `bd_layout()`, in a frame that grows or where the items stand); one search across boards, items and comments (templates left out) with the catch-up pass real; the admin's agents and dispatches pages with Retry; the two K7 shares' SQL proven as the Facilitator. `tests/phase3/slice9/run.sh` **226 checks under php -S**, then every earlier suite. Found: a pass's clock needs its microseconds; `ts_headline` drops typed markup. Retry keeps the attempts, so a retried dispatch that fails again fails for good at once.
 
   **NEXT:** slices 1–9 are built → Sonnet 5.5 workers for slice 10 and Phase 4 (D16), each verified by the planning model.
+
+- **2026-10-12: SLICE 10 — HOME, ADMIN AND SETTINGS (THE LAST) — BUILT AND PROVEN** (`docs/build-specs/home-admin.md` "Built and proven"), by a Sonnet 5.5
+  worker: the home (Recent, Favourites, Shared with me, Team folders — eight cards each, See all —, the mentions line, a first run with the six shipped
+  templates, no New buttons for a Viewer); the admin's page with each section shown to its own right (Usage, the trash with Restore and Purge now,
+  Agents, Most active this month, Settings); usage against the budget (cards on a phone, a table on a desktop, amber past the soft budget and red within
+  10 % of the hard cap, the owner who has left with Transfer); the settings form checked with the CHECKs' numbers and the database the referee;
+  `trash_purge` (`bd_board_purge()`, files unlinked only through `unlink_paths()`) and the worker's `trash` pass — the last stub. No migration.
+  `tests/phase3/slice10/run.sh` 220 checks under php -S and under Apache; every earlier suite green. **PHASE 3 COMPLETE: the registry reads 26/26 screens and
+  45/45 actions built, no placeholder and no worker stub left.**

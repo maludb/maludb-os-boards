@@ -96,9 +96,13 @@ foreach ($left as [$u, $screen, $slice]) {
 ok($bad === [], 'the ' . count($left) . ' placeholders still owed answer 200 to a person: the shell, one card "Built by slice N — what it will do", the screen stamped' . ($bad ? ' — wrong: ' . implode(', ', $bad) : ''));
 ok($badJson === [], '…and 501 not_built to JSON, naming the slice' . ($badJson ? ' — wrong: ' . implode(', ', $badJson) : ''));
 $plain = array_values(array_filter($left, static fn (array $p): bool => !str_contains($p[0], $board) && $p[0] !== '/'));
-[$pu, , $ps] = $plain[0] ?? ['/templates', '', 8];
-$r = req('POST', $pu, ['jar' => str_starts_with($pu, '/admin') ? $jars[27] : $jars[26], 'form' => ['csrf_token' => page_csrf($jars[26])]]);
-ok($r['code'] === 501 && str_contains($r['body'], 'Built by slice ' . $ps), "a POST to a placeholder ($pu): 501, in words");
+[$pu, , $ps] = $plain[0] ?? ['', '', 0];
+if ($pu === '') {
+    ok(true, 'no placeholder is left (slice 10 built the last): nothing to POST to');
+} else {
+    $r = req('POST', $pu, ['jar' => str_starts_with($pu, '/admin') ? $jars[27] : $jars[26], 'form' => ['csrf_token' => page_csrf($jars[26])]]);
+    ok($r['code'] === 501 && str_contains($r['body'], 'Built by slice ' . $ps), "a POST to a placeholder ($pu): 501, in words");
+}
 $r = page($jars[26], '/templates', ['headers' => ['HX-Request: true']]);
 ok(!$isStub('templates/index.php') || ($r['code'] === 200 && str_contains($r['body'], 'id="nav-stub"') && !str_contains($r['body'], '<html') && preg_match('/^HX-Title: Templates/mi', $r['headers']) === 1 && preg_match('/^X-Screen: templates\r?$/mi', $r['headers']) === 1),
     'over HTMX a placeholder is the partial with HX-Title and X-Screen, so the highlight and the command bar follow');
@@ -163,10 +167,10 @@ ok($wrc === 0 && count($rep['ran'] ?? []) === 8 && isset($rep['ran']['key_usage_
 $stubs = array_filter($rep['ran'] ?? [], static fn ($x) => isset($x['stub']));
 // the passes still stubs are those bin/worker.php still marks so (it follows what is built: slice 5 made `thumbnails` real)
 $owed = substr_count((string) file_get_contents(dirname(__DIR__, 2) . '/bin/worker.php'), "'stub' => 'slice ");
-ok(count($stubs) === $owed && $owed >= 1 && array_filter($stubs, static fn ($x) => !preg_match('/^slice \d+$/', (string) $x['stub'])) === []
-   && ($rep['ran']['trash']['stub'] ?? '') === 'slice 10' && (($rep['ran']['versions']['stub'] ?? '') === 'slice 7' || isset($rep['ran']['versions']['saved']))
+ok(count($stubs) === $owed && array_filter($stubs, static fn ($x) => !preg_match('/^slice \d+$/', (string) $x['stub'])) === []
+   && (($rep['ran']['trash']['stub'] ?? '') === 'slice 10' || isset($rep['ran']['trash']['purged'])) && (($rep['ran']['versions']['stub'] ?? '') === 'slice 7' || isset($rep['ran']['versions']['saved']))
    && (($rep['ran']['thumbnails']['stub'] ?? '') === 'slice 5' || isset($rep['ran']['thumbnails']['made'])),
-    "the passes not built yet are stubs naming their slice ($owed: trash 10, versions 7, …; thumbnails real since slice 5, versions and compaction since slice 7)");
+    "the passes not built yet are stubs naming their slice ($owed; none since slice 10: trash real, thumbnails since slice 5, versions and compaction since slice 7)");
 ok(count(activity('worker.pass', $before)) === 1 && (int) one('SELECT count(*) FROM worker_passes') >= 1, 'the pass is logged as worker.pass and kept in worker_passes');
 $h = req('GET', '/api/v1/health');
 $hb = body_json($h);

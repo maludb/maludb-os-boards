@@ -131,3 +131,15 @@ of the activity log; usage charts over time.
 
 ## Open questions
 None.
+
+## Built and proven (2026-10-12)
+Built by a Sonnet 5.5 worker: the home (`html/index.php`, `app/features/home/`, `app/views/home/`) — Recent, Favourites, Shared with me and Team folders at most eight cards each with See all, the mentions line, the first run with the six shipped templates, no New buttons for a Viewer; the admin's page, usage, settings and the two handlers (`html/admin/{index,usage,settings,settings-save,trash-purge}.php`, `app/features/admin/`, `app/views/admin/`); the worker's `trash` pass real (the last stub — no placeholder and no worker stub is left). The registry reads 26/26 screens and 45/45 actions built.
+**Proven** (`tests/phase3/slice10/run.sh`, scratch `bd_dev10`): under php -S home 29, admin 38, settings 43, purge 30, json 29, browser 51 (220), and the same under Apache; then slice 9's suite and through it every earlier one, green on both.
+**Found and fixed**: nothing in the schema (no migration). Phase 2's shell and browser suites asserted the home, the admin page and worker stubs unbuilt; they follow the source now (a zero owed is a pass).
+**Decisions taken here (within the spec)**
+- The worker's pass selects `deleted_at < $now - trash_days` itself (bd_trash_due()'s rule at the pass's clock) so BD_WORKER_NOW is honoured; one `trash.purge` row (source cron) a board.
+- `trash_purge()` does its own transaction, unlinks only after the commit through `unlink_paths()`; `files_left` counts paths still on disk (outside the store). The `$storageDir` argument serves only that count.
+- Usage leaves every template (not only the shipped ones) out; Restore on the admin's page is shown to anyone who sees the trash, Purge now to `trash.purge` holders (a purge by a non-admin is the database's 403).
+- Live off is proven by the mount carrying no `data-ticket`, the ticket door answering `live: false` and the island's poll interval: `data-live` is set by the island (`live`/`polling`), not by the server.
+- New board / New from template sit in the page body, not the header (375 px); first run shows the same buttons with the templates.
+- The proofs' browser world is made after the PHP proofs (seed.php clears the scratch database's boards first).

@@ -61,9 +61,11 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   ok(tabs.join(',') === 'Home,Boards,Search,Me', `four tabs: ${tabs.join(', ')}`);
   const small = await smallControls(page, '#tab-bar');
   ok(small.length === 0, 'every tab is at least 44 x 44 px' + (small.length ? ': ' + small.join(', ') : ''));
-  ok(await shown(page, '#nav-stub') && (await page.locator('#nav-stub-line').innerText()).startsWith('Built by slice 10'), 'the home is slice 10\'s placeholder');
-  const btn = await page.locator('#home-boards-link').boundingBox();
-  ok(btn.height >= 44 && btn.x >= 0 && btn.x + btn.width <= 375, `its one live link, Boards, is ${Math.round(btn.height)} px tall and inside the screen`);
+  const homeStub = fs.readFileSync(new URL('../../html/index.php', import.meta.url), 'utf8').includes('render_nav_stub(');       // slice 10 built the home: the page stands in for the placeholder
+  ok(homeStub ? (await shown(page, '#nav-stub') && (await page.locator('#nav-stub-line').innerText()).startsWith('Built by slice 10')) : await shown(page, '#home-content'),
+    homeStub ? 'the home is slice 10\'s placeholder' : 'the home (slice 10) is there');
+  const btn = await page.locator(homeStub ? '#home-boards-link' : '#home-new-board').boundingBox();
+  ok(btn.height >= 44 && btn.x >= 0 && btn.x + btn.width <= 375, `its one live link, ${homeStub ? 'Boards' : 'New board'}, is ${Math.round(btn.height)} px tall and inside the screen`);
   ok((await page.locator('#header-role-badge').innerText()).includes('Member'), 'the header badge reads Member');
   ok(await shown(page, '#header-search-link') && !(await shown(page, '#header-search')), 'on a phone the header carries the search magnifier, not the box');
   await page.screenshot({ path: `${SHOTS}/phone-home.png` });
@@ -149,7 +151,8 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   await page.click('#nav-admin .nxl-link');
   await page.waitForURL(BASE + '/admin');
   await page.waitForSelector('#admin-content');
-  ok((await page.locator('#nav-stub-line').innerText()).includes('Built by slice 10'), 'Admin: slice 10\'s placeholder');
+  const adminStub = fs.readFileSync(new URL('../../html/admin/index.php', import.meta.url), 'utf8').includes('render_nav_stub(');
+  ok(adminStub ? (await page.locator('#nav-stub-line').innerText()).includes('Built by slice 10') : (await page.locator('#admin-section-usage').count()) === 1, adminStub ? 'Admin: slice 10\'s placeholder' : 'Admin: the page (slice 10) is there');
   await page.goBack();
   await page.waitForURL(BASE + '/templates');
   ok((await page.title()).startsWith('Templates'), 'the browser back button returns to Templates');
@@ -195,7 +198,7 @@ const smallControls = (page, scope) => page.evaluate((s) => [...document.querySe
   ok(bad.length === 0, `all ${pages.length} placeholders still owed render whole without JavaScript` + (bad.length ? ': ' + bad.join(', ') : ''));
   await page.goto(BASE + '/', { waitUntil: 'load' });
   ok((await page.locator('#tab-boards').getAttribute('href')) === '/boards' && (await page.locator('#tab-me').getAttribute('href')) === '/activity', 'the tabs are plain links (Me opens My trail)');
-  ok((await page.locator('#header-search-form').getAttribute('action')) === '/search' && (await page.locator('#home-boards-link').getAttribute('href')) === '/boards', 'the search box is a plain GET form; the home\'s link is a plain link');
+  ok((await page.locator('#header-search-form').getAttribute('action')) === '/search' && (await page.locator(fs.readFileSync(new URL('../../html/index.php', import.meta.url), 'utf8').includes('render_nav_stub(') ? '#home-boards-link' : '#home-new-board').getAttribute('href')) === (fs.readFileSync(new URL('../../html/index.php', import.meta.url), 'utf8').includes('render_nav_stub(') ? '/boards' : '/boards/new'), 'the search box is a plain GET form; the home\'s link is a plain link');
   await ctx.close();
 }
 

@@ -56,6 +56,8 @@ the visits, and the worker's interval-version and compaction passes — `tests/p
 
 **Slice 9, agents, search and the siblings, is built and proven** (2026-10-11): a mention of an agent is answered — the worker turns each dispatch into one turn of the kernel's chat endpoint as that agent, a run still going shown as "… is working…" and polled, an approval pause said in the thread, a refusal shown in the kernel's words, a failure backed off and told once —, `items_arrange` (grid, column, row, cluster), one search across boards, items and comments, the admin's agents and dispatches pages (Retry), the search catch-up and the two K7 shares' SQL — `tests/phase3/slice9/run.sh` (db/018).
 
+**Slice 10, home, admin and settings, is built and proven** (2026-10-12; the last slice): the home (recent, favourites, shared, team folders, mentions, first run), the admin's page by right, usage against the budget, the settings, Purge now and the worker's trash pass — no placeholder and no worker stub is left, 26/26 screens and 45/45 actions built — `tests/phase3/slice10/run.sh` (no migration).
+
 Next: slice 10 and Phase 4 (Sonnet 5.5 workers, design D16).
 
 Proofs (scratch databases `bd_*` only): `tests/phase0/schema.sh` (the schema) and `tests/phase0/run.sh` (the kit and the

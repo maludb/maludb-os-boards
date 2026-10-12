@@ -1,6 +1,6 @@
 {
     "generated_from": "docs/boards-action-manifest.md",
-    "generated_at": "2026-10-11T23:29:36+00:00",
+    "generated_at": "2026-10-12T01:23:25+00:00",
     "screens": {
         "activity": {
             "screen": "activity",
@@ -242,8 +242,8 @@
             "section": "Home, admin and settings (slice 10)",
             "when": "the start: recent boards, favourites, shared with me, team folders, New board and New from template",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "admin": {
             "screen": "admin",
@@ -251,8 +251,8 @@
             "section": "Home, admin and settings (slice 10)",
             "when": "the admin's page: usage against the budget, the trash, the agents, the settings",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "admin-usage": {
             "screen": "admin-usage",
@@ -263,8 +263,8 @@
                 "sort",
                 "idle_days"
             ],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         },
         "admin-settings": {
             "screen": "admin-settings",
@@ -272,8 +272,8 @@
             "section": "Home, admin and settings (slice 10)",
             "when": "the defaults: a new board's everyone level, the limits, retention, the trash's days, live updates on or off",
             "params": [],
-            "built": false,
-            "stub": true
+            "built": true,
+            "stub": false
         }
     },
     "actions": {
@@ -1775,7 +1775,7 @@
             "who": "settings.manage",
             "agent": true,
             "record_id": "the settings",
-            "built": false
+            "built": true
         },
         "trash_purge": {
             "action": "trash_purge",
@@ -1796,7 +1796,7 @@
             "who": "trash.purge",
             "agent": false,
             "record_id": "the board",
-            "built": false
+            "built": true
         }
     }
 }
